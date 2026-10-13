@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>IGNIS · Animated architecture walkthrough</title>
+<style>
+:root{color-scheme:dark;--page:#0c131b;--surface:#131e29;--raised:#1a2836;--text:#e9f0f6;--muted:#acbdce;--line:#344b60;--border:#2d4052;--sensor:#72d4ec;--log:#f5bc79;--maintenance:#bca3f5;--knowledge:#92ddb0;--alert:#fa9191;--active:#8ddbb8;--shadow:rgba(0,0,0,.2)}
+html[data-theme="light"]{color-scheme:light;--page:#f4f7fa;--surface:#fff;--raised:#eaf0f5;--text:#182b3d;--muted:#50667b;--line:#b6c5d2;--border:#c9d6e0;--sensor:#08758c;--log:#9a5909;--maintenance:#7350b5;--knowledge:#277342;--alert:#b73442;--active:#24734f;--shadow:rgba(25,50,70,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.42}button:focus-visible,select:focus-visible{outline:3px solid var(--sensor);outline-offset:4px}button,select{color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 13px;min-height:40px}button:hover:not(:disabled){background:var(--raised)}[hidden]{display:none!important}.primary{background:var(--active);color:var(--page);border-color:var(--active);font-weight:650}.primary:hover:not(:disabled){background:var(--active);filter:brightness(1.08)}.shell{max-width:1536px;margin:auto;padding:34px 30px 24px}.masthead{display:flex;justify-content:space-between;align-items:start;gap:20px}.eyebrow{color:var(--knowledge);letter-spacing:.17em;font-size:11px;font-weight:650;text-transform:uppercase}h1{font-size:clamp(24px,2.7vw,37px);line-height:1.2;letter-spacing:-.03em;font-weight:600;margin:8px 0 10px}.intro{color:var(--muted);margin:0;max-width:850px}.status-label{display:inline-flex;gap:7px;align-items:center;color:var(--muted);font-size:12px;margin-top:14px}.status-label:before{content:"";width:7px;height:7px;background:var(--log);border-radius:50%}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:17px 0;margin:18px 0 0;border-top:1px solid var(--border)}.toolbar label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.toolbar .spacer{flex:1}.transport{display:flex;gap:7px}.transport button{min-width:76px}.stage-heading{display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center;margin:8px 0 12px}.stage-heading h2{font-size:18px;font-weight:550;margin:0}.stage-heading span{color:var(--muted);font-size:12px}.track{height:3px;background:var(--raised);margin-bottom:19px}.track span{display:block;width:0;height:100%;background:var(--active);transition:width .2s}.legend{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:23px;font-size:12px;color:var(--muted)}.legend span{display:flex;align-items:center;gap:7px}.legend i{width:8px;height:8px;border-radius:50%;background:var(--kind)}.diagram{position:relative;isolation:isolate}.architecture{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:38px}.lane{min-width:0;position:relative}.lane-header{height:67px;display:flex;align-items:start;gap:9px}.lane-header .num{font-size:11px;border:1px solid var(--border);border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0;margin-top:1px;color:var(--muted)}.lane-header h3{font-size:14px;font-weight:550;margin:0}.lane-header p{font-size:11px;color:var(--muted);margin:2px 0 0}.lane-nodes{display:grid;grid-template-rows:repeat(4,108px);gap:29px}.node{position:relative;z-index:2;background:var(--surface);color:var(--text);border:1px solid var(--border);padding:12px;text-align:left;min-width:0;border-radius:10px;box-shadow:0 5px 14px var(--shadow);display:flex;flex-direction:column;justify-content:center;gap:5px;transition:background .2s,border-color .2s,box-shadow .2s}.node strong{font-size:13px;font-weight:600;line-height:1.3}.node .sub{font-size:11px;line-height:1.35;color:var(--muted)}.node .value{font-size:11px;line-height:1.35;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}.node.active{border-color:var(--active);background:color-mix(in srgb,var(--active) 10%,var(--surface));box-shadow:0 0 0 3px color-mix(in srgb,var(--active) 13%,transparent)}.node.selected{outline:2px solid var(--text);outline-offset:3px}.node.done:after{content:"✓";position:absolute;right:8px;top:5px;font-size:11px;color:var(--knowledge)}.node.blocked{border-color:var(--alert);background:color-mix(in srgb,var(--alert) 8%,var(--surface))}.node.gate{border-style:dashed}.node small{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}.wires{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1;pointer-events:none}.wire{stroke:var(--line);stroke-width:1.3;fill:none;opacity:.56}.wire.active{stroke:var(--kind);stroke-width:2.2;opacity:1}.particle{fill:var(--kind);stroke:var(--surface);stroke-width:2}.particle-ring{fill:var(--kind);opacity:.16}.below{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:25px;margin-top:27px}.story,.detail{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:19px 21px;min-width:0}.story-head{display:flex;align-items:center;gap:10px}.story-head .step{color:var(--knowledge);font-size:12px;white-space:nowrap}h4{font-size:15px;font-weight:600;margin:0}.story p{font-size:13px;color:var(--muted);margin:10px 0 0}.packet-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}.packet-tag{padding:5px 8px;background:var(--raised);border-radius:5px;font-size:11px;color:var(--text);border-left:3px solid var(--kind)}.gate-box{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.gate-box span{font-size:12px;color:var(--muted)}.detail .kicker{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px}.detail dl{display:grid;grid-template-columns:53px 1fr;gap:8px 10px;font-size:12px;margin:13px 0 0}.detail dt{color:var(--muted)}.detail dd{margin:0;overflow-wrap:anywhere}.footer{margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11px}.footer a{color:var(--muted)}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.badge{padding:3px 8px;border-radius:4px;background:var(--raised);font-size:11px;color:var(--muted);white-space:nowrap}
+@media(max-width:1120px){.architecture{grid-template-columns:1fr;gap:44px}.lane{display:grid;grid-template-columns:145px minmax(0,1fr);gap:16px}.lane-header{height:auto}.lane-nodes{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;gap:19px}.node{grid-row:auto!important;min-height:101px}.below{grid-template-columns:1fr}.diagram{margin-top:8px}.shell{padding:24px}.toolbar{gap:8px}.toolbar .spacer{display:none}.lane-header p{max-width:100px}}
+@media(max-width:540px){.shell{padding:20px 16px}.masthead{flex-wrap:wrap}.masthead>button{padding:6px 10px;min-height:34px}.toolbar{margin-top:14px}.lane{grid-template-columns:1fr;gap:13px}.lane-header{gap:9px}.lane-header p{max-width:none}.lane-nodes{gap:16px}.node{padding:10px;min-height:112px}.architecture{gap:40px}.legend{gap:11px;font-size:11px}.stage-heading{grid-template-columns:1fr}.stage-heading span{display:none}.story,.detail{padding:16px}.toolbar label{flex-wrap:wrap}.toolbar select{max-width:100%;font-size:16px}.transport{width:100%}.transport button{flex:1;min-width:0}.node strong{font-size:12px}.footer{font-size:11px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}.track span{transition:none}}
+</style>
+</head>
+<body>
+<main class="shell" id="ignis-flow">
+  <header class="masthead">
+    <div><div class="eyebrow">IGNIS / system architecture</div><h1>Follow the evidence.</h1><p class="intro">Four source streams become machine-condition facts, linked knowledge and checked maintenance reports.</p><div class="status-label">Proposed system · synthetic walkthrough · no factory or model connection</div></div>
+    <button id="theme" type="button" aria-label="Switch to light theme">Light theme</button>
+  </header>
+  <div class="toolbar" aria-label="Walkthrough controls">
+    <div class="transport"><button class="primary" id="play" type="button">Play</button><button id="next" type="button">Next step</button><button id="replay" type="button">Replay</button></div>
+    <label for="speed">Speed <select id="speed"><option value="0.65">Slow</option><option value="1" selected>Normal</option><option value="1.7">Fast</option></select></label>
+    <span class="spacer"></span>
+    <label for="claim">Claim example <select id="claim"><option value="supported">Supported: 2 bearing records</option><option value="unsupported">Unsupported: 3 bearing records</option></select></label>
+  </div>
+  <div class="stage-heading"><h2 id="stage-title">Sources are ready</h2><span id="stage-position">Step 1 of 12</span></div>
+  <div class="track" role="progressbar" aria-label="Walkthrough progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><span id="progress"></span></div>
+  <div class="gate-box" id="gate-box" hidden><button class="primary" id="gate-action" type="button"></button><span id="gate-description"></span></div>
+  <div class="legend" aria-label="Moving-packet categories"><span style="--kind:var(--sensor)"><i></i>Sensor facts</span><span style="--kind:var(--log)"><i></i>Machine events</span><span style="--kind:var(--maintenance)"><i></i>Maintenance records</span><span style="--kind:var(--knowledge)"><i></i>Knowledge &amp; checked evidence</span></div>
+  <div class="diagram" id="diagram" aria-label="Six-layer architecture with animated data packets">
+    <svg class="wires" id="wires" aria-hidden="true"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line)"></path></marker></defs><g id="edge-paths"></g><g id="particles"></g></svg>
+    <div class="architecture" id="architecture"></div>
+  </div>
+  <div class="below">
+    <section class="story" aria-label="Current data transformation">
+      <div class="story-head"><span class="step" id="story-step">01 / 12</span><h4 id="story-title">Sources are ready</h4></div>
+      <p id="story-body">A fictional pump supplies sensor readings and log events. Four work orders and synthetic operating guidance provide context.</p>
+      <div class="packet-list" id="packet-list"></div>
+      <div class="sr-only" id="announcement" aria-live="polite"></div>
+    </section>
+    <section class="detail" aria-label="Selected component details"><div class="kicker">Select any block to inspect its role</div><h4 id="detail-title">Sensor stream</h4><dl><dt>Input</dt><dd id="detail-input"></dd><dt>Does</dt><dd id="detail-does"></dd><dt>Output</dt><dd id="detail-output"></dd></dl></section>
+  </div>
+  <footer class="footer"><span>Illustrative values and limits; no diagnostic performance claimed. KAG here means a knowledge-graph approach.</span><span>Source: <a href="../docs/ARCHITECTURE.md">IGNIS architecture</a> · 13 October 2026 · Offline / no dependencies</span></footer>
+  <noscript><p>This animated walkthrough requires JavaScript. The architecture source is linked above.</p></noscript>
+</main>
+<script>
+(() => {
+  'use strict';
+  const root=document.getElementById('ignis-flow');
+  const $=id=>root.querySelector('#'+id);
+  const svgNS='http://www.w3.org/2000/svg';
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const nodeData={
+    sensors:{title:'Sensor stream',sub:'Temperature · vibration · current',row:1,input:'Seeded synthetic pump signals; speed and load provide operating context.',does:'Produces time-stamped simulated readings in historical or live-style mode.',output:'Observations with sensor, machine, time, unit and synthetic-source identifiers.'},
+    logs:{title:'Machine logs',sub:'Alarms · events · mode changes',row:2,input:'Synthetic machine messages with event time and machine identity.',does:'Appends events; the reader remembers its position and handles log rotation.',output:'Original message references and parsed events, not confirmed fault diagnoses.'},
+    files:{title:'CSV / XLSX',sub:'Telemetry or work-order exports',row:3,input:'A completed export file or a changed version of a previous file.',does:'Stable-file polling or watching detects changes; hashes and row keys prevent duplicate imports.',output:'Source version and rows for mapping and classification.'},
+    docs:{title:'Guidance & registry',sub:'Documents · approved asset links',row:4,input:'Fictional operating guidance and a reviewed PUMP-01 sensor/component registry.',does:'Provides applicable document passages, sensor mounting and versioned demo-limit profiles.',output:'Knowledge with explicit machine/component applicability and provenance.'},
+    validate:{title:'Sensor / log ingestion',sub:'Time, identity, units & quality',row:1,input:'Sensor values, log messages, or telemetry/event rows from files.',does:'Validates and deduplicates data; preserves original references and gaps.',output:'Timestamped observations and validated event records.'},
+    parse:{title:'Parse & map files',sub:'Identify columns and row meaning',row:3,input:'CSV/XLSX file versions and a reviewed column mapping.',does:'Classifies rows as numeric telemetry, machine events or maintenance records.',output:'Correctly routed rows; no automatic approval of maintenance annotations.'},
+    review:{title:'Human review',sub:'Component · fault · action',row:4,input:'Model-suggested maintenance annotations and exact source spans.',does:'Supervisor corrects and approves three demo records; a fourth remains pending.',output:'Attributed approved revisions with audit history. This demonstration pauses here.'},
+    observations:{title:'Sensor & event store',sub:'Time-stamped, source-linked data',row:1,input:'Validated sensor observations and machine events.',does:'Retains event/ingestion times, stable IDs, source references and revisions.',output:'Exact numeric windows, observed event history and linked log excerpts.'},
+    history:{title:'Approved snapshots',sub:'Reviewed maintenance history',row:3,input:'Explicitly approved maintenance-record revisions.',does:'Freezes the chosen record set. Pending records do not enter approved counts.',output:'Snapshot H-01: two bearing records and one belt record.'},
+    condition:{title:'Condition engine',sub:'Code computes windowed facts',row:1,input:'Observation window S-01 and its applicable steady-load demo profile.',does:'Computes exact means and compares them with versioned fictional limits.',output:'80°C vs 70°C; vibration 6 vs 4 mm/s. Elevated signals, not a confirmed failure.'},
+    counts:{title:'Counts & triage',sub:'Deterministic historical analytics',row:2,input:'Approved snapshot H-01 and versioned triage configuration.',does:'Counts distinct approved records. Historical triage remains separate from recent condition.',output:'Three approved records: bearing = 2; belt = 1. No triage score is invented here.'},
+    graph:{title:'Knowledge graph',sub:'Assets, relationships & scope',row:3,input:'Reviewed sensor mounting, applicable guidance and asset-linked history/events.',does:'Connects PUMP-01, BEARING-01, its sensors, applicable profiles and supporting records.',output:'Provenance-bearing graph paths and asset/model/time filters for retrieval.'},
+    rag:{title:'RAG retrieval',sub:'Relevant text + graph filters',row:4,input:'Document passages, approved work orders and validated log excerpts.',does:'Keyword/vector retrieval is constrained to applicable assets, components and source versions.',output:'Cited guidance, similar history and event context. Similarity is not an exact count.'},
+    pack:{title:'Evidence pack',sub:'Pin the facts and source versions',row:2,input:'Condition facts, exact counts, retrieved passages and graph paths.',does:'Freezes the window/snapshot/graph/index versions at one as-of time.',output:'Evidence E-01: S-01 + H-01 + graph G-01 + guidance D-01.'},
+    agent:{title:'Explanation agent',sub:'Grounded words, not new numbers',row:3,input:'Bounded evidence E-01, typed values and permitted citations.',does:'Explains observed condition and history; suspected causes stay labeled as hypotheses.',output:'A draft explanation with claims bound to the evidence. No real LLM is called.'},
+    checker:{title:'Claim checker',sub:'Values, units, citations & context',row:4,input:'Draft claims and supporting facts in E-01.',does:'Checks value, metric, machine, unit, time scope and cited support. Rejects mismatches.',output:'Two bearing records passes. Three bearing records fails because three is the total.'},
+    dashboard:{title:'Supervisor dashboard',sub:'Condition · timeline · history',row:1,input:'Computed condition/counts and checked contextual explanations.',does:'Shows current observations separately from historical triage and unconfirmed hypotheses.',output:'Elevated simulated signals, evidence references, source freshness and checked explanations.'},
+    signoff:{title:'Report sign-off',sub:'Supervisor reviews the evidence',row:3,input:'A validated report draft and its pinned source references.',does:'A person reviews the report before issuance. This demonstration pauses for approval.',output:'An attributed report approval; there are no equipment-control commands.'},
+    report:{title:'Technical report',sub:'Approved, evidence-linked PDF',row:4,input:'Valid claims, evidence E-01 and supervisor sign-off.',does:'The proposed renderer creates a report with observation and source references.',output:'Conceptual report ready. This animation does not generate an actual PDF.'},
+    export:{title:'Coded export',sub:'Approved CSV / XLSX records',row:2,input:'Approved work-order snapshot H-01.',does:'Makes the reviewed component/fault/action records available as an export.',output:'Three approved rows. Exported formulas require safe handling in implementation.'}
+  };
+  const lanes=[
+    ['01','Sources','Historical + simulated live',['sensors','logs','files','docs']],
+    ['02','Preparation','Validate, classify, review',['validate','parse','review']],
+    ['03','Evidence stores','Retain provenance & versions',['observations','history']],
+    ['04','Analysis & knowledge','CPU facts · RAG · graph',['condition','counts','graph','rag']],
+    ['05','Explain & check','Pinned evidence → checked draft',['pack','agent','checker']],
+    ['06','Workspace','View, review and report',['dashboard','export','signoff','report']]
+  ];
+  for(const [num,title,subtitle,ids] of lanes){
+    const lane=document.createElement('section');lane.className='lane';lane.setAttribute('aria-label',title);
+    const header=document.createElement('header');header.className='lane-header';header.innerHTML='<span class="num">'+num+'</span><div><h3>'+title+'</h3><p>'+subtitle+'</p></div>';
+    const list=document.createElement('div');list.className='lane-nodes';
+    for(const id of ids){const n=nodeData[id],b=document.createElement('button');b.type='button';b.className='node';b.dataset.node=id;b.style.gridRow=n.row;b.setAttribute('aria-pressed','false');b.innerHTML='<strong>'+n.title+'</strong><span class="sub">'+n.sub+'</span><span class="value" data-value="'+id+'"></span>';list.appendChild(b);}
+    lane.append(header,list);$('architecture').appendChild(lane);
+  }
+  const edges=[['sensors','validate'],['logs','validate'],['files','parse'],['parse','review'],['parse','validate'],['validate','observations'],['review','history'],['observations','condition'],['history','counts'],['history','graph'],['history','rag'],['docs','graph'],['docs','rag'],['observations','graph'],['observations','rag'],['graph','rag'],['condition','pack'],['counts','pack'],['graph','pack'],['rag','pack'],['pack','agent'],['agent','checker'],['checker','dashboard'],['checker','signoff'],['condition','dashboard'],['counts','dashboard'],['signoff','report'],['history','export']];
+  const edgeMap=new Map();
+  for(const [from,to] of edges){const id=from+'>'+to,path=document.createElementNS(svgNS,'path');path.classList.add('wire');path.dataset.edge=id;path.setAttribute('marker-end','url(#arrow)');$('edge-paths').appendChild(path);edgeMap.set(id,path);}
+  const flow=(route,kind,label)=>({route,kind,label});
+  const stages=[
+    {title:'Four streams, one fictional pump',focus:['sensors','logs','files','docs'],body:'PUMP-01 supplies simulated signals and alarms. Four work orders and fictional guidance provide history and context; no actual factory system is connected.',tags:[['sensor','PUMP-01 · 80°C · 6 mm/s'],['log','EVENT-01 · temperature alarm'],['maintenance','4 source records'],['knowledge','D-01 · demo guidance']],flows:[]},
+    {title:'Validate and store observations',focus:['validate','observations'],body:'Values and events keep machine IDs, event time, units and source references. Duplicate readings are ignored; an alarm is stored as an observed event, not proof of a fault.',flows:[flow(['sensors>validate','validate>observations'],'sensor','sensor observation'),flow(['logs>validate','validate>observations'],'log','machine event')]},
+    {title:'Parse the export and classify its rows',focus:['parse','review'],body:'The illustrated export contains maintenance records. Its four rows go to extraction and review. Telemetry or event rows in other exports take the ingestion route instead.',flows:[flow(['files>parse','parse>review'],'maintenance','4 maintenance rows')]},
+    {title:'A person reviews the maintenance codes',focus:['review','history'],body:'Three work orders are reviewed: two concern bearings and one concerns a belt. The fourth remains pending. Only approved revisions enter historical analytics.',gate:'history',flows:[flow(['review>history'],'maintenance','3 approved revisions')]},
+    {title:'Compute condition and historical facts',focus:['condition','counts','dashboard'],body:'Code compares the complete sensor window with fictional limits: 80°C vs 70°C, and 6 vs 4 mm/s. It separately counts three approved records: two bearing, one belt. The dashboard can show these computed facts without an LLM.',flows:[flow(['observations>condition','condition>dashboard'],'sensor','window S-01'),flow(['history>counts','counts>dashboard'],'maintenance','exact historical counts')]},
+    {title:'Build the linked knowledge context',focus:['graph','rag'],body:'Reviewed asset links connect each sensor to the correct pump component. Applicable demo guidance, approved records and observed log excerpts populate the graph and retrieval index. Source revisions remain traceable.',flows:[flow(['docs>graph'],'knowledge','applicable guidance'),flow(['docs>rag'],'knowledge','document passages'),flow(['history>graph'],'maintenance','reviewed asset history'),flow(['history>rag'],'maintenance','approved source text'),flow(['observations>graph'],'log','event identity links'),flow(['observations>rag'],'log','log excerpts')]},
+    {title:'Retrieve only applicable evidence',focus:['graph','rag'],body:'The knowledge graph supplies machine, component and document applicability filters. RAG retrieves relevant passages and approved history within that scope. A similar passage for another pump is not this pump’s operating limit.',flows:[flow(['graph>rag'],'knowledge','PUMP-01 applicability')]},
+    {title:'Freeze the evidence for this explanation',focus:['pack'],body:'E-01 pins sensor window S-01, approved history H-01, graph G-01 and guidance D-01. New incoming readings or changed files affect a later evidence pack, not this explanation’s facts.',flows:[flow(['condition>pack'],'sensor','typed condition facts'),flow(['counts>pack'],'maintenance','2 bearing records'),flow(['graph>pack'],'knowledge','verified relationship paths'),flow(['rag>pack'],'knowledge','cited source passages')]},
+    {title:'Draft words from the pinned evidence',focus:['agent'],body:'The proposed agent explains the observed elevated signals and relevant history. It receives facts and citations, not authority to invent readings or predict failure. This walkthrough uses scripted illustrative wording.',flows:[flow(['pack>agent'],'knowledge','evidence E-01')]},
+    {title:'Check every claim against its support',focus:['checker'],body:'The checker compares quantities, units, entity and time scope. A count of two bearing records is supported. Reusing the total of three as a bearing count must be blocked.',gate:'claim',flows:[flow(['agent>checker'],'knowledge','draft + bound claims')]},
+    {title:'Checked explanation; human report approval',focus:['dashboard','signoff'],body:'Checked context reaches the dashboard. The report pauses for supervisor review. Numeric condition and exact history remain distinct from hypotheses; report approval does not authorize equipment control.',gate:'report',flows:[flow(['checker>dashboard'],'knowledge','checked explanation'),flow(['checker>signoff'],'knowledge','validated report draft')]},
+    {title:'Approved report and coded records',focus:['report','export'],body:'The proposed output is an evidence-linked technical report plus approved coded records. This animation ends here; it has not run a model, produced a PDF, or verified diagnostic performance.',flows:[flow(['signoff>report'],'knowledge','approved evidence-linked report'),flow(['history>export'],'maintenance','approved coded rows')]}
+  ];
+  let state={stage:0,elapsed:0,playing:false,speed:1,historyApproved:false,reportApproved:false,claimFixed:false,selected:'sensors',claim:'supported'};
+  let frameId=0,lastTime=0;
+  const nodes=new Map([...root.querySelectorAll('[data-node]')].map(b=>[b.dataset.node,b]));
+  const duration=4300;
+  const kindVar=kind=>'var(--'+kind+')';
+  function selectNode(id){state.selected=id;const n=nodeData[id];for(const [key,b] of nodes)b.setAttribute('aria-pressed',String(key===id));for(const [key,b]of nodes)b.classList.toggle('selected',key===id);$('detail-title').textContent=n.title;$('detail-input').textContent=n.input;$('detail-does').textContent=n.does;$('detail-output').textContent=n.output;}
+  for(const [id,b]of nodes)b.addEventListener('click',()=>selectNode(id));
+  function geometry(){
+    const box=$('diagram').getBoundingClientRect();$('wires').setAttribute('viewBox','0 0 '+box.width+' '+box.height);
+    const vertical=window.innerWidth<=1120;
+    for(const [key,path]of edgeMap){const [a,b]=key.split('>'),ab=nodes.get(a).getBoundingClientRect(),bb=nodes.get(b).getBoundingClientRect();
+      let x1,y1,x2,y2,d;
+      const sameLane=nodes.get(a).closest('.lane')===nodes.get(b).closest('.lane');
+      if(sameLane){x1=ab.right-box.left-13;y1=ab.top-box.top+ab.height/2;x2=bb.right-box.left-13;y2=bb.top-box.top+bb.height/2;const bend=Math.max(ab.right,bb.right)-box.left+18;d='M '+x1+' '+y1+' C '+bend+' '+y1+', '+bend+' '+y2+', '+x2+' '+y2;}
+      else if(vertical){x1=ab.left-box.left+ab.width/2;y1=ab.bottom-box.top;x2=bb.left-box.left+bb.width/2;y2=bb.top-box.top;const mid=(y1+y2)/2;d='M '+x1+' '+y1+' C '+x1+' '+mid+', '+x2+' '+mid+', '+x2+' '+y2;}
+      else{x1=ab.right-box.left;y1=ab.top-box.top+ab.height/2;x2=bb.left-box.left;y2=bb.top-box.top+bb.height/2;const mid=(x1+x2)/2;d='M '+x1+' '+y1+' C '+mid+' '+y1+', '+mid+' '+y2+', '+x2+' '+y2;}
+      path.setAttribute('d',d);
+    }
+    paintParticles();
+  }
+  function gate(){if(state.stage===3&&!state.historyApproved)return'history';if(state.stage===9&&state.claim==='unsupported'&&!state.claimFixed)return'claim';if(state.stage===10&&!state.reportApproved)return'report';return null;}
+  function svgEl(name,attrs){const el=document.createElementNS(svgNS,name);for(const[k,v]of Object.entries(attrs))el.setAttribute(k,String(v));return el;}
+  function paintParticles(){
+    $('particles').replaceChildren();for(const path of edgeMap.values()){path.classList.remove('active');path.style.removeProperty('--kind');}
+    const stage=stages[state.stage];if(gate())return;
+    const p=Math.min(state.elapsed/duration,1);
+    for(const f of stage.flows){for(const key of f.route){const path=edgeMap.get(key);path.classList.add('active');path.style.setProperty('--kind',kindVar(f.kind));}
+      const pos=p*f.route.length,leg=Math.min(Math.floor(pos),f.route.length-1),path=edgeMap.get(f.route[leg]);if(!path||!path.getAttribute('d'))continue;
+      const fraction=pos>=f.route.length?1:pos-leg,length=path.getTotalLength(),point=path.getPointAtLength(length*fraction);
+      const g=svgEl('g',{'transform':'translate('+point.x+','+point.y+')','data-packet':f.label});g.style.setProperty('--kind',kindVar(f.kind));g.append(svgEl('circle',{r:12,class:'particle-ring'}),svgEl('circle',{r:5,class:'particle'}));$('particles').appendChild(g);
+    }
+  }
+  function values(){
+    const data={sensors:'PUMP-01 · S-01',logs:'EVENT-01',files:'4 rows · FILE-01',docs:'D-01 · G-01',validate:state.stage>=1?'Source checks applied':'',observations:state.stage>=1?'80°C · 6 mm/s · log event':'',parse:state.stage>=2?'Maintenance rows routed':'',review:state.historyApproved?'3 approved · 1 pending':state.stage>=3?'Awaiting reviewer':'',history:state.historyApproved?'H-01 · 3 approved records':'',condition:state.stage>=4?'Elevated simulated signals':'',counts:state.stage>=4?'Bearing 2 · belt 1':'',graph:state.stage>=5?'PUMP-01 → BEARING-01':'',rag:state.stage>=6?'Applicable passages selected':'',pack:state.stage>=7?'E-01 · fixed versions':'',agent:state.stage>=8?'Scripted illustrative draft':'',checker:state.stage>=9?(state.claim==='unsupported'&&!state.claimFixed?'BLOCKED · wrong bearing count':'PASS · 2 bearing records'):'',dashboard:state.stage>=10?'Facts + checked explanation':state.stage>=4?'Computed facts available':'',signoff:state.reportApproved?'Approved in walkthrough':state.stage>=10?'Awaiting report approval':'',report:state.stage===11&&state.elapsed>=duration?'Conceptual report ready':'',export:state.stage===11?'3 approved coded rows':''};
+    for(const [id,value]of Object.entries(data))root.querySelector('[data-value="'+id+'"]').textContent=value;
+  }
+  function render(){
+    const st=stages[state.stage],g=gate();
+    $('stage-title').textContent=st.title;$('stage-position').textContent='Step '+(state.stage+1)+' of '+stages.length;
+    $('story-step').textContent=String(state.stage+1).padStart(2,'0')+' / '+stages.length;$('story-title').textContent=st.title;$('story-body').textContent=st.body;
+    $('play').textContent=state.playing?'Pause':state.stage===11&&state.elapsed>=duration?'Finished':'Play';$('play').disabled=!!g||(state.stage===11&&state.elapsed>=duration);$('next').disabled=!!g||state.stage===11;
+    $('gate-box').hidden=!g;
+    if(g){$('gate-action').textContent=g==='history'?'Approve 3 reviewed records':g==='claim'?'Use the supported claim':'Approve this report';$('gate-description').textContent=g==='history'?'The fourth record stays pending.':g==='claim'?'Three is the total record count; bearing count is two.':'Illustrative approval only; no real report is issued.';}
+    $('packet-list').replaceChildren();
+    const tags=st.tags||st.flows.map(f=>[f.kind,f.label]);for(const[k,label]of tags){const tag=document.createElement('span');tag.className='packet-tag';tag.style.setProperty('--kind',kindVar(k));tag.textContent=label;$('packet-list').appendChild(tag);}
+    const done=new Set(stages.slice(0,state.stage).flatMap(s=>s.focus));
+    for(const[id,b]of nodes){b.classList.toggle('active',st.focus.includes(id));b.classList.toggle('done',done.has(id));b.classList.toggle('gate',(g==='history'&&id==='review')||(g==='report'&&id==='signoff'));b.classList.toggle('blocked',g==='claim'&&id==='checker');}
+    values();paintProgress();paintParticles();
+  }
+  function paintProgress(){const p=Math.min(state.stage+state.elapsed/duration,12);$('progress').style.width=p/12*100+'%';root.querySelector('[role="progressbar"]').setAttribute('aria-valuenow',p.toFixed(2));}
+  function announce(){const g=gate();$('announcement').textContent=stages[state.stage].title+(g?'. Waiting for '+(g==='claim'?'claim correction':'human approval')+'.':'.');}
+  function tick(now){if(!state.playing)return;const dt=lastTime?Math.min(now-lastTime,100):0;lastTime=now;state.elapsed+=dt*state.speed;paintProgress();paintParticles();if(state.elapsed>=duration){if(state.stage===stages.length-1){state.elapsed=duration;state.playing=false;render();announce();return;}state.stage++;state.elapsed=0;if(gate())state.playing=false;render();announce();}if(state.playing)frameId=requestAnimationFrame(tick);}
+  function start(){if(gate()||state.stage===11&&state.elapsed>=duration)return;state.playing=true;lastTime=0;render();cancelAnimationFrame(frameId);frameId=requestAnimationFrame(tick);}
+  function pause(){state.playing=false;cancelAnimationFrame(frameId);lastTime=0;render();}
+  $('play').addEventListener('click',()=>state.playing?pause():start());
+  $('next').addEventListener('click',()=>{if(gate()||state.stage>=11)return;pause();state.stage++;state.elapsed=0;render();announce();});
+  $('replay').addEventListener('click',()=>{pause();state={...state,stage:0,elapsed:0,historyApproved:false,reportApproved:false,claimFixed:false};render();announce();if(!reduced.matches)start();});
+  $('speed').addEventListener('change',e=>{state.speed=Number(e.target.value);});
+  $('claim').addEventListener('change',e=>{state.claim=e.target.value;state.claimFixed=false;if(state.stage>=9){pause();state.stage=9;state.elapsed=0;state.reportApproved=false;render();announce();}else render();});
+  $('gate-action').addEventListener('click',()=>{const g=gate();if(g==='history')state.historyApproved=true;if(g==='claim'){state.claimFixed=true;state.claim='supported';$('claim').value='supported';}if(g==='report')state.reportApproved=true;state.elapsed=0;render();announce();if(!reduced.matches)start();});
+  $('theme').addEventListener('click',()=>{const light=document.documentElement.dataset.theme!=='light';document.documentElement.dataset.theme=light?'light':'dark';$('theme').textContent=light?'Dark theme':'Light theme';$('theme').setAttribute('aria-label','Switch to '+(light?'dark':'light')+' theme');});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.playing)pause();});
+  reduced.addEventListener('change',()=>{if(reduced.matches)pause();});
+  new ResizeObserver(geometry).observe($('architecture'));
+  window.addEventListener('resize',geometry);
+  selectNode('sensors');render();requestAnimationFrame(geometry);
+  // The animation is finite and deliberately pauses at human approval gates.
+  // All samples, facts and model text here are scripted, synthetic examples.
+  window.ignisWalkthrough={getState:()=>({...state}),getStageCount:()=>stages.length};
+})();
+</script>
+</body>
+</html>

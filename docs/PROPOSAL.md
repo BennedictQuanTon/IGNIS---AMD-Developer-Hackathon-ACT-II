@@ -1,4 +1,20 @@
-# Project proposal: traceable maintenance intelligence
+# Project proposal: sensor-informed, traceable maintenance intelligence
+
+## Scope revision - October 13, 2026
+
+**Confirmed user direction:** combine sensor information with RAG and knowledge-graph-assisted reasoning to improve machine-state assessment; support historical and live-style inputs; demonstrate the idea using simulated data because no factory connection is available. KAG means a knowledge-graph approach here, not a commitment to OpenSPG or another framework. No application, sensor simulator, graph, retrieval system or condition model has been implemented.
+
+**Proposed first demonstration:** one motor-driven pump; bearing temperature, vibration RMS and motor current; speed/load and operating mode as context. Historical playback and simulated-live updates share a timestamped observation contract. Collect continuously and evaluate the last completed hour once per hour. Maintain separate views for measured/simulated observations, hourly condition/deviation facts, evidence-backed hypotheses and human-reviewed conclusions. Select sampling/feature-bucket/coverage settings and fictional demo limits explicitly before implementing; do not present them as industrial standards.
+
+**Confirmed combined scope:** retain the previous maintenance-record workflow and continuously read machine logs plus incoming/updated CSV/XLSX exports alongside sensors. Route each source by its meaning: numeric telemetry, observed machine events or maintenance records. Use one reviewed asset registry, versioned graph and RAG pipeline for context, with exact calculations and human-approved historical records as their respective factual sources. Demonstrate with synthetic logs and a watched/polled demo export location. Checkpoint, deduplicate and preserve changed-row revisions; reports freeze source versions and as-of time. Historical triage, current condition, bounded questions, checked reports and approved coded exports belong to the combined target design; triage scoring remains provisional and Evolus remains an optional integration decision.
+
+**Confirmed hourly feedback loop:** collect continuously; once each hour compare that completed hour with eligible earlier healthy history under matching asset/load/speed conditions. Meaningful deviations create an in-app alert, followed by RAG/graph evidence evaluation and identified expert review. Validated confirmed/corrected case findings expand a versioned case library, graph and retrieval index for later hours. Rejected/inconclusive assessments remain labeled and do not become confirmed-fault knowledge. Knowledge growth is not automatic model retraining or a silent change to normal baselines/thresholds. Data or baseline gaps produce explicit notices rather than healthy-state claims. No hourly process or notification integration is implemented.
+
+Existing work-order parsing, review, exact counts, revisions, snapshots and claim validation remain part of the system. The condition panel and historical work-order triage answer different questions and must not share a misleading score. Evidence-linked reports still require a separate human sign-off.
+
+Use synthetic asset-linked work orders and fictional, clearly marked demo operating guidance for the first integrated example. MaintIE remains useful for text-extraction evaluation, but must not be fabricated into sensor-linked history: it does not establish the identity/time relationships needed by this extension. Real authorized manuals and actual sensor integrations can be added after the demonstration's contracts and data rights are established.
+
+The design and judge walkthrough are specified in [the sensor-informed architecture revision](ARCHITECTURE.md#sensor-informed-rag-and-knowledge-graph-revision---october-13-2026). The sections below retain the historical text baseline and its evaluation requirements; where that baseline excludes sensors or document retrieval, this explicit user-requested revision takes precedence for the simulated demonstration.
 
 ## Problem and intended benefit
 
@@ -6,7 +22,7 @@ Industrial maintenance records are often exported from different systems with in
 
 The benefit hypothesis is faster, more consistent preparation of maintenance summaries while preserving supervisor control and evidence links. We will measure task completion time and correction burden in a representative workflow before claiming time savings.
 
-## Users and MVP
+## Users and historical text baseline
 
 Primary user: a maintenance supervisor or reliability engineer preparing an internal review from historical work orders. The supervisor remains responsible for mappings, extracted annotations, and report approval.
 
@@ -21,7 +37,7 @@ Proposed MVP flow:
 7. Draft a narrative from a versioned fact table. Bind each numeric claim to an approved fact identifier and its scope.
 8. Block unbound, unsupported, or scope-mismatched numeric claims; produce a PDF from the approved snapshot.
 
-The MVP excludes live telemetry, automatic repair prescriptions, a manual/chatbot, and claims that connect sensor readings to work orders without validated linkage. Messy demonstration exports may be reformatted copies of the same underlying records; they must be labeled as such and must not be presented as independent samples.
+The historical text baseline excluded telemetry and manuals/chat. The revised simulated demo includes sensor observations and task-bounded retrieval of applicable documents/history; actual factory telemetry remains unconfigured. Automatic repair prescriptions, equipment control, unsupported diagnoses and claims linking sensors to work orders without explicit asset/time evidence remain outside scope. Messy demonstration exports may be reformatted copies of the same underlying records; they must be labeled as such and must not be presented as independent samples.
 
 ## Evidence and dataset plan
 
@@ -63,3 +79,5 @@ Evolus may be evaluated as an optional workflow, extractor, or model library onl
 ## Success criteria for a first demonstrator
 
 A reviewer can upload a documented sample, correct mappings and extracted fields, approve a fixed record set, inspect each report fact's supporting record IDs, and download a PDF. Re-running analytics over the same approved snapshot yields identical values. Unsupported numeric claims are blocked. The demo identifies which model path was run and reports measured latency and evaluation scope without implying production readiness.
+
+For the sensor extension, the same seeded scenario produces the same condition facts in historical playback and simulated-live mode. A judge can inspect the observation window, sensor-to-component graph paths, retrieved guidance and work-order citations behind each explanation. Missing/stale data produces an explicit insufficient-data state; incorrect asset or document applicability is excluded. Sensor readings and demo limits are marked simulated, hypotheses remain separate from confirmed faults, and unsupported diagnostic or predictive language blocks issued reports. These are acceptance criteria, not completed checks.

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>IGNIS · Animated architecture walkthrough</title>
+<style>
+:root{color-scheme:dark;--page:#0c131b;--surface:#131e29;--raised:#1a2836;--text:#e9f0f6;--muted:#acbdce;--line:#344b60;--border:#2d4052;--sensor:#72d4ec;--log:#f5bc79;--maintenance:#bca3f5;--schedule:#d9ba77;--knowledge:#92ddb0;--alert:#fa9191;--active:#8ddbb8;--shadow:rgba(0,0,0,.2)}
+html[data-theme="light"]{color-scheme:light;--page:#f4f7fa;--surface:#fff;--raised:#eaf0f5;--text:#182b3d;--muted:#50667b;--line:#b6c5d2;--border:#c9d6e0;--sensor:#08758c;--log:#9a5909;--maintenance:#7350b5;--knowledge:#277342;--alert:#b73442;--schedule:#8a5a00;--active:#24734f;--shadow:rgba(25,50,70,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}button,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.42}button:focus-visible,select:focus-visible{outline:3px solid var(--sensor);outline-offset:4px}button,select{color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 13px;min-height:40px}button:hover:not(:disabled){background:var(--raised)}[hidden]{display:none!important}.primary{background:var(--active);color:var(--page);border-color:var(--active);font-weight:650}.primary:hover:not(:disabled){background:var(--active);filter:brightness(1.08)}.shell{max-width:1536px;margin:auto;padding:34px 30px 24px}.masthead{display:flex;justify-content:space-between;align-items:start;gap:20px}.eyebrow{color:var(--knowledge);letter-spacing:.17em;font-size:11px;font-weight:650;text-transform:uppercase}h1{font-size:clamp(24px,2.7vw,37px);line-height:1.2;letter-spacing:-.03em;font-weight:600;margin:8px 0 10px}.intro{color:var(--muted);margin:0;max-width:850px}.status-label{display:inline-flex;gap:7px;align-items:center;color:var(--muted);font-size:12px;margin-top:14px}.status-label:before{content:"";width:7px;height:7px;background:var(--log);border-radius:50%}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:17px 0;margin:18px 0 0;border-top:1px solid var(--border)}.toolbar label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}.toolbar .spacer{flex:1}.transport{display:flex;gap:7px}.transport button{min-width:76px}.stage-heading{display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center;margin:8px 0 12px}.stage-heading h2{font-size:18px;font-weight:550;margin:0}.stage-heading span{color:var(--muted);font-size:12px}.track{height:3px;background:var(--raised);margin-bottom:19px}.track span{display:block;width:0;height:100%;background:var(--active);transition:width .2s}.legend{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:23px;font-size:12px;color:var(--muted)}.legend span{display:flex;align-items:center;gap:7px}.legend i{width:8px;height:8px;border-radius:50%;background:var(--kind)}.diagram{position:relative;isolation:isolate}.architecture{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:38px}.lane{min-width:0;position:relative}.lane-header{height:67px;display:flex;align-items:start;gap:9px}.lane-header .num{font-size:11px;border:1px solid var(--border);border-radius:50%;width:24px;height:24px;display:grid;place-items:center;flex-shrink:0;margin-top:1px;color:var(--muted)}.lane-header h3{font-size:14px;font-weight:550;margin:0}.lane-header p{font-size:11px;color:var(--muted);margin:2px 0 0}.lane-nodes{display:grid;grid-template-rows:repeat(4,108px);gap:29px}.node{position:relative;z-index:2;background:var(--surface);color:var(--text);border:1px solid var(--border);padding:12px;text-align:left;min-width:0;border-radius:10px;box-shadow:0 5px 14px var(--shadow);display:flex;flex-direction:column;justify-content:center;gap:5px;transition:background .2s,border-color .2s,box-shadow .2s}.node strong{font-size:13px;font-weight:600;line-height:1.3}.node .sub{font-size:11px;line-height:1.35;color:var(--muted)}.node .value{font-size:11px;line-height:1.35;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}.node.active{border-color:var(--active);background:color-mix(in srgb,var(--active) 10%,var(--surface));box-shadow:0 0 0 3px color-mix(in srgb,var(--active) 13%,transparent)}.node.selected{outline:2px solid var(--text);outline-offset:3px}.node.done:after{content:"✓";position:absolute;right:8px;top:5px;font-size:11px;color:var(--knowledge)}.node.blocked{border-color:var(--alert);background:color-mix(in srgb,var(--alert) 8%,var(--surface))}.node.gate{border-style:dashed}.node small{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.04em}.wires{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1;pointer-events:none}.wire{stroke:var(--line);stroke-width:1.3;fill:none;opacity:.56}.wire.active{stroke:var(--kind);stroke-width:2.2;opacity:1}.particle{fill:var(--kind);stroke:var(--surface);stroke-width:2}.particle-ring{fill:var(--kind);opacity:.16}.below{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:25px;margin-top:27px}.story,.detail{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:19px 21px;min-width:0}.story-head{display:flex;align-items:center;gap:10px}.story-head .step{color:var(--knowledge);font-size:12px;white-space:nowrap}h4{font-size:15px;font-weight:600;margin:0}.story p{font-size:13px;color:var(--muted);margin:10px 0 0}.packet-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}.packet-tag{padding:5px 8px;background:var(--raised);border-radius:5px;font-size:11px;color:var(--text);border-left:3px solid var(--kind)}.gate-box{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.gate-box span{font-size:12px;color:var(--muted)}.detail .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:5px}.detail dl{display:grid;grid-template-columns:53px 1fr;gap:8px 10px;font-size:12px;margin:13px 0 0}.detail dt{color:var(--muted)}.detail dd{margin:0;overflow-wrap:anywhere}.footer{margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11px}.footer a{color:var(--muted)}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.badge{padding:3px 8px;border-radius:4px;background:var(--raised);font-size:11px;color:var(--muted);white-space:nowrap}
+@media(max-width:1120px){.architecture{grid-template-columns:1fr;gap:44px}.lane{display:grid;grid-template-columns:145px minmax(0,1fr);gap:16px}.lane-header{height:auto}.lane-nodes{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;gap:19px}.node{grid-row:auto!important;min-height:101px}.below{grid-template-columns:1fr}.diagram{margin-top:8px}.shell{padding:24px}.toolbar{gap:8px}.toolbar .spacer{display:none}.lane-header p{max-width:100px}}
+@media(max-width:540px){.shell{padding:20px 16px}.masthead{flex-wrap:wrap}.masthead>button{padding:6px 10px;min-height:34px}.toolbar{margin-top:14px}.lane{grid-template-columns:1fr;gap:13px}.lane-header{gap:9px}.lane-header p{max-width:none}.lane-nodes{gap:16px}.node{padding:10px;min-height:112px}.architecture{gap:40px}.legend{gap:11px;font-size:11px}.stage-heading{grid-template-columns:1fr}.stage-heading span{display:none}.story,.detail{padding:16px}.toolbar label{flex-wrap:wrap}.toolbar select{max-width:100%;font-size:16px}.transport{width:100%}.transport button{flex:1;min-width:0}.node strong{font-size:12px}.footer{font-size:11px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}.track span{transition:none}}
+</style>
+<style>
+:root{--schedule:#f0c86f}
+html[data-theme="light"]{--schedule:#795900}
+.architecture{padding:0 24px 94px 0}
+.lane{padding-right:15px}
+.node small,.node .sub,.node .value{font-size:11px;line-height:1.35}
+.node strong{font-size:13px;line-height:1.35}
+.gate-actions{display:flex;flex-wrap:wrap;gap:7px}
+.gate-box{align-items:start}
+.gate-box span{font-size:12px}
+.node.current-gate{border-style:dashed;border-color:var(--schedule)}
+.node.terminal-stop{border-color:var(--alert)}
+.stage-heading h2{overflow-wrap:anywhere}
+.toolbar label{font-size:12px}
+.toolbar select{max-width:100%;min-height:40px}
+.return-note{margin:4px 0 0;font-size:12px;color:var(--muted)}
+@media(max-width:1120px){.architecture{padding:0 24px 38px 0}}
+@media(max-width:540px){.architecture{padding:0 20px 32px 0}.lane{padding-right:12px}.node{padding:9px;min-height:108px}.node strong{font-size:12px}.toolbar label{flex-wrap:wrap}.toolbar select{font-size:16px}.gate-box{align-items:start}.gate-box span{min-width:100%}}
+@media(prefers-reduced-motion:reduce){.node{transition:none}.track span{transition:none}}
+.view-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0 12px}.view-tabs{display:flex;gap:8px;flex-wrap:wrap}.view-tabs button{min-width:120px}.view-tabs button[aria-selected="true"]{border-color:var(--active);box-shadow:inset 0 -2px var(--active);font-weight:650}.view-bar>span{color:var(--muted);font-size:12px}.architecture{display:grid;grid-template-columns:repeat(var(--view-columns,4),minmax(0,1fr));gap:82px 118px;align-items:stretch;padding:26px 28px 70px;min-height:300px}.lane{display:contents}.node{width:100%;height:152px;min-height:152px;padding:16px;border-radius:12px}.node strong{font-size:14px}.node .sub,.node small,.node .value{font-size:12px;line-height:1.4}.node small{text-transform:uppercase;letter-spacing:.04em}.wires{overflow:visible}.wire{stroke-width:1.5;opacity:.72}.wire.active{stroke-width:2.6}.wire-label-bg{fill:var(--surface);stroke:var(--border);stroke-width:1}.wire-label{fill:var(--muted);font:12px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;text-anchor:middle;dominant-baseline:central}.wire-label.active{fill:var(--text);font-weight:600}.gate-box{padding:12px 0}.gate-description{max-width:740px}
+@media(max-width:1050px){.architecture{gap:76px 118px;padding:22px 24px 64px}}
+@media(max-width:600px){.view-bar{align-items:stretch}.view-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.view-tabs button{min-width:0}.view-bar>span{font-size:12px}.architecture{gap:66px;padding:16px 14px 58px}.node{min-height:118px}.wire-label{font-size:12px}.shell{padding:18px 16px}.legend{gap:11px}}
+</style>
+</head>
+<body>
+<main class="shell" id="ignis-flow">
+  <header class="masthead">
+    <div><div class="eyebrow">IGNIS / system architecture</div><h1>Follow the evidence.</h1><p class="intro">Eight clear stages connect collection, machine analysis, human decisions, dispatch, recovery and reviewed learning. Choose a view to inspect each part.</p><div class="status-label">Proposed workflow · no factory or model connection</div></div>
+    <button id="theme" type="button" aria-label="Switch to light theme">Light theme</button>
+  </header>
+  <div class="toolbar" aria-label="Walkthrough controls">
+    <div class="transport"><button class="primary" id="play" type="button">Play</button><button id="next" type="button">Next step</button><button id="replay" type="button">Replay</button></div>
+    <label for="scenario">Scenario <select id="scenario"><option value="degrading">Degrading condition</option><option value="normal">Normal hour</option><option value="insufficient">Insufficient data</option><option value="no-resource">No qualified technician</option></select></label>
+    <label for="speed">Speed <select id="speed"><option value="0.65">Slow</option><option value="1" selected>Normal</option><option value="1.7">Fast</option></select></label>
+    <span class="spacer"></span>
+  </div>
+  <div class="stage-heading"><h2 id="stage-title">Sources are ready</h2><span id="stage-position">Step 1 of 12</span></div>
+  <div class="track" id="track" role="progressbar" aria-label="Walkthrough progress" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0"><span id="progress"></span></div>
+  <div class="gate-box" id="gate-box" hidden><div class="gate-actions"><button class="primary" id="gate-action" type="button"></button><button id="gate-secondary" type="button"></button></div><span id="gate-description"></span></div>
+  <div class="legend" aria-label="Moving-packet categories"><span style="--kind:var(--sensor)"><i></i>Sensor facts</span><span style="--kind:var(--log)"><i></i>Machine events</span><span style="--kind:var(--maintenance)"><i></i>Maintenance &amp; evidence</span><span style="--kind:var(--schedule)"><i></i>Scheduling &amp; approval</span><span style="--kind:var(--knowledge)"><i></i>Knowledge / learning</span></div>
+  <div class="view-bar"><div class="view-tabs" role="tablist" aria-label="Architecture views"><button id="view-overview" type="button" role="tab" data-view="overview" aria-selected="true">Overview</button><button id="view-analysis" type="button" role="tab" data-view="analysis" aria-selected="false">Machine analysis</button><button id="view-dispatch" type="button" role="tab" data-view="dispatch" aria-selected="false">Technician dispatch</button><button id="view-learning" type="button" role="tab" data-view="learning" aria-selected="false">Reviewed learning</button></div><span id="view-hint">Walkthrough follows the active stage. Choose a view to inspect; playback pauses.</span></div>
+  <div class="diagram" id="diagram" aria-label="Architecture view with animated, labelled data paths">
+    <svg class="wires" id="wires" aria-hidden="true"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--line)"></path></marker></defs><g id="edge-paths"></g><g id="particles"></g></svg>
+    <div class="architecture" id="architecture"></div>
+  </div>
+  <div class="below">
+    <section class="story" aria-label="Current data transformation">
+      <div class="story-head"><span class="step" id="story-step">01 / 12</span><h4 id="story-title">Sources are ready</h4></div>
+      <p id="story-body">A fictional running pump supplies an hourly condition assessment. A separate stopped-asset fixture illustrates dispatch calculations.</p>
+      <div class="packet-list" id="packet-list"></div>
+      <div class="sr-only" id="announcement" aria-live="polite"></div>
+    </section>
+    <section class="detail" aria-label="Selected component details"><div class="kicker">Select any block to inspect its role</div><h4 id="detail-title">Sensor stream</h4><dl><dt>Input</dt><dd id="detail-input"></dd><dt>Work</dt><dd id="detail-does"></dd><dt>Output</dt><dd id="detail-output"></dd><dt>Owner</dt><dd id="detail-owner"></dd><dt>Failure</dt><dd id="detail-failure"></dd></dl></section>
+  </div>
+  <footer class="footer"><span>Continuous collection; assessment once hourly on the prior completed hour. Optional rapid critical alarm lane: disabled. Forecast is threshold crossing, not physical failure prediction; no RUL or invented probability.</span><span>Proposed architecture · Offline / no dependencies</span></footer>
+  <noscript><p>This animated walkthrough requires JavaScript. The architecture source is linked above.</p></noscript>
+</main>
+<script>
+(() => {
+  const root = document.getElementById('ignis-flow');
+  const $ = id => document.getElementById(id);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const lanes = [
+    {title:'Sources',sub:'continuous collection',nodes:[
+      ['sensors','Simulated sensors','temperature · vibration','sensor','Synthetic telemetry','Time-stamped machine readings','Hourly measures','Sensor stream','Missing or stale signal'],
+      ['logs','Machine logs','alarms · operator notes','log','Synthetic event feed','Normalize time and asset tags','Event facts','Log stream','Clock or asset mismatch'],
+      ['records','Stable files','CSV / XLSX · reviewed orders','maintenance','Versioned source files','Check schema and review status','Traceable rows','File import','Malformed or unreviewed rows'],
+      ['registry','Asset registry','identity · limits · versions','knowledge','Approved reference snapshot','Bind source identities and units','Versioned asset context','Data steward','Unknown identity or unit']
+    ]},
+    {title:'Trusted history',sub:'validate · assess hourly',nodes:[
+      ['ingest','Ingest + validate','continuous collection','sensor','Raw readings, logs, files','Check ranges, time and source identity','Accepted or quarantined records','Data pipeline','Invalid values stay out'],
+      ['history','Versioned history','immutable source references','maintenance','Validated records','Preserve timestamps and source versions','Auditable history','Data steward','Gaps remain explicit'],
+      ['hourly','Completed-hour facts','once per completed hour','sensor','Prior completed 60-minute window','Aggregate available measures with quality flags','Hourly facts + coverage','Assessment worker','Incomplete window is marked'],
+      ['alert','Anomaly alert','numeric check before LLM','log','Hourly facts and configured limits','Apply deterministic alert rules','Alert or normal outcome','Rules service','No diagnosis from alert alone']
+    ]},
+    {title:'Evidence',sub:'separate forecast + retrieval',nodes:[
+      ['forecast','Trend forecast','running asset fixture','sensor','72 → 76 → 80°C at +4°C/hour','Project threshold crossing only','Fictional 85°C threshold ~11:15','Forecast worker','Not failure, RUL or probability'],
+      ['rag','RAG evidence','reviewed case passages','maintenance','Approved manuals and published cases','Retrieve cited passages with version','Bounded evidence snippets','Knowledge service','No source means no claim'],
+      ['kg','Knowledge graph','asset / part relations','knowledge','Versioned asset and part records','Follow reviewed, typed relationships','Traceable entities and paths','Knowledge service','Unknown cause stays unknown'],
+      ['explain','Checked explanation','uncertainty stays visible','maintenance','Alert + forecast + retrieved evidence','Validate citations and claim boundaries','Reviewed explanation packet','Explanation checker','Unsupported claims are blocked']
+    ]},
+    {title:'Incident + job',sub:'owned human review',nodes:[
+      ['incident','Owned incident','priority + accountable owner','log','Checked explanation and alert','Create scoped incident record','Owner, severity, evidence links','Operations owner','Unowned case cannot proceed'],
+      ['expert','Expert scope review','human approval gate','maintenance','Evidence packet; cause may be unknown','Approve, hold or reject inspection scope','Authorized inspection only','Assigned expert','Reject/hold stops case learning'],
+      ['scope','Inspection job scope','safe task + requirements','maintenance','Approved scope and asset boundary','Define skill, access, parts and duration','Dispatchable job requirements','Planner + safety reviewer','Unsafe or vague scope returns'],
+      ['priority','Priority + constraints','response window · access','log','Owned incident and approved scope','Set response constraints with rationale','Scheduling inputs','Operations owner','No hidden urgency assumptions']
+    ]},
+    {title:'Resources + dispatch',sub:'eligible · costed · accepted',nodes:[
+      ['qualify','Technician qualifications','A excluded: unqualified','schedule','Job requirements and skill records','Filter by required qualification','Eligible technician set','Workforce records','Missing qualification excludes'],
+      ['available','Live-style availability','synthetic fixture only','schedule','Eligible roster and wait/travel inputs','Filter available resources','Feasible resource-job options','Dispatcher data','Unavailable resources excluded'],
+      ['scheduler','Loss-aware schedule','two one-job pairings','schedule','Eligible options + job rates','Enumerate pairings; wait + travel + repair','Computed estimated loss / assignment','Scheduling service','No feasible pair escalates'],
+      ['dispatch','Dispatcher approval','human booking gate','schedule','Recommended assignments and rationale','Approve or defer / replan','Booking proposal','Dispatcher','No booking without approval']
+    ]},
+    {title:'Execution + learning',sub:'verify · review · feed back',nodes:[
+      ['accept','Technician acceptance','human response gate','schedule','Approved booking proposal','Accept or decline and replan','Accepted work order or return to schedule','Assigned technician','Decline cancels proposed booking'],
+      ['execute','Field execution','work order + evidence','maintenance','Accepted scoped inspection','Record work, parts and timestamps','Field findings with provenance','Technician','No completion without evidence'],
+      ['recovery','Recovery verification','human verification gate','maintenance','Repair/inspection findings and readings','Check recovery criteria and follow-up','Verified recovery or reopen','Reliability reviewer','Failure blocks successful-case publication'],
+      ['learning','Reviewed case publication','separate approval gate','knowledge','Verified case and reviewer decision','Publish scoped, cited case to RAG/KG','Approved case revision','Knowledge reviewer','Hold/reject leaves knowledge unchanged'],
+      ['model','Model update path','evaluation required · inactive','knowledge','No evaluated candidate is demonstrated','Requires independent candidate evaluation and approval','No model update or activation','Model governance','Unavailable until separately evaluated']
+    ]}
+  ];
+  const color = k => `var(--${k})`;
+  const arch = $('architecture');
+  const nodes = new Map(lanes.flatMap(l=>l.nodes).map(n=>[n[0],{title:n[1],sub:n[2],kind:n[3],input:n[4],does:n[5],output:n[6],owner:n[7],failure:n[8]}]));
+  const card=(id,label,sub,kind,meta)=>{if(meta)nodes.set(id,meta);return {id,label,sub,kind};};
+  const meta=(title,input,does,output,owner,failure)=>({title,input,does,output,owner,failure});
+  const views={
+    overview:{title:'Overview',columns:4,nodes:[
+      card('ov-sources','1. Sources','sensors · logs · reviewed files','sensor',meta('Sources','Simulated sensor/log feeds, stable CSV/XLSX and reviewed work orders','Collect continuously; preserve source identity and version','Traceable source records','Data pipeline + stewards','Missing or unreviewed inputs are flagged')),
+      card('ov-history','2. Trusted history','identity · quality · versions','maintenance',meta('Trusted history','Incoming records and approved asset reference','Validate identity, units, timestamps and versions','Auditable, quality-marked history','Data pipeline','Bad rows remain quarantined')),
+      card('ov-hourly','3. Hourly assessment','previous completed hour','sensor',meta('Hourly assessment','Validated records from continuous collection','Assess once per completed hour with coverage flags','Hourly facts and anomaly outcome','Assessment worker','Incomplete windows abstain')),
+      card('ov-evidence','4. Diagnosis + forecast','separate evidence paths','knowledge',meta('Diagnosis + forecast','Anomaly alert and hourly facts','Check numerical trend separately from cited RAG/KG evidence','Bounded explanation; threshold crossing only','Forecast + knowledge services','No failure prediction or unsupported cause')),
+      card('ov-expert','5. Expert + job scope','owned incident · bounded work','maintenance',meta('Expert + job scope','Owned incident and checked explanation','Approve a scoped inspection even if root cause is unknown','Authorized job and requirements','Expert + planner','Hold/reject prevents dispatch')),
+      card('ov-dispatch','6. Technician scheduling','eligible · costed · approved','schedule',meta('Technician scheduling','Approved job, qualified resources and wait/travel/repair inputs','Calculate feasible pairings; dispatcher approves, technician accepts','Accepted booking proposal','Scheduler + dispatcher + technician','No qualified option escalates')),
+      card('ov-execution','7. Execution + recovery','field findings · verification','maintenance',meta('Execution + recovery','Accepted scoped work','Record field evidence and independently verify recovery','Verified findings or reopened incident','Technician + reliability reviewer','Failed verification blocks publication')),
+      card('ov-learning','8. Reviewed knowledge','separate case approval','knowledge',meta('Reviewed knowledge','Verified findings','Review and publish a versioned case to RAG/KG','Reusable reviewed case; model unchanged','Knowledge reviewer','No automatic model update'))
+    ],edges:[
+      ['ov1','ov-sources','ov-history','raw data','sensor'],['ov2','ov-history','ov-hourly','valid history','maintenance'],['ov3','ov-hourly','ov-evidence','hourly facts','sensor'],['ov4','ov-evidence','ov-expert','alert + evidence','knowledge'],['ov5','ov-expert','ov-dispatch','approved job','maintenance'],['ov6','ov-dispatch','ov-execution','accepted booking','schedule'],['ov7','ov-execution','ov-learning','verified findings','maintenance']
+    ]},
+    analysis:{title:'Machine analysis',columns:4,nodes:[
+      card('sensors','Inputs','telemetry · logs · files','sensor',meta('Input sources','Synthetic telemetry, machine logs, stable CSV/XLSX and reviewed work orders','Bind raw source records and revisions; validate them before aggregation','Raw source records with identity, timestamps and versions','Data pipeline + source owners','Missing, stale or unreviewed sources are marked')),card('history','Validated history','identity · units · versions','maintenance'),card('hourly','Completed-hour facts','once per completed hour','sensor'),card('alert','Anomaly alert','numeric check before LLM','log'),card('forecast','Numerical forecast','separate running asset','sensor'),card('evidence','RAG + knowledge graph','cited, versioned evidence','knowledge',meta('RAG + knowledge graph evidence','Alert, approved sources and versioned asset relations','Retrieve cited passages and typed asset links separately from numerical forecast','Evidence packet with provenance and uncertainty','Knowledge service','No source means no claim')),
+      card('explain','Checked explanation','unknown cause may remain','maintenance'),card('expert','Expert inspection review','owned human gate','maintenance')
+    ],edges:[
+      ['an1','sensors','history','raw data','sensor'],['an2','history','hourly','valid history','maintenance'],['an3','hourly','alert','hourly facts','sensor'],['an4','alert','forecast','threshold trend','sensor'],['an5','alert','evidence','reviewed evidence','knowledge'],['an6','forecast','explain','trend context','sensor'],['an7','evidence','explain','cited sources','maintenance'],['an8','explain','expert','bounded scope','maintenance']
+    ]},
+    dispatch:{title:'Technician dispatch',columns:4,nodes:[
+      card('scope','Approved job','skill · access · parts','maintenance'),card('resources','Qualifications + availability','A excluded · live-style fixture','schedule',meta('Qualifications + availability','Approved job requirements and synthetic roster','Filter unqualified or unavailable people before assignment','Eligible resources only','Workforce records','Missing skills exclude a technician')),
+      card('candidates','Feasible candidates','one job per technician','schedule',meta('Feasible candidates','Eligible technicians and stopped-asset jobs','Enumerate distinct one-job-per-technician pairings','Two feasible assignments or no eligible pair','Scheduler','No-resource branch escalates unassigned')),
+      card('scheduler','Schedule comparison','computed estimated loss','schedule'),card('dispatch','Dispatcher approval','booking decision gate','schedule'),card('accept','Technician acceptance','accept or replan','schedule'),card('execute','Execution','accepted work order','maintenance'),card('recovery','Recovery verification','reviewed findings','maintenance')
+    ],edges:[
+      ['d1','scope','resources','job requirements','maintenance'],['d2','resources','candidates','qualified options','schedule'],['d3','candidates','scheduler','pairing costs','schedule'],['d4','scheduler','dispatch','recommendation','schedule'],['d5','dispatch','accept','approved booking','schedule'],['d6','accept','execute','accepted work','schedule'],['d7','execute','recovery','field findings','maintenance']
+    ]},
+    learning:{title:'Reviewed learning',columns:3,nodes:[
+      card('recovery','Verified findings','recovery gate passed','maintenance'),card('case-review','Case reviewer approval','separate knowledge decision','knowledge',meta('Case reviewer approval','Verified findings and provenance','Decide whether the scoped case is publishable','Approved or held review','Knowledge reviewer','Unverified or failed recovery cannot publish')),
+      card('case-pub','Versioned publication','reviewed case only','knowledge',meta('Versioned publication','Approved case review','Publish a versioned case revision','Cited case revision','Knowledge service','Publication does not update a model')),
+      card('knowledge-update','RAG / KG update','reviewed case loop','knowledge',meta('RAG / KG update','Published reviewed case','Make the versioned case retrievable and linked to its asset','Future evidence source','Knowledge service','No unreviewed content')),
+      card('future-assessment','Future assessment','later completed hour','sensor',meta('Future assessment','Later completed-hour facts and reviewed knowledge','Use approved evidence only when relevant','New bounded assessment','Assessment worker','No automatic diagnosis')),
+      card('model','Model update path','inactive · evaluation required','knowledge')
+    ],edges:[
+      ['l1','recovery','case-review','verified findings','maintenance'],['l2','case-review','case-pub','review decision','knowledge'],['l3','case-pub','knowledge-update','approved revision','knowledge'],['l4','knowledge-update','future-assessment','future retrieval','knowledge']
+    ]}
+  };
+  let currentView='overview';
+  const stages=[];
+  const add=(id,title,body,focus,flows=[],gate=null,terminal=false)=>stages.push({id,title,body,focus,flows,gate,terminal});
+  function makeStages(scenario){
+    stages.length=0;
+    add('sources','Sources are collected','Telemetry and logs arrive continuously. Stable CSV/XLSX files and reviewed work orders retain source identity and version.', ['sensors','logs','records','registry'], [['s-ing','sensor','Sensor packet'],['l-ing','log','Event packet'],['f-ing','maintenance','Reviewed source row'],['r-ing','knowledge','Asset identity']]);
+    add('validate','Validate and preserve history','Checks bind identity, units, timestamps and source versions. Invalid or unreviewed records remain quarantined.', ['ingest','history'], [['ing-hist','sensor','Validated source facts']]);
+    add('hourly','Assess completed hour','Collection stays continuous; assessment runs once for the prior completed hour. Coverage and data quality travel with every fact.', ['history','hourly'], [['hist-hour','maintenance','Completed-hour facts']]);
+    add('alert','Check deterministic alert','Numeric rules run before any language model. A rule can raise an alert, report a normal hour, or abstain on insufficient data.', ['hourly','alert'], [['hour-alert','sensor','Threshold check']]);
+    if(scenario==='normal') { add('normal','Normal hour · stop','The completed hour is within configured limits. No diagnosis, forecast, inspection job or dispatch path is opened.', ['alert','hourly'], [['normal-stop','sensor','Normal outcome']],null,true); return; }
+    if(scenario==='insufficient') { add('quality','Insufficient data · abstain','Coverage or quality is insufficient. The assessment stops with a data-quality follow-up; it does not invent a condition or dispatch a repair.', ['alert','history'], [['quality-stop','alert','Quality gap']],null,true); return; }
+    add('parallel','Forecast and evidence stay separate','For a different running asset, 72→76→80°C at +4°C/hour crosses a fictional 85°C threshold around 11:15. This is threshold crossing, not physical failure prediction. RAG and graph evidence retain provenance.', ['forecast','rag','kg'], [['alert-forecast','sensor','Running-asset trend'],['alert-rag','maintenance','Reviewed evidence'],['hist-kg','knowledge','Versioned asset relation']]);
+    add('explain','Check the explanation','The explanation is checked against the alert, forecast and retrieved evidence. Root cause may remain unknown; unsupported claims are withheld.', ['explain'], [['forecast-exp','sensor','Trend context'],['rag-exp','maintenance','Cited passage'],['kg-exp','knowledge','Asset relation']]);
+    add('incident','Assign an incident owner','An accountable owner receives the evidence and priority. Only an owned case can request a bounded inspection.', ['incident'], [['exp-inc','maintenance','Checked incident evidence']]);
+    add('expert','Expert reviews inspection scope','The reviewer can approve a limited inspection even while root cause is unknown, or hold/reject the proposed scope.', ['expert'], [['inc-expert','log','Owned review request']], 'expert');
+    add('scope','Define an approved job','The approved scope becomes a job with skill, access, parts and duration requirements. The stopped-asset scheduling fixture is separate from the running forecast.', ['scope','priority'], [['expert-scope','maintenance','Approved inspection'],['scope-priority','log','Priority constraints']]);
+    add('resources','Filter resources and calculate choices','Only qualified, available resources enter the assignment calculation. A is unqualified. B/C and the two stopped jobs are evaluated from wait + travel + repair.', ['qualify','available','scheduler'], [['priority-qual','schedule','Job requirements'],['qual-avail','schedule','Qualified resources'],['avail-sched','schedule','Feasible options']]);
+    if(scenario==='no-resource') { add('escalate','No qualified resource · escalate','No technician is both qualified and available. Jobs remain unassigned and escalate; there is no cost-zero winner or dispatch approval.', ['scheduler','incident'], [['noresource-escalate','alert','Unassigned escalation']],null,true); return; }
+    add('dispatcher','Dispatcher approves booking','The fixture computes B→J1 + C→J2 = $1,400 and C→J1 + B→J2 = $1,250 estimated loss. C→J1, B→J2 is the lower computed choice; dispatcher approval is still required.', ['scheduler','dispatch'], [['sched-dispatch','schedule','Calculated recommendation']], 'dispatcher');
+    add('acceptance','Technician accepts work','A booking proposal is not accepted work. The assigned technicians must accept; decline returns to scheduling for replan.', ['dispatch','accept'], [['dispatch-accept','schedule','Approved booking']], 'acceptance');
+    add('execution','Record field execution','Accepted work captures the scoped inspection, evidence, findings, parts and timestamps. The fictional assignment and cost fixture are illustrative only.', ['execute'], [['accept-execute','schedule','Accepted work order']]);
+    add('verify','Verify recovery','A reviewer checks recovery criteria against post-work evidence. Failure reopens the incident and blocks publication as a successful case.', ['recovery'], [['execute-recovery','maintenance','Findings + readings']], 'recovery');
+    add('publish','Review case publication','Only a verified case can be separately approved for publication to RAG/KG. Model update remains a separate, unavailable evaluated-candidate path.', ['learning'], [['recovery-learning','maintenance','Verified case']], 'publication');
+    add('reviewed','Reviewed learning loop','The approved case returns to retrieval and graph evidence as a versioned revision. No model is updated or activated in this walkthrough.', ['learning','rag','kg'], [['learning-rag','knowledge','Reviewed case → RAG'],['learning-kg','knowledge','Reviewed case → KG']]);
+  }
+  const stageRoute={
+    sources:{view:'overview',focus:['ov-sources'],edges:['ov1']},validate:{view:'analysis',focus:['history'],edges:['an1']},hourly:{view:'analysis',focus:['hourly'],edges:['an2']},alert:{view:'analysis',focus:['alert'],edges:['an3']},normal:{view:'overview',focus:['ov-hourly'],edges:[]},quality:{view:'analysis',focus:['hourly','alert'],edges:[]},
+    parallel:{view:'analysis',focus:['forecast','evidence'],edges:['an4','an5']},explain:{view:'analysis',focus:['explain'],edges:['an6','an7']},incident:{view:'analysis',focus:['explain'],edges:[]},expert:{view:'analysis',focus:['expert'],edges:['an8']},scope:{view:'dispatch',focus:['scope'],edges:[]},resources:{view:'dispatch',focus:['resources','candidates','scheduler'],edges:['d1','d2','d3']},escalate:{view:'dispatch',focus:['candidates'],edges:[]},dispatcher:{view:'dispatch',focus:['dispatch'],edges:['d4']},acceptance:{view:'dispatch',focus:['accept'],edges:['d5']},execution:{view:'dispatch',focus:['execute'],edges:['d6']},verify:{view:'dispatch',focus:['recovery'],edges:['d7']},publish:{view:'learning',focus:['case-review'],edges:['l1']},reviewed:{view:'learning',focus:['knowledge-update','future-assessment'],edges:['l3','l4']}
+  };
+  let dispatchSummary='',selected='ov-sources',state={scenario:'degrading',stage:0,elapsed:0,speed:1,playing:false,terminal:false,terminalMessage:'',finished:false,expert:false,dispatched:false,accepted:false,recovery:false,published:false,declined:false};
+  function calculateDispatch(noResource=false){
+    const techs=[{id:'A',qualified:false,available:true,wait:0},{id:'B',qualified:true,available:!noResource,wait:10},{id:'C',qualified:true,available:!noResource,wait:0}];
+    const jobs=[{id:'J1',travel:30,repair:20,rate:1200},{id:'J2',travel:20,repair:20,rate:300}];
+    const travel={B:{J1:20,J2:10},C:{J1:30,J2:20}},repair={B:{J1:30,J2:30},C:{J1:20,J2:20}};
+    const eligible=techs.filter(t=>t.qualified&&t.available), pairs=[];
+    if(eligible.length>=2) for(const a of eligible) for(const b of eligible) if(a.id!==b.id){const j1=jobs[0],j2=jobs[1],r1=a.wait+travel[a.id][j1.id]+repair[a.id][j1.id],r2=b.wait+travel[b.id][j2.id]+repair[b.id][j2.id],cost=r1/60*j1.rate+r2/60*j2.rate;pairs.push({a:a.id,b:b.id,r1,r2,cost});}
+    pairs.sort((x,y)=>x.cost-y.cost);return {eligible:eligible.map(t=>t.id),pairs,best:pairs[0]||null};
+  }
+  function updateDispatch(){const r=calculateDispatch(state.scenario==='no-resource');if(!r.best)dispatchSummary='No eligible pair. J1 and J2 remain unassigned and escalate; estimated loss is not calculated.';else dispatchSummary=`Eligible: ${r.eligible.join(', ')}. B→J1: wait 10 + travel 20 + repair 30 = 60 min; C→J2: 0 + 20 + 20 = 40 min; pairing estimate $${r.pairs.find(x=>x.a==='B'&&x.b==='C')?.cost.toFixed(0)}. C→J1: 0 + 30 + 20 = 50 min; B→J2: 10 + 10 + 30 = 50 min; pairing estimate $${r.pairs.find(x=>x.a==='C'&&x.b==='B')?.cost.toFixed(0)}. Calculated choice: ${r.best.a}→J1, ${r.best.b}→J2 ($${r.best.cost.toFixed(0)} estimated loss).`;return r;}
+  function build(){makeStages(state.scenario);updateDispatch();showStageView();buildView();render();}
+  let selectedNode=null,raf=0,last=0,duration=4200,geometryCache=new Map();
+  const svgNS='http://www.w3.org/2000/svg';
+  function columnsFor(view){if(innerWidth<=600)return 1;if(innerWidth<=1050)return 2;return views[view].columns;}
+  function positionFor(view,index,columns){
+    if(view==='analysis'){
+      if(columns>=4)return [[1,1],[2,1],[3,1],[4,1],[2,2],[3,2],[2,3],[3,3]][index];
+      if(columns===2)return [[1,1],[2,1],[2,2],[1,2],[1,3],[2,3],[1,4],[2,4]][index];
+    }
+    const row=Math.floor(index/columns),offset=index%columns,col=row%2===0?offset:columns-1-offset;
+    return [col+1,row+1];
+  }
+  function buildView(){
+    const def=views[currentView],cols=columnsFor(currentView);arch.replaceChildren();arch.dataset.view=currentView;arch.style.setProperty('--view-columns',cols);
+    if(!def.nodes.some(item=>item.id===selected))selected=def.nodes[0].id;
+    def.nodes.forEach((item,i)=>{const [col,row]=positionFor(currentView,i,cols),b=document.createElement('button');b.type='button';b.className='node';b.dataset.node=item.id;b.dataset.row=row;b.dataset.col=col;b.style.gridColumn=String(col);b.style.gridRow=String(row);b.innerHTML=`<strong>${item.label}</strong><span class="sub">${item.sub}</span><small>${item.kind}</small>`;b.addEventListener('click',()=>selectNode(item.id));arch.appendChild(b);});
+    $('view-hint').textContent=currentView==='overview'?'Walkthrough follows the active stage. Choose a view to inspect; playback pauses.':`Viewing ${def.title}. Play returns to the view for the active walkthrough stage.`;
+    document.querySelectorAll('.view-tabs [role="tab"]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.view===currentView)));
+    geometry();
+  }
+  function showStageView(){const route=stageRoute[stages[state.stage]?.id];if(route&&route.view!==currentView){currentView=route.view;buildView();}}
+  function selectNode(id){selected=id;selectedNode=nodes.get(id);if(!selectedNode)return;$('detail-title').textContent=selectedNode.title;$('detail-input').textContent=selectedNode.input;$('detail-does').textContent=selectedNode.does;let output=selectedNode.output;if(id==='scheduler')output=state.scenario==='normal'||state.scenario==='insufficient'?'Not evaluated: this scenario stops before scheduling; no dispatch result is produced.':dispatchSummary;if(id==='forecast'&&(state.scenario==='normal'||state.scenario==='insufficient'))output='Not evaluated: this scenario stops before forecast or diagnosis.';$('detail-output').textContent=output;$('detail-owner').textContent=selectedNode.owner;$('detail-failure').textContent=selectedNode.failure;arch.querySelectorAll('.node').forEach(b=>b.classList.toggle('selected',b.dataset.node===id));}
+  function edgePath(edge){const a=arch.querySelector(`[data-node="${edge[1]}"]`),b=arch.querySelector(`[data-node="${edge[2]}"]`);if(!a||!b)return '';const dr=$('diagram').getBoundingClientRect(),ar=a.getBoundingClientRect(),br=b.getBoundingClientRect(),sameRow=a.dataset.row===b.dataset.row;let x1,y1,x2,y2,d;
+    if(currentView==='analysis'&&columnsFor(currentView)===1&&(['an5','an6'].includes(edge[0]))){x1=ar.right-dr.left;y1=ar.top+ar.height/2-dr.top;x2=br.right-dr.left;y2=br.top+br.height/2-dr.top;const gutter=dr.width-5;d=`M ${x1} ${y1} C ${gutter} ${y1}, ${gutter} ${y2}, ${x2} ${y2}`;}
+    else if(sameRow){const forward=br.left>=ar.right;x1=(forward?ar.right:ar.left)-dr.left;y1=ar.top+ar.height/2-dr.top;x2=(forward?br.left:br.right)-dr.left;y2=br.top+br.height/2-dr.top;const dx=(x2-x1)*.45;d=`M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`;}
+    else{x1=ar.left+ar.width/2-dr.left;y1=ar.bottom-dr.top;x2=br.left+br.width/2-dr.left;y2=br.top-dr.top;const my=(y1+y2)/2;d=`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`;}
+    return d;}
+  function geometry(){const svg=$('wires'),g=$('edge-paths'),box=$('diagram').getBoundingClientRect();svg.setAttribute('viewBox',`0 0 ${box.width} ${box.height}`);svg.setAttribute('width',box.width);svg.setAttribute('height',box.height);g.replaceChildren();geometryCache.clear();for(const e of views[currentView].edges){const wrap=document.createElementNS(svgNS,'g'),p=document.createElementNS(svgNS,'path'),rect=document.createElementNS(svgNS,'rect'),text=document.createElementNS(svgNS,'text');wrap.id='edge-'+e[0];wrap.dataset.edge=e[0];p.setAttribute('d',edgePath(e));p.setAttribute('class','wire');p.style.setProperty('--kind',color(e[4]));p.setAttribute('marker-end','url(#arrow)');text.setAttribute('class','wire-label');text.textContent=e[3];wrap.append(p,rect,text);g.appendChild(wrap);const len=p.getTotalLength();let point=p.getPointAtLength(len*.5);if(currentView==='analysis'&&columnsFor(currentView)===1&&(e[0]==='an5'||e[0]==='an6')){const a=arch.querySelector(`[data-node="${e[0]==='an5'?'forecast':'evidence'}"]`).getBoundingClientRect(),b=arch.querySelector(`[data-node="${e[0]==='an5'?'evidence':'explain'}"]`).getBoundingClientRect();point={x:box.width/2,y:(a.bottom+b.top)/2-box.top};}text.setAttribute('x',point.x);text.setAttribute('y',point.y-9);const bb=text.getBBox();rect.setAttribute('class','wire-label-bg');rect.setAttribute('x',bb.x-6);rect.setAttribute('y',bb.y-3);rect.setAttribute('width',bb.width+12);rect.setAttribute('height',bb.height+6);rect.setAttribute('rx','5');geometryCache.set(e[0],{path:p,label:text,back:rect,kind:e[4]});}paint();}
+  function activeFlows(){const route=stageRoute[stages[state.stage]?.id];return route&&route.view===currentView?route.edges.map(id=>{const e=views[currentView].edges.find(x=>x[0]===id);return e?[e[0],e[4],e[3]]:null;}).filter(Boolean):[];}
+  function paint(){const pg=$('particles');views[currentView].edges.forEach(e=>{const g=geometryCache.get(e[0]);if(g){g.path.classList.remove('active');g.label.classList.remove('active');}});pg.replaceChildren();const flows=activeFlows();flows.forEach(([id,kind],i)=>{const e=geometryCache.get(id);if(!e)return;e.path.classList.add('active');e.label.classList.add('active');const total=e.path.getTotalLength();if(!total)return;const t=(state.elapsed/duration*.9+i/Math.max(flows.length,1))%1,pos=e.path.getPointAtLength(total*t),transform=`translate(${pos.x} ${pos.y})`;const c=document.createElementNS(svgNS,'circle');c.setAttribute('class','particle');c.setAttribute('transform',transform);c.setAttribute('r','5');c.style.setProperty('--kind',color(kind));pg.appendChild(c);const ring=document.createElementNS(svgNS,'circle');ring.setAttribute('class','particle-ring');ring.setAttribute('transform',transform);ring.setAttribute('r','10');ring.style.setProperty('--kind',color(kind));pg.appendChild(ring);});}
+  function gate(){return stages[state.stage]?.gate&&!state.terminal?stages[state.stage].gate:null;}
+  function resetApproval(){state.expert=false;state.dispatched=false;state.accepted=false;state.recovery=false;state.published=false;state.terminal=false;state.terminalMessage='';state.finished=false;state.declined=false;}
+  function render(){
+    const st=stages[state.stage],g=gate();
+    $('stage-title').textContent=st.title;
+    $('stage-position').textContent=`Step ${state.stage+1} of ${stages.length}`;
+    $('story-step').textContent=`${String(state.stage+1).padStart(2,'0')} / ${stages.length}`;
+    $('story-title').textContent=st.title;
+    $('story-body').textContent=state.terminalMessage||st.body;
+    $('play').textContent=state.playing?'Pause':state.terminal?'Stopped':state.finished?'Finished':'Play';
+    $('play').disabled=!!g||state.terminal||state.finished;
+    $('next').disabled=!!g||state.terminal||state.finished||state.stage===stages.length-1;
+    $('gate-box').hidden=!g;$('gate-action').hidden=!g;$('gate-secondary').hidden=!g;$('gate-description').textContent='';
+    if(g){const labels={expert:['Approve inspection scope','Reject scope','Root cause may remain unknown; approval authorizes only the bounded inspection.'],dispatcher:['Approve booking','Defer / replan','Booking requires an independent dispatcher decision.'],acceptance:['Accept work','Decline / replan','Technician acceptance is a separate gate after dispatcher approval.'],recovery:['Verify recovery','Fail / reopen','A failed verification blocks successful-case publication.'],publication:['Publish reviewed case','Hold publication','Case publication is independent of the unavailable model-update path.']};$('gate-action').textContent=labels[g][0];$('gate-secondary').textContent=labels[g][1];$('gate-description').textContent=labels[g][2];}
+    const route=stageRoute[st.id],focus=new Set(route&&route.view===currentView?route.focus:[]),done=new Set(stages.slice(0,state.stage).flatMap(s=>{const r=stageRoute[s.id];return r&&r.view===currentView?r.focus:[]}));
+    arch.querySelectorAll('.node').forEach(b=>{const id=b.dataset.node;b.classList.toggle('active',focus.has(id));b.classList.toggle('done',done.has(id));b.classList.toggle('gate',!!g&&focus.has(id));});
+    $('packet-list').replaceChildren();activeFlows().forEach(([,k,label])=>{const tag=document.createElement('span');tag.className='packet-tag';tag.style.setProperty('--kind',color(k));tag.textContent=label;$('packet-list').append(tag);});
+    if(selectedNode)selectNode(selected);$('gate-action').disabled=false;$('gate-secondary').disabled=false;paintProgress();paint();
+  }
+  function announce(){ $('announcement').textContent=stages[state.stage].title+(gate()?'. Waiting for human decision.':state.terminal?'. Stopped.':'.'); }
+  function paintProgress(){const p=state.finished?stages.length:Math.min(state.stage+state.elapsed/duration,stages.length);$('progress').style.width=(p/stages.length*100)+'%';$('track').setAttribute('aria-valuemax',stages.length);$('track').setAttribute('aria-valuenow',p.toFixed(2));}
+  function stopTerminal(message){state.playing=false;state.terminal=true;state.terminalMessage=message;cancelAnimationFrame(raf);state.elapsed=0;render();announce();}
+  function advance(manual=true){if(gate()||state.terminal||state.finished||state.stage>=stages.length-1)return;if(manual){state.playing=false;cancelAnimationFrame(raf);}state.stage++;state.elapsed=0;showStageView();render();announce();if(stages[state.stage].gate){state.playing=false;cancelAnimationFrame(raf);render();}}
+  function tick(now){if(!state.playing)return;const dt=last?Math.min(now-last,100):0;last=now;state.elapsed+=dt*state.speed;paintProgress();paint();if(state.elapsed>=duration){if(state.stage>=stages.length-1){state.elapsed=duration;state.playing=false;state.finished=true;render();announce();return;}state.stage++;state.elapsed=0;last=0;showStageView();if(stages[state.stage].gate){state.playing=false;render();announce();return;}render();announce();}raf=requestAnimationFrame(tick);}
+  function start(){if(gate()||state.terminal||state.finished||reduced.matches)return;showStageView();state.playing=true;last=0;render();cancelAnimationFrame(raf);raf=requestAnimationFrame(tick);}
+  function pause(){state.playing=false;cancelAnimationFrame(raf);last=0;render();}
+  function applyGate(yes){const g=gate();if(!g)return;state.playing=false;cancelAnimationFrame(raf);if(g==='expert'){if(!yes){stopTerminal('Scope rejected. The incident remains owned for a revised review; no inspection is authorized and nothing is published.');return;}state.expert=true;}
+    if(g==='dispatcher'){if(!yes){stopTerminal('Booking deferred. The recommendation is not booked; return to scheduling review before a new proposal.');return;}state.dispatched=true;}
+    if(g==='acceptance'){if(!yes){state.declined=true;state.dispatched=false;state.stage=stages.findIndex(s=>s.id==='resources');state.elapsed=0;showStageView();render();announce();if(!reduced.matches)start();return;}state.accepted=true;}
+    if(g==='recovery'){if(!yes){stopTerminal('Recovery failed. Incident reopened for follow-up; successful-case publication remains blocked.');return;}state.recovery=true;}
+    if(g==='publication'){if(!yes){stopTerminal('Case held. No knowledge publication or model update occurs.');return;}state.published=true;}
+    state.stage++;state.elapsed=0;showStageView();render();announce();if(!reduced.matches)start();
+  }
+  $('play').addEventListener('click',()=>state.playing?pause():start());$('next').addEventListener('click',advance);
+  $('replay').addEventListener('click',()=>{pause();resetApproval();state.stage=0;state.elapsed=0;state.terminal=false;build();selectNode(selected);if(!reduced.matches)start();});
+  $('speed').addEventListener('change',e=>state.speed=Number(e.target.value));$('scenario').addEventListener('change',e=>{pause();state.scenario=e.target.value;state.stage=0;state.elapsed=0;resetApproval();build();selectNode(selected);});
+  $('gate-action').addEventListener('click',()=>applyGate(true));$('gate-secondary').addEventListener('click',()=>applyGate(false));
+  document.querySelectorAll('.view-tabs [role="tab"]').forEach(b=>b.addEventListener('click',()=>{pause();currentView=b.dataset.view;buildView();render();}));
+  $('theme').addEventListener('click',()=>{const light=document.documentElement.dataset.theme!=='light';document.documentElement.dataset.theme=light?'light':'dark';$('theme').textContent=light?'Dark theme':'Light theme';$('theme').setAttribute('aria-label','Switch to '+(light?'dark':'light')+' theme');});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&state.playing)pause();});reduced.addEventListener('change',()=>{if(reduced.matches)pause();});
+  $('speed').value='1';$('scenario').value=state.scenario;build();selectNode(selected);new ResizeObserver(geometry).observe(arch);addEventListener('resize',()=>{buildView();render();});requestAnimationFrame(geometry);
+  window.ignisWalkthrough={getState:()=>({...state}),getStageIds:()=>stages.map(s=>s.id),getDispatch:()=>calculateDispatch(state.scenario==='no-resource')};
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
