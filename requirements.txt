@@ -1,0 +1,13 @@
+# Runtime dependencies for the ignis_wo pipeline, pinned with transitive packages.
+# pydantic: validates untrusted model output and exports the JSON schema for structured decoding.
+# openpyxl: reads XLSX exports. reportlab: renders the evidence-linked PDF report.
+annotated-types==0.8.0
+charset-normalizer==3.5.2
+et-xmlfile==2.0.0
+openpyxl==3.1.5
+pillow==12.3.0
+pydantic==2.14.1
+pydantic-core==2.50.1
+reportlab==5.0.1
+typing-extensions==4.16.0
+typing-inspection==0.4.4

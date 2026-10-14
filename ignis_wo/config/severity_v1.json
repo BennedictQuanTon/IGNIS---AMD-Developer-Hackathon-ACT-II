@@ -1,0 +1,10 @@
+{
+  "version": "severity-v1",
+  "classes": {
+    "State/UndesirableState/FailedState": 3,
+    "State/UndesirableState/DegradedState": 2,
+    "State/UndesirableState": 1,
+    "Process/UndesirableProcess": 1,
+    "Property/UndesirableProperty": 1
+  }
+}

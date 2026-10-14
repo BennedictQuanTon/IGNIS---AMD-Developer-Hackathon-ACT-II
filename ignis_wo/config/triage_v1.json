@@ -1,0 +1,9 @@
+{
+  "version": "triage-v1",
+  "bands": [
+    {"name": "High", "minimum": 30},
+    {"name": "Medium", "minimum": 10},
+    {"name": "Low", "minimum": 1}
+  ],
+  "zero_band": "No fault recorded"
+}

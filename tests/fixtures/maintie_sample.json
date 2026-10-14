@@ -1,0 +1,95 @@
+[
+  {
+    "text": "pump seal leaking",
+    "tokens": ["pump", "seal", "leaking"],
+    "entities": [
+      {"start": 0, "end": 1, "type": "PhysicalObject/DrivingObject"},
+      {"start": 1, "end": 2, "type": "PhysicalObject/RestrictingObject"},
+      {"start": 2, "end": 3, "type": "Process/UndesirableProcess"}
+    ],
+    "relations": [
+      {"head": 0, "tail": 1, "type": "hasPart"},
+      {"head": 2, "tail": 1, "type": "hasParticipant/hasPatient"}
+    ]
+  },
+  {
+    "text": "replace hose burst",
+    "tokens": ["replace", "hose", "burst"],
+    "entities": [
+      {"start": 0, "end": 1, "type": "Activity/MaintenanceActivity/Replace"},
+      {"start": 1, "end": 2, "type": "PhysicalObject/GuidingObject"},
+      {"start": 2, "end": 3, "type": "State/UndesirableState/FailedState"}
+    ],
+    "relations": [
+      {"head": 0, "tail": 1, "type": "hasParticipant/hasPatient"},
+      {"head": 2, "tail": 1, "type": "hasParticipant/hasPatient"}
+    ]
+  },
+  {
+    "text": "hose worn",
+    "tokens": ["hose", "worn"],
+    "entities": [
+      {"start": 0, "end": 1, "type": "PhysicalObject/GuidingObject"},
+      {"start": 1, "end": 2, "type": "State/UndesirableState/DegradedState"}
+    ],
+    "relations": [
+      {"head": 1, "tail": 0, "type": "hasParticipant/hasPatient"}
+    ]
+  },
+  {
+    "text": "hose leaking at fitting",
+    "tokens": ["hose", "leaking", "at", "fitting"],
+    "entities": [
+      {"start": 0, "end": 1, "type": "PhysicalObject/GuidingObject"},
+      {"start": 1, "end": 2, "type": "Process/UndesirableProcess"},
+      {"start": 3, "end": 4, "type": "PhysicalObject/InterfacingObject"}
+    ],
+    "relations": []
+  },
+  {
+    "text": "pump noisy",
+    "tokens": ["pump", "noisy"],
+    "entities": [
+      {"start": 0, "end": 1, "type": "PhysicalObject/DrivingObject"},
+      {"start": 1, "end": 2, "type": "Property/UndesirableProperty"}
+    ],
+    "relations": []
+  },
+  {
+    "text": "repair pump motor failed",
+    "tokens": ["repair", "pump", "motor", "failed"],
+    "entities": [
+      {"start": 0, "end": 1, "type": "Activity/MaintenanceActivity/Repair"},
+      {"start": 1, "end": 2, "type": "PhysicalObject/DrivingObject"},
+      {"start": 2, "end": 3, "type": "PhysicalObject/DrivingObject"},
+      {"start": 3, "end": 4, "type": "State/UndesirableState/FailedState"}
+    ],
+    "relations": [
+      {"head": 1, "tail": 2, "type": "hasPart"},
+      {"head": 3, "tail": 2, "type": "hasParticipant/hasPatient"},
+      {"head": 0, "tail": 2, "type": "hasParticipant/hasPatient"}
+    ]
+  },
+  {
+    "text": "inspect conveyor belt",
+    "tokens": ["inspect", "conveyor", "belt"],
+    "entities": [
+      {"start": 0, "end": 1, "type": "Activity/MaintenanceActivity/Inspect"},
+      {"start": 1, "end": 3, "type": "PhysicalObject/HoldingObject"}
+    ],
+    "relations": [
+      {"head": 0, "tail": 1, "type": "hasParticipant/hasPatient"}
+    ]
+  },
+  {
+    "text": "<id> hose blown",
+    "tokens": ["<id>", "hose", "blown"],
+    "entities": [
+      {"start": 1, "end": 2, "type": "PhysicalObject/GuidingObject"},
+      {"start": 2, "end": 3, "type": "State/UndesirableState/FailedState"}
+    ],
+    "relations": [
+      {"head": 1, "tail": 0, "type": "hasParticipant/hasPatient"}
+    ]
+  }
+]

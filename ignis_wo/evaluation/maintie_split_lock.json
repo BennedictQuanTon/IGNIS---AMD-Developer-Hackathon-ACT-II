@@ -1,0 +1,10 @@
+{
+  "source": "nlp-tlp/maintie@825e7710e4129598da997276a38b3cb40b200bc2 data/gold_release.json",
+  "source_sha256": "ef811cf4ffd0c90e6a13b1369e24e9d1d08f9a294d873ab4fb1a580096d7d6e0",
+  "hash_method": "sha256 of the split's texts, each the tokens joined by single spaces, joined by newlines",
+  "splits": {
+    "train": {"size": 860, "sha256": "e439f110e175fced73e7a632469992991b8041e0387c812b2c251814615412c2"},
+    "dev": {"size": 108, "sha256": "ecca05a6c24586c72503e371e13bb31d8ea276dd0edb27b10153b1ae822967da"},
+    "test": {"size": 108, "sha256": "a946b2ef339106c30926d1cb4e9b678484c5811277ebeefb39f345beca5b8962"}
+  }
+}
