@@ -1,5 +1,7 @@
 # IGNIS — Complete project, architecture and interactive-demo handoff
 
+**Current-direction notice, 14 October 2026:** this handoff retains the detailed 13 October design and visual history. For the newly confirmed proposed system, read the [three-loop architecture](ARCHITECTURE.md#simplified-high-level-architecture-and-fine-tuning-role---october-14-2026) and [complete workflow/comparison](PROPOSED_SYSTEM_WORKFLOW.md) first. They add two separately evaluated LoRA adapters and offline release approval, simplify the high-level view to eleven parts and retain numeric alerts during model outages. Earlier schedules and fallback recommendations are historical where they conflict. The operational application remains unimplemented.
+
 **Prepared:** 13 October 2026.  
 **Audience:** another agent or collaborator continuing this project.  
 **Project:** IGNIS, in the AMD Developer Hackathon ACT III / Intelligent Industry context.  

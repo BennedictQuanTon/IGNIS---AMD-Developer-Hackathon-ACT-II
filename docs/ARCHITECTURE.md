@@ -4,6 +4,39 @@ This describes a target design. No application services or model are implemented
 
 **New direction, 13 October 2026:** the requested expansion adds problem recognition, validated forecasting, technician/resource matching, loss-aware scheduling and verified maintenance outcomes. See the [detailed maintenance direction and implementation plan](MAINTENANCE_DIRECTION.md) for the proposed extension and revised interactive walkthrough. The sections below retain the evidence/hourly-monitoring foundation; earlier prediction exclusions describe the previous scope and continue to prohibit unsupported predictive claims.
 
+## Simplified high-level architecture and fine-tuning role - October 14, 2026
+
+The user confirmed this as the new proposed-system direction on 14 October 2026. The high-level view is reduced to eleven parts in three loops, and fine-tuning is given an explicit role. The [high-level walkthrough](../artifacts/ignis-high-level-architecture.html) animates this view. The [complete workflow and comparison](PROPOSED_SYSTEM_WORKFLOW.md) explains the operating sequence, authority, tradeoffs and acceptance criteria; the [hospital analogy](../artifacts/ignis-architecture-explained.html) explains the same design. The [detailed 36-block map](../artifacts/ignis-data-flow.html) predates fine-tuning and is not updated. All of this remains proposed; no model has been trained. Earlier scopes, schedules and fallback suggestions are historical where they conflict with this section.
+
+| Loop | Parts |
+|---|---|
+| Monitor, once per completed hour | Sources → Ingest & review → Trusted data → Hourly check → Evidence & explanation → Reports |
+| Respond, human-approved | Incident & expert → Match & dispatch → Repair & verify → Learn & publish → back to Trusted data |
+| Improve, offline | Fine-tuning & model release: curate dataset → fine-tune → evaluate → approve and register |
+
+### Where the fine-tuned model is used
+
+One open base model carries two LoRA task adapters:
+
+1. **Extraction adapter, in Ingest & review.** It proposes component, fault and action spans from work-order text as strict JSON with exact offsets. A supervisor approves, corrects or rejects every suggestion. If the adapter is unavailable, review is manual.
+2. **Reasoning adapter, in Evidence & explanation.** It reads a frozen evidence pack (condition facts, retrieved passages, graph paths) and returns structured hypotheses that each cite evidence IDs, stated uncertainty, a suggested inspection, or an explicit abstention. The claim checker still validates every number, asset and time scope. It may also draft report narrative; report numbers render from typed facts.
+
+Fine-tuning teaches task format, maintenance vocabulary, citation discipline and abstention. It does not store plant facts: current evidence still comes from retrieval and the graph, and code still computes every measurement, forecast, count and schedule. The model never approves, books, publishes or controls equipment.
+
+### Training data and release gate
+
+- **Data:** MaintIE train and validation splits for extraction, with its published test split untouched. Approved work-order annotations can supplement extraction; expert-reviewed cases supply reasoning examples, including rejected and inconclusive cases labelled as such so the model learns to abstain. The first demonstration uses synthetic cases. Each dataset is frozen as a version. Preserve MaintIE's published splits; use asset/time holdouts for additional asset-linked product cases and keep related incidents or reformatted copies together. Do not invent asset metadata for MaintIE.
+- **Method:** supervised fine-tuning with LoRA on a 7–8B open instruct model. The base model is not selected. The proposed hardware is an AMD MI300X with ROCm and vLLM adapter serving, only if access and compatibility are confirmed by an actual smoke test.
+- **Release:** compare each adapter with the untuned base model on held-out data. Extraction is scored on span F1 and schema validity. Reasoning is scored on citation accuracy, unsupported-claim rate and correct abstention. Release only if the adapter beats the baseline without regressing on safety checks. Training loss alone never qualifies. The model owner approves each release; the registry records base model, adapter, dataset version, metrics and a rollback target.
+- **Cadence:** a deliberate cycle, run when enough new reviewed cases exist. Publishing a case makes it retrievable immediately but never starts training. Training never runs per hourly alert, and unverified outcomes are never used as training data.
+
+### Changes from the 13 October drafts
+
+- The 16 runtime components and three separate fine-tuning modules are merged into eleven parts. The fine-tuning cycle is one block with four internal steps.
+- The optional numeric model/rule approval path is folded into the same release block, as a dashed, separately approved output to the hourly check.
+- The fine-tuned model is **not required** to release an alert. If the reasoning adapter is unavailable, the numeric alert and the evidence pack still reach the expert without a drafted explanation, and the base model is not silently substituted.
+- The earlier, more detailed fine-tuning draft of this page is archived as [ignis-high-level-architecture-finetuning-draft-2026-10-14.html](../artifacts/ignis-high-level-architecture-finetuning-draft-2026-10-14.html).
+
 ## Sensor-informed RAG and knowledge-graph revision - October 13, 2026
 
 ### Confirmed direction and recommendations

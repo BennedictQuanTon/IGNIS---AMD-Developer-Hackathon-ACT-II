@@ -1,5 +1,11 @@
 # Project proposal: sensor-informed, traceable maintenance intelligence
 
+## Current proposed system - October 14, 2026
+
+The user confirmed the new direction as three loops and eleven logical parts: monitor once per completed hour; respond through expert-authorised scope, feasible dispatch, recovery verification and reviewed publication; improve through offline evaluation and approved releases of extraction/reasoning LoRA adapters. Read the [complete workflow and architecture comparison](PROPOSED_SYSTEM_WORKFLOW.md) and the [current architecture section](ARCHITECTURE.md#simplified-high-level-architecture-and-fine-tuning-role---october-14-2026). All application capabilities and performance improvements remain proposed.
+
+This section takes precedence over the historical text-only MVP and earlier training/fallback schedule below. Fine-tuning is independently evaluated by task, and model unavailability leaves numeric alerts and evidence available without silently substituting an unevaluated base-model draft. Real failure prediction remains a separately validated later phase. No factory integration, training job, deployment or automated dispatch is started by this proposal.
+
 ## Scope revision - October 13, 2026
 
 **Confirmed user direction:** combine sensor information with RAG and knowledge-graph-assisted reasoning to improve machine-state assessment; support historical and live-style inputs; demonstrate the idea using simulated data because no factory connection is available. KAG means a knowledge-graph approach here, not a commitment to OpenSPG or another framework. No application, sensor simulator, graph, retrieval system or condition model has been implemented.

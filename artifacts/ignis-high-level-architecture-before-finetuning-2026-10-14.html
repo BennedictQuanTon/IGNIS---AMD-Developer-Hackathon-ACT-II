@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>IGNIS · High-level architecture and information flow</title>
+<style>
+:root{color-scheme:dark;--page:#0c131b;--surface:#131e29;--raised:#1a2836;--text:#e9f0f6;--muted:#9fb2c5;--faint:#5d7488;--line:#344b60;--border:#2d4052;--data:#72d4ec;--knowledge:#92ddb0;--workflow:#f0c86f;--human:#f0c86f;--learning:#6fe0a0;--alert:#fa9191;--optional:#8a9bab;--interface:#bca3f5;--store:#7fb0f0;--active:#8ddbb8;--shadow:rgba(0,0,0,.25)}
+html[data-theme="light"]{color-scheme:light;--page:#f4f7fa;--surface:#fff;--raised:#eaf0f5;--text:#182b3d;--muted:#50667b;--faint:#8da0b2;--line:#b6c5d2;--border:#c9d6e0;--data:#08758c;--knowledge:#277342;--workflow:#8a5a00;--human:#8a5a00;--learning:#1d7a45;--alert:#b73442;--optional:#6b7c8c;--interface:#7350b5;--store:#2c62a8;--active:#24734f;--shadow:rgba(25,50,70,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+button,select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 13px;min-height:38px}
+button{cursor:pointer}button:hover:not(:disabled){background:var(--raised)}button:disabled{opacity:.42;cursor:default}
+button:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--data);outline-offset:3px}
+.primary{background:var(--active);color:var(--page);border-color:var(--active);font-weight:650}.primary:hover:not(:disabled){background:var(--active);filter:brightness(1.08)}
+.shell{max-width:1640px;margin:auto;padding:30px 28px 24px}
+.masthead{display:flex;justify-content:space-between;gap:20px;align-items:start}
+.eyebrow{color:var(--knowledge);letter-spacing:.17em;font-size:11px;font-weight:650;text-transform:uppercase}
+h1{font-size:clamp(24px,2.6vw,36px);line-height:1.2;letter-spacing:-.02em;font-weight:600;margin:8px 0 10px}
+.intro{color:var(--muted);margin:0;max-width:940px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pill{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:3px 10px;display:inline-flex;align-items:center;gap:7px}
+.pill:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c,var(--workflow))}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:16px 0;margin-top:18px;border-top:1px solid var(--border)}
+.toolbar label{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
+.toolbar .spacer{flex:1}
+.stage-heading{display:flex;justify-content:space-between;gap:15px;align-items:baseline;margin:4px 0 10px}
+.stage-heading h2{font-size:18px;font-weight:600;margin:0}
+.stage-heading span{color:var(--muted);font-size:12px;white-space:nowrap}
+.track{height:3px;background:var(--raised);margin-bottom:14px}.track span{display:block;height:100%;width:0;background:var(--active)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:7px}
+.legend i{width:18px;height:0;border-top:2px solid var(--c)}
+.legend i.dash{border-top-style:dashed}
+.legend b{width:14px;height:10px;border:1.5px dashed var(--human);border-radius:3px}
+.diagram{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow-x:auto}
+#map{display:block;width:100%;min-width:1180px;height:auto}
+.zone{fill:var(--faint);font:650 12px system-ui,sans-serif;letter-spacing:.16em}
+.node{cursor:pointer;outline:none}
+.node rect.card{fill:var(--surface);stroke:var(--border);stroke-width:1.5;filter:drop-shadow(0 6px 10px var(--shadow));transition:stroke .2s,fill .2s,opacity .2s}
+.node.gate rect.card{stroke:color-mix(in srgb,var(--human) 55%,var(--border));stroke-dasharray:7 5}
+.node.k-optional rect.card{stroke-dasharray:4 5;fill:transparent}
+.node .bar{fill:var(--kc)}
+.node .tag{fill:var(--muted);font:650 10px system-ui,sans-serif;letter-spacing:.12em}
+.node .title{fill:var(--text);font:600 16px system-ui,sans-serif}
+.node .sub{fill:var(--muted);font:11.5px system-ui,sans-serif}
+.node .gate-icon{fill:none;stroke:var(--human);stroke-width:1.6}
+.node .gate-icon circle{fill:var(--human);stroke:none}
+.node.k-source{--kc:var(--data)}.node.k-process{--kc:var(--active)}.node.k-store{--kc:var(--store)}.node.k-human{--kc:var(--human)}.node.k-interface{--kc:var(--interface)}.node.k-optional{--kc:var(--optional)}
+.node.active rect.card{stroke:var(--active);stroke-width:3;stroke-dasharray:none;fill:color-mix(in srgb,var(--active) 11%,var(--surface))}
+.node.active.gate rect.card{stroke:var(--human);stroke-dasharray:7 5}
+.node.blocked rect.card{stroke:var(--alert);stroke-width:3;stroke-dasharray:none;fill:color-mix(in srgb,var(--alert) 10%,var(--surface))}
+.node.selected rect.card{stroke:var(--text);stroke-width:2.5}
+.node.dim{opacity:.45}
+.platform rect{fill:color-mix(in srgb,var(--raised) 55%,transparent);stroke:var(--border);stroke-dasharray:6 6}
+.platform .tag{fill:var(--muted);font:650 10px system-ui,sans-serif;letter-spacing:.12em}
+.platform .items{fill:var(--text);font:13px system-ui,sans-serif}
+.platform .roles{fill:var(--muted);font:12px system-ui,sans-serif}
+.edge{cursor:pointer;outline:none}
+.edge .hit{stroke:transparent;stroke-width:16;fill:none}
+.edge .wire{fill:none;stroke:var(--ec);stroke-width:1.6;opacity:.32;transition:opacity .2s,stroke-width .2s}
+.edge.k-optional .wire{stroke-dasharray:6 6;opacity:.5}
+.edge.active .wire{opacity:1;stroke-width:2.8}
+.edge.quiet .wire{opacity:.85;stroke-width:2}
+.edge.selected .wire{opacity:1;stroke-width:3}
+.k-data{--ec:var(--data)}.k-knowledge{--ec:var(--knowledge)}.k-workflow{--ec:var(--workflow)}.k-learning{--ec:var(--learning)}.k-alert{--ec:var(--alert)}.k-optional{--ec:var(--optional)}
+.elabel rect{fill:var(--surface);stroke:var(--border);stroke-width:1}
+.elabel text{fill:var(--muted);font:11px system-ui,sans-serif;text-anchor:middle;dominant-baseline:central}
+.elabel.active rect{stroke:var(--ec)}.elabel.active text{fill:var(--text);font-weight:650}
+.elabel.dim{opacity:.55}
+.packet{fill:var(--ec);stroke:var(--surface);stroke-width:2}
+.packet-ring{fill:var(--ec);opacity:.18}
+.below{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:22px;margin-top:20px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;min-width:0}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:4px}
+h3{font-size:16px;font-weight:600;margin:0}
+.panel p{color:var(--muted);font-size:13px;margin:10px 0 0}
+.records{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.records span{font:12px ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--raised);border-left:3px solid var(--active);padding:4px 8px;border-radius:4px}
+.gate-line{margin-top:12px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.gate-line .who{color:var(--human);font-weight:600}
+.gate-line.terminal .who{color:var(--alert)}
+.clock{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.clock-row{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.hour{position:relative;height:30px;border:1px solid var(--border);border-radius:6px;background:var(--raised);overflow:hidden;font-size:11px;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.hour span{position:relative;z-index:1}
+.hour.collecting{border-color:var(--data);color:var(--text)}
+.hour.collecting:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--data) 22%,transparent) 0 8px,transparent 8px 16px);background-size:200% 100%;animation:flow 2.4s linear infinite}
+.hour.assessing{border:2px solid var(--active);color:var(--text);background:color-mix(in srgb,var(--active) 20%,var(--raised));font-weight:650}
+.hour.sealed{color:var(--text);background:color-mix(in srgb,var(--store) 16%,var(--raised))}
+.hour.gap{border-color:var(--alert);background:color-mix(in srgb,var(--alert) 14%,var(--raised));color:var(--text)}
+@keyframes flow{to{background-position:-46px 0}}
+.clock p{margin-top:8px;font-size:12px}
+.detail dl{display:grid;grid-template-columns:96px 1fr;gap:7px 12px;font-size:12.5px;margin:12px 0 0}
+.detail dt{color:var(--muted)}.detail dd{margin:0;overflow-wrap:anywhere}
+.contains{display:flex;flex-wrap:wrap;gap:5px}
+.contains span{font-size:11.5px;background:var(--raised);border-radius:4px;padding:2px 7px}
+.footer{margin-top:18px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11.5px}
+.footer a{color:var(--muted)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media(max-width:1000px){.below{grid-template-columns:1fr}.shell{padding:22px 16px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">IGNIS / high-level system architecture</div>
+      <h1>How information moves through IGNIS</h1>
+      <p class="intro">Sixteen components group all 36 blocks of the detailed map into the handoff's layers: intake (A), hourly assessment (B), evidence and explanation (C), incident response (D), planning (E), execution (F) and reviewed learning (G). Press Play to follow one synthetic pump incident from raw readings to a published case that informs the next hour. Click any block or arrow for details.</p>
+      <div class="pills">
+        <span class="pill">Proposed architecture · not a running system</span>
+        <span class="pill" style="--c:var(--data)">Synthetic data and fictional numbers</span>
+        <span class="pill" style="--c:var(--active)">Collect continuously · assess once per completed hour</span>
+      </div>
+    </div>
+    <button id="theme" type="button">Light theme</button>
+  </header>
+
+  <div class="toolbar" aria-label="Walkthrough controls">
+    <button class="primary" id="play" type="button">Play</button>
+    <button id="back" type="button">Back</button>
+    <button id="next" type="button">Next</button>
+    <button id="restart" type="button">Restart</button>
+    <label for="scenario">Scenario
+      <select id="scenario">
+        <option value="degrading">Degrading pump · full response</option>
+        <option value="normal">Normal hour</option>
+        <option value="insufficient">Insufficient data</option>
+        <option value="no-resource">No qualified technician</option>
+        <option value="decline">Technician declines · replan</option>
+        <option value="failed">Recovery check fails</option>
+      </select>
+    </label>
+    <label for="speed">Speed
+      <select id="speed"><option value="0.6">Slow</option><option value="1" selected>Normal</option><option value="1.7">Fast</option></select>
+    </label>
+    <label><input id="pause-gates" type="checkbox" checked> Pause at human gates</label>
+    <span class="spacer"></span>
+  </div>
+
+  <div class="stage-heading"><h2 id="stage-title"></h2><span id="stage-pos"></span></div>
+  <div class="track"><span id="progress"></span></div>
+
+  <div class="legend" aria-label="Legend">
+    <span style="--c:var(--data)"><i></i>Measurements / records</span>
+    <span style="--c:var(--knowledge)"><i></i>Knowledge evidence</span>
+    <span style="--c:var(--workflow)"><i></i>Review / workflow</span>
+    <span style="--c:var(--learning)"><i></i>Reviewed learning</span>
+    <span style="--c:var(--alert)"><i></i>Alert / exception</span>
+    <span style="--c:var(--optional)"><i class="dash"></i>Optional, separately approved</span>
+    <span><b></b>Human decision gate</span>
+  </div>
+
+  <div class="diagram">
+    <svg id="map" viewBox="0 0 1900 940" role="group" aria-label="High-level IGNIS architecture with animated information flow">
+      <defs id="defs"></defs>
+      <g id="zones"></g>
+      <g id="platform"></g>
+      <g id="edges"></g>
+      <g id="nodes"></g>
+      <g id="packets"></g>
+      <g id="labels"></g>
+    </svg>
+  </div>
+
+  <div class="below">
+    <section class="panel" aria-label="Current step">
+      <div class="kicker" id="story-step"></div>
+      <h3 id="story-title"></h3>
+      <p id="story-body"></p>
+      <div class="records" id="records" aria-label="Records in motion"></div>
+      <div class="gate-line" id="gate-line"></div>
+      <div class="clock" aria-label="Hourly cadence">
+        <div class="kicker">Hourly cadence (Bangkok time, illustrative)</div>
+        <div class="clock-row">
+          <div class="hour" id="h0"><span>[09:00, 10:00)</span></div>
+          <div class="hour" id="h1"><span>[10:00, 11:00)</span></div>
+          <div class="hour" id="h2"><span>[11:00, 12:00)</span></div>
+        </div>
+        <p id="clock-text"></p>
+      </div>
+      <div class="sr-only" id="announce" aria-live="polite"></div>
+    </section>
+    <section class="panel detail" aria-label="Selected component">
+      <div class="kicker" id="detail-kicker">Select a block or arrow</div>
+      <h3 id="detail-title"></h3>
+      <dl id="detail-list"></dl>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <span>Groups the 36 blocks and 47 routes of the detailed map. Forecast is a conditional threshold-crossing illustration, not failure prediction, RUL or a probability. Dispatch numbers are a fictional fixture, not measured savings.</span>
+    <span>Detailed map: <a href="ignis-data-flow.html">ignis-data-flow.html</a> · Source: <a href="../docs/AGENT_HANDOFF.md">AGENT_HANDOFF.md</a></span>
+  </footer>
+  <noscript><p>This walkthrough requires JavaScript.</p></noscript>
+</main>
+
+<script type="application/json" id="hl-map">
+{
+  "nodes": [
+    {"id":"sources","x":30,"y":230,"kind":"source","layer":"INPUTS","title":["Machine sources"],"sub":"sensors · logs · files","contains":["sensors","logs","files"],
+     "input":"Simulated bearing temperature, vibration RMS and motor current; machine alarms and events; stable CSV/XLSX revisions (telemetry rows or maintenance work orders).",
+     "work":"Emit timestamped records with units and source locators. A spreadsheet is only a container; each row is classified by meaning later.",
+     "output":"Raw source records and file revisions.",
+     "owner":"Source owner / data pipeline",
+     "status":"Not built. No factory connection or sensor hardware; a seeded simulator is the proposed first step."},
+    {"id":"reference","x":30,"y":500,"kind":"source","layer":"INPUTS","title":["Reference sources"],"sub":"manuals · asset IDs","contains":["docs","registry"],
+     "input":"Versioned manuals and SOPs (fictional demo guidance) and a reviewed asset registry: machine → component → sensor mounting.",
+     "work":"Supply approved document versions and reviewed identity relationships with effective dates.",
+     "output":"Approved document versions; reviewed asset / sensor links.",
+     "owner":"Document owner; data steward",
+     "status":"Not built."},
+    {"id":"intake","x":300,"y":230,"kind":"process","layer":"A · INTAKE","title":["Ingest & identity"],"sub":"validate · map · route","contains":["ingest","quality"],"internal":["e04"],
+     "input":"Raw samples, log lines and file revisions.",
+     "work":"Identify source revision, validate asset/sensor identity, timestamps, units and finite values; checkpoint and deduplicate; quarantine invalid, stale or unresolved records; route telemetry to history and maintenance rows to review.",
+     "output":"Normalized SensorObservation and MachineEvent records with event time, ingestion time and parser version; explicit data-quality notices.",
+     "owner":"Ingestion worker (application); data steward reviews quarantine",
+     "status":"Not built: no watchers, polling jobs, cursors or raw-source storage."},
+    {"id":"woreview","x":300,"y":500,"kind":"human","gate":true,"layer":"A · INTAKE","title":["Work-order review"],"sub":"annotate · approve","contains":["review_orders"],
+     "input":"Maintenance rows plus model-suggested component / fault / action spans.",
+     "work":"A person confirms column mappings and approves, corrects or rejects each annotation against the exact source text.",
+     "output":"ReviewedAnnotation revisions with reviewer attribution.",
+     "owner":"Maintenance supervisor (human gate)",
+     "status":"Not built: review UI and annotation store are proposed."},
+    {"id":"history","x":570,"y":230,"kind":"store","layer":"TRUSTED STORE","title":["Trusted history"],"sub":"readings · events","contains":["history"],"internal":[],
+     "input":"Valid observations and machine events.",
+     "work":"Keep the authoritative, append-only observation and event history with original source references. Text summaries in an index never replace these raw values.",
+     "output":"Observations and events for any requested event-time window.",
+     "owner":"Data pipeline; data steward",
+     "status":"Not built: no observation store."},
+    {"id":"knowledge","x":570,"y":500,"kind":"store","layer":"TRUSTED STORE","title":["Approved knowledge"],"sub":"orders · index · graph","contains":["approved","index","graph"],"internal":["e14","e15"],
+     "input":"Approved annotations, manual versions, asset links and published reviewed cases.",
+     "work":"Hold immutable approved work-order snapshots; index accepted passages and cases; store a typed, versioned knowledge graph (HAS_COMPONENT, INSTALLED_ON, MEASURES, APPLIES_TO…).",
+     "output":"Approved snapshot, document/case index revision, graph revision.",
+     "owner":"Data steward; knowledge reviewer",
+     "status":"Not built: graph store and retrieval library not selected (relational node/edge tables proposed first)."},
+    {"id":"hourly","x":840,"y":230,"kind":"process","layer":"B · ASSESS","title":["Hourly assessment"],"sub":"deviation · forecast","contains":["hourly","baseline","detect","forecast","counts"],"internal":["e09","e10","e11"],
+     "input":"The previous completed hour and the approved work-order snapshot.",
+     "work":"Seal [09:00, 10:00) after a grace period; check coverage and freshness; compute exact features; compare with a pinned healthy baseline (earlier reviewed-normal windows of the same asset, configuration and operating regime) and approved limits; produce a conditional trend forecast or abstain; compute exact historical counts / triage.",
+     "output":"HourlyAssessment, BaselineSnapshot, ConditionFact rows, Forecast (or abstention); a numeric alert if a rule is exceeded.",
+     "owner":"Hourly scheduler / assessment worker; rules approved by data / model owner",
+     "status":"Not built: no hourly worker. The detailed map narrates the forecast fixture."},
+    {"id":"evidence","x":1110,"y":370,"kind":"process","layer":"C · REASON","title":["Evidence &","explanation"],"sub":"RAG · graph · LLM","contains":["rag","kag","evidence","assessment"],"internal":["e19","e24","e25","e26"],
+     "input":"Condition facts, forecast, counts, applicable passages and graph paths.",
+     "work":"Graph resolves asset identity and applicability; those filter RAG before ranking; everything is frozen into an EvidencePack; the LLM drafts wording over bounded facts; a checker validates quantities, units, scope and support.",
+     "output":"Checked assessment separating measured facts, derived state, labelled hypotheses and uncertainty.",
+     "owner":"Application services. The LLM explains only and has no approval authority.",
+     "status":"Not built: no retrieval, graph execution, model inference or claim validation."},
+    {"id":"reporting","x":1380,"y":90,"kind":"interface","gate":true,"layer":"OUTPUT","title":["Reports & exports"],"sub":"draft · sign-off · PDF","contains":["workspace","report_review","exports"],"internal":["e46","e47"],
+     "input":"Checked explanation and pinned evidence.",
+     "work":"Show the dashboard; draft an evidence-linked report whose numbers bind to typed fact IDs; require independent sign-off before issue.",
+     "output":"Signed-off PDF report and approved coded CSV/XLSX export.",
+     "owner":"Report approver (human gate), independent of incident approvals",
+     "status":"Not built: no PDF or export generation."},
+    {"id":"incident","x":1380,"y":370,"kind":"human","gate":true,"layer":"D · RESPOND","title":["Incident &","expert review"],"sub":"confirm · scope","contains":["incident","expert","job"],"internal":["e29","e30"],
+     "input":"Numeric alert and checked evidence.",
+     "work":"Create an owned alert case with urgency, acknowledgement deadline and escalation; an expert confirms, corrects, rejects or marks inconclusive; an inspection can be authorized while the cause is still unknown.",
+     "output":"Incident, ExpertReview, MaintenanceJob and JobRequirements (skills, duration, crew, parts, access).",
+     "owner":"Incident owner; reliability engineer / diagnostic expert (human gate)",
+     "status":"Not built: the detailed map demonstrates this gate with local buttons only."},
+    {"id":"roster","x":1650,"y":90,"kind":"store","layer":"OPERATIONAL STORE","title":["Technicians &","resources"],"sub":"skills · shifts","contains":["roster"],
+     "input":"Qualifications and expiry, authorizations, shifts, locations, bookings, parts and tools.",
+     "work":"Act as the authoritative current source. Retrieved historical text never establishes availability.",
+     "output":"Pinned ResourceSnapshot for planning.",
+     "owner":"Dispatcher / planning data owner",
+     "status":"Not built: fixture data only."},
+    {"id":"schedule","x":1650,"y":370,"kind":"process","layer":"E · PLAN","title":["Match & schedule"],"sub":"eligibility → loss","contains":["schedule"],
+     "input":"Approved job requirements and the resource snapshot.",
+     "work":"Apply hard eligibility first, then compare feasible pairings across pending jobs by estimated production loss (stopped asset: wait + travel + repair).",
+     "output":"ScheduleCandidate with exclusions, alternatives and objective breakdown, or explicit infeasibility.",
+     "owner":"Scheduling service; dispatcher reviews",
+     "status":"Fixture only: the detailed map computes a two-job, two-technician example. No optimizer or booking service."},
+    {"id":"field","x":1650,"y":650,"kind":"human","gate":true,"layer":"F · EXECUTE","title":["Dispatch &","field work"],"sub":"book · accept · repair","contains":["dispatch","accept","work"],"internal":["e34","e35"],
+     "input":"Recommended booking with pinned resource revisions.",
+     "work":"Dispatcher approves or defers; the booking is reserved atomically; the technician accepts or declines (decline → release and replan); field work records actual times, findings, parts and deviations.",
+     "output":"Booking and WorkExecution records.",
+     "owner":"Dispatcher; field technician (human gates)",
+     "status":"Not built: no booking transactions or field records."},
+    {"id":"recovery","x":1380,"y":650,"kind":"human","gate":true,"layer":"F · EXECUTE","title":["Verify recovery"],"sub":"condition · output","contains":["recovery"],
+     "input":"Field findings, post-work readings and production evidence.",
+     "work":"Check post-work condition under a comparable operating regime and that production actually resumed. Work complete does not mean recovered.",
+     "output":"RecoveryVerification: verified, or reopen / escalate the incident.",
+     "owner":"Recovery verifier (human gate)",
+     "status":"Not built."},
+    {"id":"learning","x":1110,"y":650,"kind":"human","gate":true,"layer":"G · LEARN","title":["Reviewed learning"],"sub":"correct · publish","contains":["case_review","publish"],"internal":["e40"],
+     "input":"Verified outcome linked to the assessment, expert decisions and field evidence.",
+     "work":"Review and correct the case (original hypotheses keep their original status); a separate approval publishes it to index and graph with consistent versions.",
+     "output":"ReviewedCase and KnowledgeUpdateJob (new index / graph revisions).",
+     "owner":"Knowledge reviewer (two separate human gates)",
+     "status":"Not built: no case store or publication job."},
+    {"id":"model","x":840,"y":650,"kind":"optional","gate":true,"layer":"OPTIONAL","title":["Model / rule","approval"],"sub":"separate · inactive","contains":["model_review"],
+     "input":"Reviewed outcomes as candidate training / rule evidence.",
+     "work":"Independent evaluation and approval of a forecast model, baseline or rule version with effective time and rollback.",
+     "output":"A new approved version for the forecast service or healthy baseline.",
+     "owner":"Data / model owner (independent approval)",
+     "status":"Optional and inactive in the default design. Case publication never retrains or changes thresholds."}
+  ],
+  "edges": [
+    {"id":"src","from":"sources","to":"intake","kind":"data","points":[[200,285],[300,285]],"label":"raw records","at":[250,285],"covers":["e01","e02","e03"],"moves":"Samples with units and time, alarms / events, stable file revisions."},
+    {"id":"hist","from":"intake","to":"history","kind":"data","points":[[470,285],[570,285]],"label":"valid records","at":[520,285],"covers":["e05"],"moves":"Validated telemetry and events. Invalid or stale data stays inside intake as an explicit quality notice."},
+    {"id":"wo","from":"intake","to":"woreview","kind":"data","points":[[385,340],[385,500]],"label":"WO rows + suggestions","at":[385,420],"covers":["e06"],"moves":"Maintenance rows with suggested component / fault / action spans."},
+    {"id":"appr","from":"woreview","to":"knowledge","kind":"workflow","points":[[470,555],[570,555]],"label":"approved","at":[520,555],"covers":["e07"],"moves":"Approved annotations with reviewer attribution."},
+    {"id":"ref","from":"reference","to":"knowledge","kind":"knowledge","points":[[115,610],[115,640],[625,640],[625,610]],"label":"manuals · asset links","at":[370,640],"covers":["e12","e13"],"moves":"Approved document versions and reviewed asset / sensor links. Inside the store, approved work orders also feed the index and graph."},
+    {"id":"hour","from":"history","to":"hourly","kind":"data","points":[[740,285],[840,285]],"label":"completed hour","at":[790,285],"covers":["e08"],"moves":"Observations and events for the previous completed hour only, plus earlier history for baseline selection."},
+    {"id":"snap","from":"knowledge","to":"hourly","kind":"data","points":[[740,530],[880,530],[880,340]],"label":"snapshot","at":[880,435],"covers":["e16"],"moves":"Fixed approved work-order snapshot for exact counts and historical triage."},
+    {"id":"ctx","from":"knowledge","to":"evidence","kind":"knowledge","points":[[740,585],[1080,585],[1080,455],[1110,455]],"label":"RAG + graph context","at":[810,585],"covers":["e17","e18"],"moves":"Applicable source passages and asset / fault links, filtered by identity, time and applicability before ranking."},
+    {"id":"facts","from":"hourly","to":"evidence","kind":"data","points":[[1010,310],[1060,310],[1060,410],[1110,410]],"label":"facts","at":[1060,360],"covers":["e21","e22","e23"],"moves":"Measured differences and quality, conditional forecast or abstention, counts / past triage."},
+    {"id":"alert","from":"hourly","to":"incident","kind":"alert","points":[[1010,260],[1465,260],[1465,370]],"label":"alert · before any LLM","at":[1330,260],"covers":["e20"],"moves":"A deviation creates an owned alert before any language model runs, so the alert survives model failure."},
+    {"id":"report","from":"evidence","to":"reporting","kind":"knowledge","points":[[1195,370],[1195,145],[1380,145]],"label":"checked explanation","at":[1290,145],"covers":["e27"],"moves":"Checked explanation and uncertainty for the dashboard and an evidence-linked report draft; inside the block: draft → sign-off → export."},
+    {"id":"review","from":"evidence","to":"incident","kind":"knowledge","points":[[1280,425],[1380,425]],"label":"evidence pack","at":[1330,425],"covers":["e28"],"moves":"Hypotheses plus supporting evidence; inside the block the alert owner, deadline and escalation reach the expert."},
+    {"id":"scope","from":"incident","to":"schedule","kind":"workflow","points":[[1550,425],[1650,425]],"label":"approved scope","at":[1600,425],"covers":["e31"],"moves":"Approved inspection / repair scope: skills, duration, crew, parts and access."},
+    {"id":"roster","from":"roster","to":"schedule","kind":"workflow","points":[[1735,200],[1735,370]],"label":"qualifications · shifts","at":[1735,285],"covers":["e32"],"moves":"Qualifications, shifts and current bookings from the operational store."},
+    {"id":"plan","from":"schedule","to":"field","kind":"workflow","points":[[1735,480],[1735,650]],"label":"feasible plan + loss","at":[1735,565],"covers":["e33"],"moves":"Feasible plan with estimated loss to the dispatcher; inside the block: reserved slot → accepted work order."},
+    {"id":"decline","from":"field","to":"schedule","kind":"alert","points":[[1820,705],[1855,705],[1855,450],[1820,450]],"label":"replan","at":[1855,578],"covers":["e36"],"moves":"Technician declines → reservation released → scheduling reruns and needs a new dispatcher approval."},
+    {"id":"done","from":"field","to":"recovery","kind":"workflow","points":[[1650,705],[1550,705]],"label":"field findings","at":[1600,705],"covers":["e37"],"moves":"Findings and actual work timestamps."},
+    {"id":"fail","from":"recovery","to":"incident","kind":"alert","points":[[1465,650],[1465,480]],"label":"fail → reopen","at":[1465,565],"covers":["e38"],"moves":"Failed check reopens or escalates the incident and blocks publication."},
+    {"id":"verified","from":"recovery","to":"learning","kind":"workflow","points":[[1380,705],[1280,705]],"label":"verified","at":[1330,705],"covers":["e39"],"moves":"Verified restoration and field evidence; inside the block: accepted / corrected case revision → publication approval."},
+    {"id":"learn","from":"learning","to":"knowledge","kind":"learning","points":[[1195,760],[1195,795],[685,795],[685,610]],"label":"reviewed case → index + graph","at":[940,795],"covers":["e41","e42"],"moves":"Published reviewed case becomes a new index and graph revision for future assessments."},
+    {"id":"cand","from":"learning","to":"model","kind":"optional","points":[[1110,705],[1010,705]],"label":"candidate","at":[1060,705],"covers":["e43"],"moves":"Candidate training / rule evidence. Never triggers automatic retraining."},
+    {"id":"newver","from":"model","to":"hourly","kind":"optional","points":[[960,650],[960,340]],"label":"new version","at":[960,480],"covers":["e44","e45"],"moves":"A separately approved forecast model or healthy-baseline / rule version."}
+  ]
+}
+</script>
+
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const DATA = JSON.parse($('hl-map').textContent);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+const mk = (tag, attrs = {}, parent) => {
+  const el = document.createElementNS(NS, tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  if (parent) parent.append(el);
+  return el;
+};
+const nodeById = new Map(DATA.nodes.map(n => [n.id, n]));
+const edgeById = new Map(DATA.edges.map(e => [e.id, e]));
+const W = 170, H = 110;
+
+const BLOCK_TITLES = {sensors:'Sensors',logs:'Machine logs',files:'CSV / XLSX',docs:'Manuals / SOPs',registry:'Asset registry',ingest:'Ingest & map',quality:'Data quality',review_orders:'Review work orders',history:'Sensor / event history',approved:'Approved work orders',index:'Document / case index',baseline:'Healthy baseline',hourly:'Hourly window',rag:'RAG retrieval',graph:'Knowledge graph',forecast:'Forecast service',detect:'Deviation check',counts:'History analytics',kag:'Graph reasoning',assessment:'Checked assessment',evidence:'Evidence pack',case_review:'Review repair outcome',publish:'Publish reviewed case',workspace:'Dashboard / reports',expert:'Expert confirmation',incident:'Owned alert case',recovery:'Verify recovery',roster:'Technician / resources',job:'Approved job scope',work:'Inspection / repair',report_review:'Report sign-off',schedule:'Match & schedule',dispatch:'Dispatcher approval',accept:'Technician acceptance',exports:'PDF / CSV export',model_review:'Model / rule approval'};
+
+/* ---------- static drawing ---------- */
+const defs = $('defs');
+['data','knowledge','workflow','learning','alert','optional'].forEach(k => {
+  const m = mk('marker', {id:'m-'+k, viewBox:'0 0 10 10', refX:9, refY:5, markerWidth:7, markerHeight:7, orient:'auto-start-reverse', class:'k-'+k}, defs);
+  mk('path', {d:'M0 0L10 5L0 10z', style:'fill:var(--ec)'}, m);
+});
+
+const zones = $('zones');
+mk('text', {class:'zone', x:30, y:205}, zones).textContent = 'DETECT & EXPLAIN · ONCE PER COMPLETED HOUR';
+mk('text', {class:'zone', x:1380, y:62}, zones).textContent = 'RESPOND · OWNED AND HUMAN-GATED';
+mk('text', {class:'zone', x:30, y:690}, zones).textContent = 'LEARN · REVIEWED KNOWLEDGE RETURNS ↺';
+
+const plat = mk('g', {class:'platform'}, $('platform'));
+mk('rect', {x:30, y:832, width:1790, height:88, rx:12}, plat);
+mk('text', {class:'tag', x:50, y:856}, plat).textContent = 'SHARED PLATFORM (PROPOSED) · ONE SMALL APPLICATION, NOT ONE SERVICE PER BOX';
+mk('text', {class:'items', x:50, y:880}, plat).textContent = 'Browser UI  ·  Authenticated API (authorization, audit, revision checks)  ·  Relational system of record  ·  Background worker + hourly scheduler  ·  Versioned file storage  ·  One graph  ·  One retrieval pipeline  ·  Replaceable inference adapter (no approval authority)';
+mk('text', {class:'roles', x:50, y:904}, plat).textContent = 'Division of work: code computes features, counts, eligibility and schedules · RAG retrieves cited passages · the graph resolves identity and applicability · the LLM explains bounded facts · humans review, authorize, accept, verify and publish.';
+
+const edgeEls = new Map();
+DATA.edges.forEach(e => {
+  const d = 'M' + e.points.map(p => p.join(' ')).join(' L ');
+  const g = mk('g', {class:'edge k-'+e.kind, tabindex:0, role:'button', 'aria-label':`${nodeById.get(e.from).title.join(' ')} to ${nodeById.get(e.to).title.join(' ')}: ${e.label}`}, $('edges'));
+  mk('path', {d, class:'hit'}, g);
+  const path = mk('path', {d, class:'wire', 'marker-end':`url(#m-${e.kind})`}, g);
+  const lg = mk('g', {class:'elabel k-'+e.kind}, $('labels'));
+  const rect = mk('rect', {rx:6}, lg);
+  const text = mk('text', {x:e.at[0], y:e.at[1]}, lg);
+  text.textContent = e.label;
+  const w = text.getComputedTextLength() + 14;
+  rect.setAttribute('x', e.at[0] - w/2); rect.setAttribute('y', e.at[1] - 10);
+  rect.setAttribute('width', w); rect.setAttribute('height', 20);
+  const pick = () => selectEdge(e.id);
+  g.addEventListener('click', pick);
+  lg.style.cursor = 'pointer'; lg.addEventListener('click', pick);
+  g.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } });
+  edgeEls.set(e.id, {g, path, lg, len: 0});
+});
+
+const nodeEls = new Map();
+DATA.nodes.forEach(n => {
+  const g = mk('g', {class:`node k-${n.kind}${n.gate ? ' gate' : ''}`, transform:`translate(${n.x} ${n.y})`, tabindex:0, role:'button', 'aria-label':n.title.join(' ')}, $('nodes'));
+  mk('rect', {class:'card', width:W, height:H, rx:12}, g);
+  mk('rect', {class:'bar', x:0, y:14, width:3, height:H-28, rx:1.5}, g);
+  mk('text', {class:'tag', x:14, y:24}, g).textContent = n.layer;
+  const two = n.title.length > 1;
+  n.title.forEach((line, i) => { mk('text', {class:'title', x:14, y:(two ? 50 : 56) + i*20}, g).textContent = line; });
+  mk('text', {class:'sub', x:14, y:two ? 95 : 86}, g).textContent = n.sub;
+  if (n.gate) {
+    const ic = mk('g', {class:'gate-icon', transform:`translate(${W-22} 12)`}, g);
+    mk('circle', {cx:6, cy:4, r:3.4}, ic);
+    mk('path', {d:'M0 16 a6 6 0 0 1 12 0'}, ic);
+  }
+  const pick = () => selectNode(n.id);
+  g.addEventListener('click', pick);
+  g.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pick(); } });
+  nodeEls.set(n.id, g);
+});
+edgeEls.forEach(el => { el.len = el.path.getTotalLength(); });
+
+/* ---------- dispatch fixture (handoff §18.3) ---------- */
+function dispatchFixture(noneAvailable) {
+  const techs = [{id:'A', qualified:false, wait:0}, {id:'B', qualified:true, wait:10}, {id:'C', qualified:true, wait:0}];
+  const travel = {B:{J1:20, J2:10}, C:{J1:30, J2:20}};
+  const repair = {B:{J1:30, J2:30}, C:{J1:20, J2:20}};
+  const rate = {J1:1200, J2:300};
+  const eligible = techs.filter(t => t.qualified && !noneAvailable);
+  const pairs = [];
+  for (const a of eligible) for (const b of eligible) if (a !== b) {
+    const r1 = a.wait + travel[a.id].J1 + repair[a.id].J1;
+    const r2 = b.wait + travel[b.id].J2 + repair[b.id].J2;
+    pairs.push({j1:a.id, j2:b.id, r1, r2, loss: rate.J1*r1/60 + rate.J2*r2/60});
+  }
+  pairs.sort((p, q) => p.loss - q.loss);
+  return {pairs, best: pairs[0] || null};
+}
+const fx = dispatchFixture(false);
+const fmt = v => '$' + v.toLocaleString('en-US', {maximumFractionDigits:0});
+const pairText = fx.pairs.map(p => `${p.j1}→J1 (${p.r1} min) + ${p.j2}→J2 (${p.r2} min) = ${fmt(p.loss)}`).join('; ');
+const saving = fx.pairs.length > 1 ? fx.pairs[fx.pairs.length-1].loss - fx.best.loss : 0;
+
+/* ---------- walkthrough stages ---------- */
+const AFTER = {clock:['sealed','collecting',''], clockText:'The response proceeds while [10:00, 11:00) keeps collecting. Step timing here is presentation order, not real response or repair durations.'};
+const S = {
+  collect: {title:'Collect continuously', nodes:['sources','intake','history','woreview'], edges:['src','hist','wo'],
+    body:'Simulated PUMP-01 readings, machine events and CSV/XLSX revisions arrive all hour. Intake binds each record to an asset, sensor, unit and event time, deduplicates repeats and routes it by meaning: telemetry to history, maintenance rows to review. Nothing is diagnosed per sample.',
+    records:['SourceRevision','SensorObservation','MachineEvent','ExtractionSuggestion'], clock:['collecting','',''],
+    clockText:'Collecting [09:00, 10:00). Raw charts and freshness update live, but no condition conclusion is drawn yet.'},
+  knowledge: {title:'Prepare approved knowledge', nodes:['woreview','reference','knowledge'], edges:['appr','ref'], gate:'Maintenance supervisor approves or corrects work-order annotations.',
+    body:'A person approves extracted component / fault / action annotations. Approved manuals and reviewed asset links join them in one versioned store: an immutable work-order snapshot, a document / case index and a typed knowledge graph (e.g. PUMP-01 HAS_COMPONENT BEARING-01; SENSOR-TEMP-01 INSTALLED_ON BEARING-01).',
+    records:['ReviewedAnnotation','ApprovedFactSnapshot','DocumentChunk','graph revision'], clock:['collecting','',''],
+    clockText:'Knowledge updates happen as sources change, independent of the hourly clock.'},
+  assess: {title:'10:00 — assess the completed hour once', nodes:['history','knowledge','hourly'], edges:['hour','snap'],
+    body:'After a grace period, the worker seals [09:00, 10:00), checks coverage and freshness, and compares exact features with a baseline from earlier normal windows of the same asset and operating regime. Fixture: 72 → 76 → 80 °C, +4 °C/h; against a fictional 85 °C limit the conditional crossing is (85 − 80) / 4 = 1.25 h → about 11:15, if the trend continues. That is not a failure time, RUL or probability.',
+    records:['ObservationWindow','BaselineSnapshot','HourlyAssessment','ConditionFact','Forecast'], clock:['assessing','collecting',''],
+    clockText:'At the 10:00 boundary [09:00, 10:00) is assessed exactly once. A sample stamped 10:00:00 belongs to the next hour.'},
+  alert: {title:'Deviation → owned alert, before any LLM', nodes:['hourly','incident'], edges:['alert'],
+    body:'The deviation rule is exceeded, so an alert case with an owner, urgency, acknowledgement deadline and escalation policy is created from numbers alone. The alert means review is needed, not that a failure is confirmed. If retrieval or the LLM is down, the alert and expert queue still stand.',
+    records:['Incident / AlertCase'], ...AFTER},
+  evidence: {title:'Assemble and check the evidence', nodes:['hourly','knowledge','evidence'], edges:['facts','ctx'],
+    body:'The graph resolves which bearing the sensor measures and which manual and profile versions apply; those identities filter RAG before ranking, so a similar paragraph about the wrong machine is excluded. Facts, forecast, counts, passages and graph paths are frozen into an evidence pack. The LLM drafts an explanation; a checker blocks any number, unit, asset or time scope the pack does not support.',
+    records:['EvidencePack DEMO-EP-001','StateAssessment'], ...AFTER},
+  report: {title:'Reporting branch (independent)', nodes:['evidence','reporting'], edges:['report'], gate:'Report approver signs off before a PDF or coded export is issued.',
+    body:'The checked explanation reaches the dashboard and an evidence-linked report draft. Every quantity binds to a typed fact ID, snapshot, entity, unit and interval. Report sign-off is independent of expert review, booking and case publication.',
+    records:['ReportClaim','ReportJob'], ...AFTER},
+  expert: {title:'Expert review authorizes a bounded task', nodes:['evidence','incident'], edges:['review'], gate:'Reliability expert confirms, corrects, rejects or marks inconclusive.',
+    body:'The owned incident and its evidence pack reach a reliability expert. Abnormal condition can be confirmed while the root cause stays unknown (bearing wear vs loose mounting), which still authorizes an inspection. The approved scope lists skills, duration, crew, parts and access; the LLM cannot write it.',
+    records:['ExpertReview','MaintenanceJob','JobRequirements'], ...AFTER},
+  schedule: {title:'Match qualified technicians, minimise estimated loss', nodes:['incident','roster','schedule'], edges:['scope','roster'],
+    body:`Hard eligibility comes first: technician A is unqualified and excluded despite the shortest travel. Two fictional stopped jobs (J1 $1,200/h, J2 $300/h) are compared exhaustively: ${pairText}. Computed choice: ${fx.best.j1}→J1, ${fx.best.j2}→J2, ${fmt(saving)} less modelled loss within this fixture only.`,
+    records:['TechnicianProfile','ResourceSnapshot','ScheduleCandidate'], ...AFTER},
+  dispatch: {title:'Dispatch, accept and do the work', nodes:['schedule','field'], edges:['plan'], gate:'Dispatcher approves the booking; the technician accepts or declines.',
+    body:'The dispatcher approves the candidate against current resource revisions and the slot is reserved. The technician accepts, travels and performs the authorised inspection, recording actual times, findings and parts: the inspection finds loose mounting.',
+    records:['Booking','WorkExecution'], ...AFTER},
+  recover: {title:'Verify recovery independently', nodes:['field','recovery'], edges:['done'], gate:'Recovery verifier confirms post-work condition and restored production.',
+    body:'A separate verifier checks post-work readings under a comparable operating regime and confirms production resumed. Work complete does not mean recovered, and normal sensors alone do not prove the diagnosis.',
+    records:['RecoveryVerification'], ...AFTER},
+  learn: {title:'Review and publish the case', nodes:['recovery','learning','model'], edges:['verified'], quiet:['cand'], gate:'Knowledge reviewer approves the corrected case, then publication separately.',
+    body:'The knowledge reviewer records the corrected finding (loose mounting); the original "bearing wear" hypothesis remains in history with its original status. A second approval publishes the case. The dashed model / rule path stays inactive: publication never retrains a model or moves a threshold.',
+    records:['ReviewedCase','KnowledgeUpdateJob'], ...AFTER},
+  back: {title:'Reviewed knowledge returns for the next hour', nodes:['learning','knowledge','evidence'], edges:['learn'], quiet:['newver'],
+    body:'The published case becomes a new index and graph revision. The next assessment can retrieve it as applicable evidence. Earlier assessments and issued reports keep their pinned old versions.',
+    records:['index revision','graph revision'], clock:['sealed','assessing','collecting'],
+    clockText:'At 11:00, [10:00, 11:00) is assessed using the newly published case; the 10:00 assessment is not rewritten.'},
+  // scenario endings and exceptions
+  normalEnd: {title:'Normal hour — record and keep collecting', nodes:['hourly','history'], edges:['hour'], terminal:'ok',
+    body:'No rule is exceeded. The assessment is recorded as normal with its baseline and rule versions. No alert, diagnosis, dispatch or case publication happens; the next check is at 11:00.',
+    records:['HourlyAssessment (normal)'], clock:['sealed','collecting',''], clockText:'[09:00, 10:00) sealed as normal; [10:00, 11:00) is collecting.'},
+  collectGap: {title:'Collect — with gaps', nodes:['sources','intake','history'], edges:['src','hist'],
+    body:'The vibration feed stops for 25 minutes and several temperature rows carry unresolved sensor IDs. Intake quarantines them with explicit quality notices instead of guessing identity or filling values.',
+    records:['SensorObservation','data-quality notice'], clock:['gap','',''], clockText:'[09:00, 10:00) is collecting with missing coverage.'},
+  insufficientEnd: {title:'Insufficient data — abstain explicitly', nodes:['intake','hourly'], edges:['hour'], terminal:'stop', blocked:['hourly'],
+    body:'Coverage is below the required threshold, so the assessment abstains with a quality / baseline notice and asks for the missing evidence. It never shows a "healthy" result, a forecast or a dispatch.',
+    records:['HourlyAssessment (insufficient)'], clock:['gap','collecting',''], clockText:'[09:00, 10:00) marked insufficient; no healthy result is shown.'},
+  noResourceEnd: {title:'No qualified technician — escalate', nodes:['incident','roster','schedule'], edges:['scope','roster'], terminal:'stop', blocked:['schedule','incident'],
+    body:'The approved scope exists, but no qualified, available technician remains after hard eligibility. The job stays visibly unassigned and escalates through the incident owner. No zero-cost "winner" and no booking are produced.',
+    records:['ScheduleCandidate (infeasible)','escalation'], ...AFTER},
+  declined: {title:'Technician declines — release and replan', nodes:['field','schedule'], edges:['plan','decline'], blocked:['field'],
+    body:'The technician declines the reserved slot. The reservation is released and scheduling reruns on the current resource snapshot; a new dispatcher approval is required before any work starts.',
+    records:['Booking (declined)','ScheduleCandidate r2'], ...AFTER},
+  failEnd: {title:'Recovery check fails — reopen', nodes:['recovery','incident'], edges:['done','fail'], terminal:'stop', blocked:['recovery','incident'],
+    body:'Post-work vibration is still above the reviewed limit. The verifier records a failed check, the incident is reopened and escalated, and case review / publication are blocked. Nothing unverified becomes knowledge.',
+    records:['RecoveryVerification (failed)','Incident (reopened)'], ...AFTER}
+};
+const SCENARIOS = {
+  'degrading':   ['collect','knowledge','assess','alert','evidence','report','expert','schedule','dispatch','recover','learn','back'],
+  'normal':      ['collect','knowledge','assess','normalEnd'],
+  'insufficient':['collectGap','knowledge','insufficientEnd'],
+  'no-resource': ['collect','knowledge','assess','alert','evidence','expert','noResourceEnd'],
+  'decline':     ['collect','knowledge','assess','alert','evidence','expert','schedule','dispatch','declined','schedule','dispatch','recover','learn','back'],
+  'failed':      ['collect','knowledge','assess','alert','evidence','expert','schedule','dispatch','failEnd']
+};
+
+/* ---------- state + rendering ---------- */
+const DUR = 4200;
+const state = {scenario:'degrading', i:0, t:0, playing:false, held:false, done:false, speed:1};
+let stages = SCENARIOS.degrading.map(k => S[k]);
+let raf = 0, last = 0, packets = [];
+
+function activeEdges(st) { return st.edges.filter(id => edgeById.get(id).kind !== 'optional'); }
+
+function buildPackets(st) {
+  $('packets').replaceChildren();
+  packets = [];
+  if (reduced.matches) return;
+  activeEdges(st).forEach(id => {
+    const e = edgeById.get(id), el = edgeEls.get(id);
+    const n = el.len > 300 ? 3 : 2;
+    for (let k = 0; k < n; k++) {
+      const ring = mk('circle', {class:'packet-ring k-'+e.kind, r:11}, $('packets'));
+      const dot = mk('circle', {class:'packet k-'+e.kind, r:5.5}, $('packets'));
+      packets.push({el, dot, ring, offset:k/n});
+    }
+  });
+}
+function drawPackets() {
+  const phase = state.t / 2600;
+  packets.forEach(p => {
+    const f = (phase + p.offset) % 1;
+    const pt = p.el.path.getPointAtLength(f * p.el.len);
+    const tr = `translate(${pt.x} ${pt.y})`;
+    p.dot.setAttribute('transform', tr); p.ring.setAttribute('transform', tr);
+  });
+}
+
+function render() {
+  const st = stages[state.i], n = stages.length;
+  const on = new Set(st.nodes), blocked = new Set(st.blocked || []);
+  const act = new Set(st.edges), quiet = new Set(st.quiet || []);
+  nodeEls.forEach((g, id) => {
+    g.classList.toggle('active', on.has(id) && !blocked.has(id));
+    g.classList.toggle('blocked', blocked.has(id));
+    g.classList.toggle('dim', !on.has(id));
+  });
+  edgeEls.forEach((el, id) => {
+    el.g.classList.toggle('active', act.has(id));
+    el.g.classList.toggle('quiet', quiet.has(id));
+    el.lg.classList.toggle('active', act.has(id) || quiet.has(id));
+    el.lg.classList.toggle('dim', !act.has(id) && !quiet.has(id));
+  });
+  $('stage-title').textContent = st.title;
+  $('stage-pos').textContent = `Step ${state.i+1} of ${n}`;
+  $('story-step').textContent = `Step ${String(state.i+1).padStart(2,'0')} / ${n} · ${$('scenario').selectedOptions[0].text}`;
+  $('story-title').textContent = st.title;
+  $('story-body').textContent = st.body;
+  $('records').replaceChildren(...st.records.map(r => { const s = document.createElement('span'); s.textContent = r; return s; }));
+  const gl = $('gate-line'); gl.replaceChildren(); gl.className = 'gate-line';
+  if (st.gate) {
+    gl.innerHTML = `<span class="who">Human gate</span><span>${st.gate}</span>`;
+    if (state.held) { const note = document.createElement('span'); note.textContent = '— paused; press "Approve & continue" (simulated decision).'; note.style.color = 'var(--muted)'; gl.append(note); }
+  } else if (st.terminal) {
+    gl.classList.add('terminal');
+    gl.innerHTML = `<span class="who" style="${st.terminal==='ok'?'color:var(--active)':''}">${st.terminal==='ok'?'Branch ends':'Flow stops'}</span><span>${st.terminal==='ok'?'No further work is triggered.':'No downstream step runs until people resolve this.'}</span>`;
+  }
+  ['h0','h1','h2'].forEach((h, k) => { $(h).className = 'hour ' + (st.clock[k] || ''); });
+  $('clock-text').textContent = st.clockText;
+  const isLast = state.i === n - 1;
+  $('play').textContent = state.playing ? 'Pause' : (state.done ? 'Finished' : 'Play');
+  $('play').disabled = state.done;
+  $('back').disabled = state.i === 0;
+  $('next').disabled = isLast;
+  $('next').textContent = state.held ? 'Approve & continue' : 'Next';
+  $('next').classList.toggle('primary', state.held);
+  $('progress').style.width = Math.min(100, (state.i + (state.done ? 1 : state.t / DUR)) / n * 100) + '%';
+}
+
+function go(i) {
+  state.i = Math.max(0, Math.min(stages.length - 1, i));
+  state.t = 0; state.held = false; state.done = false; last = 0;
+  buildPackets(stages[state.i]); drawPackets(); render();
+  $('announce').textContent = stages[state.i].title;
+}
+function tick(now) {
+  if (!state.playing) return;
+  const dt = last ? Math.min(now - last, 100) : 0; last = now;
+  state.t += dt * state.speed;
+  drawPackets();
+  if (state.t >= DUR) {
+    const st = stages[state.i];
+    if (state.i === stages.length - 1) { state.playing = false; state.done = true; render(); return; }
+    if (st.gate && $('pause-gates').checked) { state.playing = false; state.held = true; state.t = DUR; render(); return; }
+    go(state.i + 1);
+  } else {
+    $('progress').style.width = ((state.i + state.t / DUR) / stages.length * 100) + '%';
+  }
+  raf = requestAnimationFrame(tick);
+}
+function play() { if (state.done) return; state.held = false; state.playing = true; last = 0; render(); cancelAnimationFrame(raf); raf = requestAnimationFrame(tick); }
+function pause() { state.playing = false; cancelAnimationFrame(raf); render(); }
+
+$('play').onclick = () => state.playing ? pause() : play();
+$('next').onclick = () => { const resume = state.held || state.playing; go(state.i + 1); if (resume) play(); };
+$('back').onclick = () => { pause(); go(state.i - 1); };
+$('restart').onclick = () => { pause(); go(0); play(); };
+$('speed').onchange = e => { state.speed = Number(e.target.value); };
+$('scenario').onchange = e => { pause(); state.scenario = e.target.value; stages = SCENARIOS[state.scenario].map(k => S[k]); go(0); };
+$('theme').onclick = () => {
+  const light = document.documentElement.dataset.theme !== 'light';
+  document.documentElement.dataset.theme = light ? 'light' : 'dark';
+  $('theme').textContent = light ? 'Dark theme' : 'Light theme';
+};
+document.addEventListener('visibilitychange', () => { if (document.hidden && state.playing) pause(); });
+reduced.addEventListener('change', () => { buildPackets(stages[state.i]); drawPackets(); });
+
+/* ---------- details panel ---------- */
+function setDetail(kicker, title, rows) {
+  $('detail-kicker').textContent = kicker;
+  $('detail-title').textContent = title;
+  const dl = $('detail-list'); dl.replaceChildren();
+  rows.forEach(([k, v]) => {
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd');
+    if (v instanceof Node) dd.append(v); else dd.textContent = v;
+    dl.append(dt, dd);
+  });
+}
+function chips(list) { const d = document.createElement('div'); d.className = 'contains'; list.forEach(x => { const s = document.createElement('span'); s.textContent = x; d.append(s); }); return d; }
+function clearSelection() { nodeEls.forEach(g => g.classList.remove('selected')); edgeEls.forEach(el => el.g.classList.remove('selected')); }
+function selectNode(id) {
+  const n = nodeById.get(id); clearSelection(); nodeEls.get(id).classList.add('selected');
+  const rows = [['Contains', chips(n.contains.map(c => BLOCK_TITLES[c]))]];
+  if (n.internal && n.internal.length) rows.push(['Internal routes', chips(n.internal)]);
+  rows.push(['Input', n.input], ['Does', n.work], ['Output', n.output], ['Decides', n.owner], ['Today', n.status]);
+  setDetail(n.layer + (n.gate ? ' · human gate' : ''), n.title.join(' '), rows);
+}
+function selectEdge(id) {
+  const e = edgeById.get(id); clearSelection(); edgeEls.get(id).g.classList.add('selected');
+  const kinds = {data:'Measurement / record flow', knowledge:'Knowledge evidence', workflow:'Review / workflow', learning:'Reviewed learning', alert:'Alert / exception path', optional:'Optional, separately approved (inactive by default)'};
+  setDetail('Information flow', `${nodeById.get(e.from).title.join(' ')} → ${nodeById.get(e.to).title.join(' ')}`, [
+    ['Carries', e.moves], ['Type', kinds[e.kind]], ['Full-map routes', chips(e.covers)]
+  ]);
+}
+
+go(0);
+selectNode('hourly');
+if (!reduced.matches) play();
+})();
+</script>
+</body>
+</html>

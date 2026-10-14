@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>IGNIS · The architecture explained through an analogy</title>
+<style>
+:root{color-scheme:dark;--page:#0c131b;--surface:#131e29;--raised:#1a2836;--text:#e9f0f6;--muted:#9fb2c5;--faint:#5d7488;--border:#2d4052;--data:#72d4ec;--knowledge:#92ddb0;--workflow:#f0c86f;--learning:#6fe0a0;--alert:#fa9191;--training:#c2a9ff;--optional:#8a9bab;--active:#8ddbb8}
+html[data-theme="light"]{color-scheme:light;--page:#f4f7fa;--surface:#fff;--raised:#eaf0f5;--text:#182b3d;--muted:#50667b;--faint:#8da0b2;--border:#c9d6e0;--data:#08758c;--knowledge:#277342;--workflow:#8a5a00;--learning:#1d7a45;--alert:#b73442;--training:#7044b8;--optional:#6b7c8c;--active:#24734f}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:20px}
+body{margin:0;background:var(--page);color:var(--text);font:15px/1.62 system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--data)}
+button{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 13px;min-height:36px;cursor:pointer}
+button:hover{background:var(--raised)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--data);outline-offset:3px}
+.layout{max-width:1320px;margin:auto;padding:28px;display:grid;grid-template-columns:240px minmax(0,1fr);gap:36px}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px}
+nav.toc .eyebrow{margin-bottom:10px}
+nav.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--border)}
+nav.toc li a{display:block;padding:5px 0 5px 14px;color:var(--muted);text-decoration:none;margin-left:-1px;border-left:2px solid transparent}
+nav.toc li a:hover{color:var(--text)}
+nav.toc li a.on{color:var(--text);border-left-color:var(--active)}
+nav.toc .theme{margin-top:16px;width:100%}
+main{min-width:0}
+.eyebrow{color:var(--knowledge);letter-spacing:.17em;font-size:11px;font-weight:650;text-transform:uppercase}
+h1{font-size:clamp(26px,3vw,38px);line-height:1.18;letter-spacing:-.02em;font-weight:600;margin:8px 0 12px}
+h2{font-size:24px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
+h3{font-size:17px;font-weight:600;margin:0}
+h4{font-size:13px;font-weight:650;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:16px 0 4px}
+p{margin:10px 0}
+.lead{font-size:17px;color:var(--text);max-width:880px}
+.muted{color:var(--muted)}
+.status{font-size:12.5px;color:var(--muted);border:1px solid var(--border);border-radius:999px;display:inline-block;padding:3px 12px;margin-top:4px}
+section{margin-top:56px}
+section>.intro{color:var(--muted);max-width:880px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.loop{border-top:3px solid var(--c)}
+.loop .tag{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--c);font-weight:650}
+.loop h3{margin-top:4px}
+.loop .as{color:var(--muted);font-size:13.5px;margin-top:2px}
+.pairs{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:7px}
+.pairs li{display:grid;grid-template-columns:1fr 18px 1fr;align-items:center;gap:6px;font-size:13px}
+.pairs .i{background:var(--raised);border-radius:6px;padding:4px 8px}
+.pairs .h{color:var(--muted);padding:4px 0}
+.pairs .arrow{color:var(--faint);text-align:center}
+.cycle{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px;font-size:13px}
+.cycle span{background:color-mix(in srgb,var(--training) 14%,var(--raised));border:1px solid color-mix(in srgb,var(--training) 40%,var(--border));border-radius:999px;padding:3px 11px}
+.cycle i{color:var(--faint);font-style:normal}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:16px}
+th{text-align:left;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:650;border-bottom:1px solid var(--border);padding:8px 10px}
+td{vertical-align:top;border-bottom:1px solid var(--border);padding:10px}
+td:first-child{font-weight:600;white-space:nowrap}
+tr.gate td:first-child::after{content:" ●";color:var(--workflow);font-size:10px;vertical-align:2px}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px 10px 8px}
+.key{font-size:12.5px;color:var(--muted);margin-top:8px}.key b{color:var(--workflow)}
+.story{position:relative;margin-top:18px;display:grid;gap:12px}
+.beat{display:grid;grid-template-columns:96px minmax(0,1fr) minmax(0,1fr);gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 18px;border-left:4px solid var(--c,var(--data))}
+.beat .t{font-weight:650;font-size:13px;color:var(--c,var(--data))}
+.beat .t small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.beat .col h5{margin:0 0 3px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:650}
+.beat .col p{margin:0;font-size:13.5px}
+.beat .col.ig p{color:var(--text)}.beat .col.hs p{color:var(--muted)}
+code,.mono{font:12.5px ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--raised);padding:1px 6px;border-radius:4px}
+.decision{margin-top:12px;padding:0}
+.decision>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;padding:16px 20px}
+.decision>summary::-webkit-details-marker{display:none}
+.decision .n{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:650;font-size:14px;background:color-mix(in srgb,var(--c) 20%,var(--raised));color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,var(--border))}
+.decision .sum h3{font-size:16.5px}
+.decision .sum p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+.decision .chev{color:var(--faint);transition:transform .2s}
+.decision[open] .chev{transform:rotate(90deg)}
+.decision .body{padding:0 20px 18px 78px}
+.decision .analogy{border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 7%,transparent);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:4px}
+.decision .analogy b{color:var(--c)}
+.decision ul{margin:6px 0 0;padding-left:20px}
+.decision li{margin:4px 0}
+.alts{display:grid;gap:8px;margin-top:6px}
+.alt{display:grid;grid-template-columns:minmax(150px,220px) 1fr;gap:12px;font-size:13.5px;background:var(--raised);border-radius:8px;padding:8px 12px}
+.alt b{font-weight:600}
+.alt span{color:var(--muted)}
+.cost{font-size:13.5px;color:var(--muted);margin-top:10px}
+.cost b{color:var(--workflow);font-weight:600}
+.callout{border:1px solid color-mix(in srgb,var(--training) 45%,var(--border));background:color-mix(in srgb,var(--training) 7%,var(--surface));border-radius:14px;padding:18px 20px;margin-top:18px}
+.callout h3{color:var(--training)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.split .card h3{font-size:15px}
+.split .card ul{margin:8px 0 0;padding-left:20px;font-size:13.5px}
+.ok{--c:var(--learning)}.no{--c:var(--alert)}
+.split .card.ok{border-top:3px solid var(--learning)}.split .card.no{border-top:3px solid var(--alert)}
+.math{font:13px ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--raised);border-radius:8px;padding:12px 14px;margin-top:10px;white-space:pre;overflow-x:auto;color:var(--text)}
+.breaks .card{border-left:3px solid var(--alert)}
+.breaks .card p{font-size:13.5px;color:var(--muted);margin:6px 0 0}
+dl.gloss{display:grid;grid-template-columns:200px 1fr;gap:10px 18px;margin-top:16px;font-size:13.5px}
+dl.gloss dt{font-weight:600}
+dl.gloss dd{margin:0;color:var(--muted)}
+footer{margin-top:60px;padding-top:16px;border-top:1px solid var(--border);color:var(--muted);font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+footer a{color:var(--muted)}
+@media(max-width:1050px){.layout{grid-template-columns:1fr}nav.toc{position:static}.grid3{grid-template-columns:1fr}.grid2,.split{grid-template-columns:1fr}.beat{grid-template-columns:1fr}.decision .body{padding-left:20px}.alt{grid-template-columns:1fr}dl.gloss{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="Contents">
+  <div class="eyebrow">Contents</div>
+  <ol id="toc">
+    <li><a href="#short">The short version</a></li>
+    <li><a href="#why-hospital">Why a hospital</a></li>
+    <li><a href="#loops">Three loops</a></li>
+    <li><a href="#map">Part-by-part map</a></li>
+    <li><a href="#story">One incident, start to finish</a></li>
+    <li><a href="#decisions">The design decisions</a></li>
+    <li><a href="#finetune">Fine-tuning in depth</a></li>
+    <li><a href="#simplify">Why 11 parts, not 36</a></li>
+    <li><a href="#breaks">Where the analogy breaks</a></li>
+    <li><a href="#real">Real versus proposed</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ol>
+  <button class="theme" id="theme" type="button">Light theme</button>
+</nav>
+
+<main>
+<header>
+  <div class="eyebrow">IGNIS · architecture explained</div>
+  <h1>IGNIS runs like a well-run hospital ward for machines</h1>
+  <p class="lead">This page explains why the IGNIS architecture has the shape it has. It uses one analogy throughout, a hospital, because almost every structural choice in IGNIS has a direct, familiar counterpart in how a careful hospital looks after patients. Each decision below states what was chosen, the hospital equivalent, why it was chosen, what else was considered, and what it costs.</p>
+  <span class="status">Proposed design · nothing here is built or trained · all numbers are fictional fixtures</span>
+  <p class="muted" style="margin-top:14px">Companion to the animated <a href="ignis-high-level-architecture.html">high-level architecture</a>. The source of record is <a href="../docs/ARCHITECTURE.md">docs/ARCHITECTURE.md</a>, where the 14 October section describes the same design in specification form. The user confirmed this proposed-system direction on 14 October 2026. Read the <a href="../docs/PROPOSED_SYSTEM_WORKFLOW.md">complete workflow, comparison and acceptance criteria</a> for the implementation boundaries.</p>
+</header>
+
+<!-- ============================================================ -->
+<section id="short">
+  <h2>The short version</h2>
+  <p class="intro">If you read nothing else, read these five sentences.</p>
+  <div class="card">
+    <ol style="margin:0;padding-left:20px">
+      <li><b>Machines are patients.</b> Sensors are the bedside monitors that record all the time, and the hourly check is the nurse's ward round that looks at the last hour as a whole.</li>
+      <li><b>The alarm comes from the numbers, not from the AI.</b> A temperature that is rising too fast raises an alert the same way a vital-sign threshold does. No language model has to be awake for that to happen.</li>
+      <li><b>The AI is a well-trained resident doctor, not the attending.</b> It reads the patient's chart and the relevant guidelines, then writes a draft note in which every claim points to a source. A senior expert decides what is true and what work is authorised.</li>
+      <li><b>Fine-tuning is the residency programme.</b> It happens away from the ward, on reviewed past cases. It ends with an exam against the untrained baseline, and a committee signs off before any new version is allowed onto the ward. It teaches skills, not facts about today's patient.</li>
+      <li><b>People approve every action that touches the real world:</b> the diagnosis scope, who goes to the machine, whether the repair worked, and what gets added to the knowledge base.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="why-hospital">
+  <h2>Why a hospital, and not another analogy</h2>
+  <p class="intro">An analogy is only useful if its structure matches. I compared three candidates against the features IGNIS actually has.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Feature IGNIS needs to explain</th><th>Hospital ward</th><th>Car repair garage</th><th>Air-traffic control</th></tr></thead>
+      <tbody>
+        <tr><td>Continuous monitoring with periodic review</td><td>Yes: bedside monitors plus ward rounds</td><td>No: the car arrives already broken</td><td>Yes, but continuous, not periodic</td></tr>
+        <tr><td>Evidence-based written assessment</td><td>Yes: chart notes that cite results</td><td>Weak: a quote and a checklist</td><td>Weak: verbal instructions</td></tr>
+        <tr><td>Junior drafts, senior decides</td><td>Yes: resident and attending</td><td>Sometimes</td><td>No: one controller decides</td></tr>
+        <tr><td>Matching qualified staff to urgent work</td><td>Yes: theatre and surgeon scheduling</td><td>Yes: bay and mechanic</td><td>Partly: runway slots</td></tr>
+        <tr><td>Check the outcome before closing</td><td>Yes: post-operative observation</td><td>Yes: test drive</td><td>No</td></tr>
+        <tr><td>Learning from reviewed cases</td><td>Yes: case conferences and the hospital handbook</td><td>Rarely</td><td>Yes: incident reports</td></tr>
+        <tr><td>A separate, examined training programme</td><td>Yes: residency, board exams, credentialing</td><td>Apprenticeship, loosely examined</td><td>Yes: simulator training</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The hospital is the only candidate that matches every row, and most readers already know how it works. The garage is a good analogy for one repair. The hospital is a good analogy for running a whole ward of patients over time, and that is what IGNIS does.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="loops">
+  <h2>Three loops that run at three different speeds</h2>
+  <p class="intro">The most important structural choice is to split the system into three loops instead of one long pipeline. They run at very different speeds and need very different safeguards, just as ward rounds, treatment and residency training do in a hospital.</p>
+  <div class="grid3">
+    <div class="card loop" style="--c:var(--data)">
+      <div class="tag">Monitor · every hour</div>
+      <h3>Ward rounds</h3>
+      <div class="as">Speed: once per completed hour, automatically</div>
+      <ul class="pairs">
+        <li><span class="i">Sources</span><span class="arrow">≈</span><span class="h">Bedside monitors</span></li>
+        <li><span class="i">Ingest &amp; review</span><span class="arrow">≈</span><span class="h">Admissions desk and medical coder</span></li>
+        <li><span class="i">Trusted data</span><span class="arrow">≈</span><span class="h">The patient chart</span></li>
+        <li><span class="i">Hourly check</span><span class="arrow">≈</span><span class="h">The nurse's round</span></li>
+        <li><span class="i">Evidence &amp; explanation</span><span class="arrow">≈</span><span class="h">Resident's cited note, checked by a pharmacist</span></li>
+        <li><span class="i">Reports</span><span class="arrow">≈</span><span class="h">Signed discharge or shift report</span></li>
+      </ul>
+    </div>
+    <div class="card loop" style="--c:var(--workflow)">
+      <div class="tag">Respond · per incident</div>
+      <h3>The treatment team</h3>
+      <div class="as">Speed: minutes to hours, only when something is wrong</div>
+      <ul class="pairs">
+        <li><span class="i">Incident &amp; expert</span><span class="arrow">≈</span><span class="h">Attending physician</span></li>
+        <li><span class="i">Match &amp; dispatch</span><span class="arrow">≈</span><span class="h">Theatre and surgeon scheduling</span></li>
+        <li><span class="i">Repair &amp; verify</span><span class="arrow">≈</span><span class="h">Surgery and post-op observation</span></li>
+        <li><span class="i">Learn &amp; publish</span><span class="arrow">≈</span><span class="h">Case conference and the hospital handbook</span></li>
+      </ul>
+    </div>
+    <div class="card loop" style="--c:var(--training)">
+      <div class="tag">Improve · offline</div>
+      <h3>The residency programme</h3>
+      <div class="as">Speed: a deliberate cycle, weeks apart, never automatic</div>
+      <ul class="pairs">
+        <li><span class="i">Fine-tuning &amp; model release</span><span class="arrow">≈</span><span class="h">Training, board exam and credentialing</span></li>
+      </ul>
+      <div class="cycle"><span>Curate dataset</span><i>›</i><span>Fine-tune (LoRA)</span><i>›</i><span>Evaluate</span><i>›</i><span>Approve &amp; register</span></div>
+      <p class="muted" style="font-size:13px;margin-top:12px">Coursework from reviewed cases, practice, a board exam against the untrained baseline, then a credentialing committee decision.</p>
+    </div>
+  </div>
+  <p><b>Why separate them?</b> If the loops were merged into one pipeline, the slowest and riskiest step would set the pace and the risk for everything else. Training a model takes hours and needs careful evaluation, so it cannot sit inside an hourly check. Dispatching a technician needs a human decision, so it cannot be automatic like the hourly check. Keeping the loops separate lets each one have exactly the safeguards it needs. The loops connect only through a few well-defined hand-offs: a raised alert, a published case, and a released model version.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="map">
+  <h2>Part-by-part map</h2>
+  <p class="intro">Every one of the eleven parts, what it does in IGNIS, what it corresponds to in the hospital, and why it is a separate part at all.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>IGNIS part</th><th>Hospital equivalent</th><th>What it does in IGNIS</th><th>Why it exists as its own part</th></tr></thead>
+      <tbody>
+        <tr><td>Sources</td><td>Bedside monitors, lab printouts, handwritten notes</td><td>Sensor readings, machine event logs, CSV/XLSX revisions and manuals. Synthetic in the demo.</td><td>The system has to accept messy, mixed inputs without trusting them yet.</td></tr>
+        <tr class="gate"><td>Ingest &amp; review</td><td>Admissions desk plus medical coder</td><td>Validates units and timestamps, ties every record to an asset and sensor, and uses the <b>extraction adapter</b> to suggest component, fault and action labels from work-order text. A supervisor approves them.</td><td>Garbage in, garbage out. Identity errors (the wrong pump, the wrong unit) are the hardest to spot later, so they are caught at the door.</td></tr>
+        <tr><td>Trusted data</td><td>The patient chart and medical library</td><td>Approved history, frozen snapshots, the search index for RAG, and the knowledge graph.</td><td>Everything downstream reads from one trusted place, so any conclusion can be traced back to the records it used.</td></tr>
+        <tr><td>Hourly check</td><td>Nurse's ward round with vital-sign thresholds</td><td>Compares the completed hour with the baseline, calculates deviation, and makes a conditional trend forecast. It raises a numeric alert when warranted.</td><td>Detection must be deterministic, repeatable and independent of the language model.</td></tr>
+        <tr><td>Evidence &amp; explanation</td><td>Resident writes a cited note, pharmacist checks it</td><td>The knowledge graph resolves which asset and manual apply, RAG retrieves only those passages, and an evidence pack is frozen. The <b>reasoning adapter</b> drafts cited hypotheses or abstains, and the claim checker rejects unsupported claims.</td><td>The only place where a language model explains anything, and it is fenced in on both sides: frozen input, checked output.</td></tr>
+        <tr class="gate"><td>Reports</td><td>Signed shift or discharge report</td><td>Drafted report, human sign-off, PDF/CSV export. Numbers render from typed facts, not from model text.</td><td>Issued reports must never change silently when new data arrives.</td></tr>
+        <tr class="gate"><td>Incident &amp; expert</td><td>Attending physician</td><td>One owner per incident. The expert confirms, rejects or marks the case inconclusive, then sets the authorised task scope.</td><td>Someone accountable must decide what is true and what work is allowed.</td></tr>
+        <tr class="gate"><td>Match &amp; dispatch</td><td>Theatre and surgeon scheduling</td><td>Filters out ineligible technicians first, then compares feasible assignments by estimated production loss. A dispatcher approves and the technician accepts.</td><td>The nearest person is not always the best choice. Qualification is a hard rule, not a score.</td></tr>
+        <tr class="gate"><td>Repair &amp; verify</td><td>Surgery and post-operative observation</td><td>Field work, then a recovery check against later hourly data. A failed check reopens the incident.</td><td>Work being done is not the same as the problem being fixed.</td></tr>
+        <tr class="gate"><td>Learn &amp; publish</td><td>Case conference, then the hospital handbook</td><td>Reviews the closed case, corrects it, approves it and publishes it to trusted knowledge. It is retrievable at once and becomes a training candidate later.</td><td>Knowledge only grows from cases a person has reviewed, including the ones that turned out to be wrong.</td></tr>
+        <tr class="gate"><td>Fine-tuning &amp; model release</td><td>Residency, board exam and credentialing committee</td><td>Curates a versioned dataset, trains LoRA adapters, evaluates them against the base model, and the model owner approves and registers the release with a rollback target.</td><td>Model change is the riskiest change in the system, so it is the slowest and most controlled.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="key"><b>●</b> marks a part with a human gate: a named person must approve before anything leaves it.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="story">
+  <h2>One incident, start to finish</h2>
+  <p class="intro">The demo's pump-bearing scenario, told twice: once as IGNIS would run it and once as a hospital would handle the equivalent patient. Every number is a fictional fixture, and the times after 10:00 are illustrative.</p>
+  <div class="story">
+    <div class="beat" style="--c:var(--data)">
+      <div class="t">09:00–10:00<small>all hour</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>Bearing temperature, vibration and motor current readings stream in. Each one is tied to <span class="mono">Pump P-101</span>, its sensor and its unit. New work-order text gets extraction suggestions that wait for supervisor approval. Nothing is diagnosed per sample.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>The bedside monitor records the patient's temperature every few seconds. Nobody calls a doctor for each reading. The nurse will look at the whole hour on her round.</p></div>
+    </div>
+    <div class="beat" style="--c:var(--data)">
+      <div class="t">10:00<small>hourly boundary</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>The hourly check assesses exactly <span class="mono">[09:00, 10:00)</span>. Hourly mean bearing temperature has gone 72 → 76 → 80 °C, rising +4 °C per hour. If that trend continued, it would cross the fictional 85 °C limit at about 11:15. That is a conditional trend line, not a failure time.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>On her round the nurse sees the fever has risen one degree an hour for three hours. "If this keeps going, it passes 40 °C before lunch" is a trend, not a prognosis.</p></div>
+    </div>
+    <div class="beat" style="--c:var(--alert)">
+      <div class="t">10:00<small>+ seconds</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>A numeric alert is raised from the numbers alone, before any language model runs, and an incident is opened with one owner.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>The vital-sign threshold triggers a page to the doctor on call. The alarm does not wait for anyone to write a note.</p></div>
+    </div>
+    <div class="beat" style="--c:var(--knowledge)">
+      <div class="t">after 10:00<small>explaining</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>The knowledge graph resolves which bearing this sensor measures and which manual applies to this pump model. RAG retrieves only those passages and similar reviewed cases. Everything is frozen into an evidence pack. The reasoning adapter returns "loose mounting" and "bearing wear" as hypotheses, each citing evidence IDs, plus a suggested inspection. The claim checker rejects any number, asset or time it cannot find in the pack.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>The resident checks the wristband, pulls this patient's chart and the guideline for this condition, and writes a note: "possible infection (see lab result 14) or drug reaction (see chart entry 9); suggest blood culture." The pharmacist checks every dose and lab value against the chart before the note goes up.</p></div>
+    </div>
+    <div class="beat" style="--c:var(--workflow)">
+      <div class="t">~10:20<small>expert review</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>The maintenance expert reads the checked assessment, confirms that inspection is warranted and sets the authorised task scope: inspect and re-torque the bearing mounting, with replacement allowed if wear is found.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>The attending reviews the note, agrees with part of it and authorises a specific procedure, not "do whatever seems right".</p></div>
+    </div>
+    <div class="beat" style="--c:var(--workflow)">
+      <div class="t">~10:30<small>dispatch</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>Two jobs are open: J1 (this pump, $1,200/h production loss) and J2 ($300/h). Technician A lacks the qualification, so A is excluded before any cost is computed. B is free in 10 minutes, C immediately. Sending C to J1 and B to J2 costs $1,250; the reverse costs $1,400. The dispatcher approves the $1,250 plan and both technicians accept.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>The theatre scheduler won't book a surgeon without the right credential, however available they are. Then the surgeon who is free right now goes to the more urgent patient, and the other one waits ten minutes for the less urgent case.</p></div>
+    </div>
+    <div class="beat" style="--c:var(--workflow)">
+      <div class="t">later<small>repair &amp; verify</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>Technician C re-torques the mounting and records the work. The incident stays open until the following hourly assessments show the temperature back within the baseline. If it does not recover, the incident reopens and goes back to the expert.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>After surgery the patient stays under observation. "The operation went well" does not close the case; normal vital signs over the next hours do.</p></div>
+    </div>
+    <div class="beat" style="--c:var(--learning)">
+      <div class="t">days later<small>learn &amp; publish</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>The closed case is reviewed, corrected and published. It is retrievable by RAG at once, so the next similar alert can cite it. It also joins the pool of candidates for the next fine-tuning dataset, but publication itself starts no training.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>The case is presented at the case conference and added to the ward handbook the same week. It may become teaching material when next year's residency curriculum is written.</p></div>
+    </div>
+    <div class="beat" style="--c:var(--training)">
+      <div class="t">weeks later<small>improve</small></div>
+      <div class="col ig"><h5>IGNIS</h5><p>Once enough new reviewed cases exist, a training cycle runs: freeze a dataset version, train the adapters, compare them with the untuned base model on held-out cases, and the model owner approves the release or rejects it. The registry keeps the previous version as a rollback target.</p></div>
+      <div class="col hs"><h5>Hospital</h5><p>Residents finish a rotation, sit the board exam, and the credentialing committee grants privileges, which it can revoke.</p></div>
+    </div>
+  </div>
+
+  <h4>The dispatch arithmetic, in full</h4>
+  <p>The two plans differ only in who waits 10 minutes, and 10 minutes of waiting costs very different amounts on the two jobs:</p>
+  <div class="math">10 min of waiting on J1 = $1,200/h × 1/6 h = $200
+10 min of waiting on J2 =   $300/h × 1/6 h =  $50
+
+Plan 1: B → J1 (waits 10 min),  C → J2   →  $1,400
+Plan 2: C → J1,  B → J2 (waits 10 min)   →  $1,250   ← $150 cheaper, the difference is $200 − $50</div>
+  <p class="muted">With two jobs and two eligible technicians there are only two plans, so checking both exhaustively gives the true optimum <em>within this fixture</em>. It says nothing about a whole plant.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="decisions">
+  <h2>The design decisions, one by one</h2>
+  <p class="intro">Each decision opens to show the hospital analogy, the reasoning, the alternatives I considered and why I rejected them, and the cost of the choice. Some of this comes from your stated requirements: the hourly assessment in decision 2, RAG plus knowledge graph in decision 5, expert review before knowledge grows in decision 12, and the fact that fine-tuning plays a role at all. How those are realised, and every other decision, are my proposals for you to accept or change.</p>
+  <p><button type="button" id="expand">Expand all</button></p>
+
+  <details class="card decision" style="--c:var(--data)">
+    <summary><span class="n">1</span><span class="sum"><h3>Split the system into three loops</h3><p>Monitor, respond and improve run separately and connect through a few defined hand-offs.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> ward rounds, the treatment team and the residency programme are run by different people on different schedules, even though they share the same patients and records.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>The loops run at very different speeds: an hour, a few hours, and weeks.</li>
+        <li>They carry different risks. Monitoring is low-risk and automatic, responding touches real machines, and model change can affect every future decision.</li>
+        <li>Each can fail without stopping the others. A training cycle that fails evaluation does not stop the hourly check.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>One linear pipeline</b><span>Easier to draw, but it forces the slowest, riskiest step to run at the pace of the fastest and makes failures cascade.</span></div>
+        <div class="alt"><b>Continuous online learning</b><span>Folds the improve loop into the monitor loop. Rejected because it removes the evaluation and approval step (see decision 8).</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> three hand-off contracts (the alert, the published case and the model release) must be designed carefully. That is less work than untangling one giant pipeline.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--data)">
+    <summary><span class="n">2</span><span class="sum"><h3>Collect continuously, assess once per completed hour</h3><p>A confirmed requirement. At 10:00, assess exactly [09:00, 10:00).</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> the monitor records every few seconds, but the nurse reviews the patient on a fixed round. Reviewing on a schedule makes each review comparable with the last one.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>A fixed, non-overlapping window gives each assessment one clear identity, and the same data always produces the same result.</li>
+        <li>It prevents alert spam: a rolling window re-evaluated every minute would raise the same alert sixty times an hour.</li>
+        <li>It bounds the cost of explanation. The language model runs at most once per alerting hour, not once per reading.</li>
+        <li>Historical replay and simulated live data can share one engine, because both are processed hour by hour.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>Per-sample streaming detection</b><span>Fastest reaction, but noisy, hard to audit and expensive if every spike asks a model for an opinion.</span></div>
+        <div class="alt"><b>Rolling one-hour window, re-evaluated every minute</b><span>Explicitly ruled out by the user: the requirement is one assessment per completed hour.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> an event at 10:01 can wait until the 11:00 assessment. A separate fast critical-alarm path for hard limits was proposed as an optional add-on. It is off by default, and it never means automatic shutdown.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--alert)">
+    <summary><span class="n">3</span><span class="sum"><h3>Raise the alert from the numbers, before any language model runs</h3><p>Detection is deterministic code; the model only explains afterwards.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> the monitor alarm goes off when the vital signs cross a threshold. It does not wait for the resident to finish thinking about it.</div>
+      <h4>Why</h4>
+      <ul>
+        <li><b>Reliability:</b> if the model is slow, wrong or offline, the alert still fires.</li>
+        <li><b>Auditability:</b> a threshold and a deviation calculation can be checked by hand, but a model's judgement cannot.</li>
+        <li><b>Reproducibility:</b> the same hour of data always gives the same alert.</li>
+        <li>Language models are not good at arithmetic over thousands of readings, and code is.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>LLM reads raw sensor data and decides</b><span>Non-deterministic, expensive, prone to inventing numbers, and a single point of failure.</span></div>
+        <div class="alt"><b>Learned anomaly detector only</b><span>Possible later, but it needs validated failure data, which the project does not have. It can arrive as an optional, separately approved numeric update (the dashed arrow).</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> fixed rules can miss subtle patterns. That is acceptable for a first system, and the release path allows reviewed rule and baseline updates.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--workflow)">
+    <summary><span class="n">4</span><span class="sum"><h3>Gate intake, and keep one trusted data store</h3><p>Nothing reaches the assessment until it is validated, tied to an asset and, for text, reviewed.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> the admissions desk checks identity and puts a wristband on the patient. A medical coder turns doctors' free text into standard codes, and a supervisor audits the coding. Only then does it go into the chart.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>The most damaging errors are identity errors, such as a reading attributed to the wrong pump or a value in the wrong unit. They are cheap to catch at the door and very expensive to catch later.</li>
+        <li>A spreadsheet's format says nothing about what its columns mean, so meaning has to be confirmed when the file arrives.</li>
+        <li>One trusted store means every later conclusion can be traced to exact record versions.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>Let each component read raw sources</b><span>Each component would interpret the data slightly differently, and no single answer to "what did the system know?" would exist.</span></div>
+        <div class="alt"><b>Fully automatic extraction</b><span>Faster, but extraction mistakes would flow silently into the knowledge base. The extraction adapter suggests and a person approves.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> supervisor time for reviewing text. The extraction adapter exists to make that review faster, not to remove it.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--knowledge)">
+    <summary><span class="n">5</span><span class="sum"><h3>Use the knowledge graph first, then RAG (together called "KAG" here)</h3><p>A confirmed requirement. The graph says what applies, and RAG retrieves only that.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> before opening the library, the resident checks the wristband and the chart. This patient, this condition, this drug allergy, so this guideline applies. Then she reads only the relevant pages, not every page that mentions a fever.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>Plain RAG retrieves text that <em>sounds</em> similar. Two pump models can have near-identical manuals with different limits, and plain RAG cannot tell which one applies.</li>
+        <li>The graph records structure: this sensor measures this bearing, which belongs to this pump, of this model, which is covered by this manual section. That turns retrieval into a filtered lookup.</li>
+        <li>Graph paths are themselves evidence that the explanation can cite.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>RAG only</b><span>Simpler, but it risks citing the right-sounding passage for the wrong asset.</span></div>
+        <div class="alt"><b>Graph only</b><span>Precise, but manuals and case narratives are free text that a graph cannot hold well.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> the graph has to be built and maintained. A graph path also shows a relationship in reviewed data, not the cause of today's deviation. No graph store or framework has been chosen yet.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--knowledge)">
+    <summary><span class="n">6</span><span class="sum"><h3>Freeze an evidence pack, then check the model's claims against it</h3><p>The model sees a fixed input, and its output is validated before anyone sees it.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> the resident's note must reference lab results and chart entries that actually exist. The pharmacist rejects any order whose dose or value does not match the chart.</div>
+      <h4>Why</h4>
+      <ul>
+        <li><b>Reproducible:</b> the same pack can be replayed later to see exactly what the model was shown.</li>
+        <li><b>Citable:</b> every item has an ID, and every hypothesis must point to IDs.</li>
+        <li><b>Checkable:</b> a mechanical checker validates typed entity, metric, unit, grouping, time and fact-version bindings. Finding the same number somewhere in the pack is insufficient. These checks reject unsupported bindings; they do not prove a causal hypothesis correct.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>Let the model search freely as it writes</b><span>More flexible, but nothing would be reproducible and citations could point to things nobody can recheck.</span></div>
+        <div class="alt"><b>Trust the model's output and rely on the expert to catch errors</b><span>It puts all the burden on a busy person and lets fluent mistakes through.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> the checker sometimes rejects an output that was actually fine. The expert still has the evidence pack, so nothing is lost but the draft.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--training)">
+    <summary><span class="n">7</span><span class="sum"><h3>Fine-tune two small LoRA adapters on one open base model</h3><p>An extraction adapter and a reasoning adapter. They teach skills, never facts.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> one doctor trained in two specialist skills: medical coding, and writing a cited assessment note. Training makes her better at <em>how</em> to do the job. She still reads each patient's chart instead of memorising it.</div>
+      <h4>Why fine-tune at all</h4>
+      <ul>
+        <li>An untuned model is inconsistent at exactly the things IGNIS needs: strict JSON output, exact text offsets for spans, maintenance vocabulary, citing evidence IDs, and saying "I can't tell" instead of guessing.</li>
+        <li>Prompting gets part of the way. Fine-tuning on reviewed examples is expected to make the behaviour more consistent. That is a hypothesis, and the release gate tests it against the base model (decision 8).</li>
+      </ul>
+      <h4>Why LoRA adapters</h4>
+      <ul>
+        <li>An adapter is a small add-on to a frozen base model. It is cheap to train, small to store, and quick to swap or roll back.</li>
+        <li>One base model in memory can serve both adapters.</li>
+      </ul>
+      <h4>Why two adapters instead of one</h4>
+      <ul>
+        <li>The two tasks have different inputs, outputs, training data and success metrics.</li>
+        <li>They can be evaluated, released and rolled back independently. A bad reasoning release does not take extraction down with it.</li>
+      </ul>
+      <h4>Why a 7–8B open model, and why AMD hardware</h4>
+      <ul>
+        <li>Open weights can be fine-tuned and hosted locally, which matters for factory data. A 7–8B model is large enough for these narrow tasks and small enough to train with LoRA on a single GPU.</li>
+        <li>The proposed hardware is an AMD Instinct MI300X with ROCm. Its 192 GB of memory comfortably fits a 7–8B base model plus LoRA training. This depends on hackathon GPU access being confirmed, and no model has been selected.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>No fine-tuning, prompting only</b><span>Valid and simpler. It is the baseline every adapter must beat. An adapter that does not beat it is simply not released, and the previously approved version, or manual review, stays in place.</span></div>
+        <div class="alt"><b>Full fine-tuning of all weights</b><span>Much more compute, larger artefacts, slower rollback, and more risk of degrading general ability, for no clear gain on narrow tasks.</span></div>
+        <div class="alt"><b>Fine-tuning plant facts into the model</b><span>Rejected outright. Facts change daily, a trained-in fact cannot be cited, and it goes stale silently. RAG and the graph supply facts at run time.</span></div>
+        <div class="alt"><b>A large hosted API model</b><span>Strong out of the box, but it cannot be fine-tuned or versioned under the project's control, and plant data would leave the site.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> a curated dataset, an evaluation harness and a model registry have to exist. These are real work, and they are why fine-tuning is its own loop.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--training)">
+    <summary><span class="n">8</span><span class="sum"><h3>Train offline, evaluate against the baseline, release only after approval</h3><p>Never train per hourly alert or on case publication. Keep rollback targets.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> residents don't learn by changing their practice after every patient without supervision. They train on reviewed cases, pass an exam, and a credentialing committee grants privileges, which it can also withdraw.</div>
+      <h4>Why</h4>
+      <ul>
+        <li><b>Unverified outcomes are not truth.</b> Training on every new case would teach the model from cases nobody has confirmed yet.</li>
+        <li><b>No evaluation, no evidence.</b> Without a held-out comparison there is no way to know whether the change helped or hurt.</li>
+        <li><b>Drift and poisoning:</b> continuous training lets mistakes compound, and a few bad records could shift the model.</li>
+        <li><b>Accountability:</b> a named model owner approves each version, and the registry records base model, adapter, dataset version, metrics and the rollback target.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>Online or continual learning</b><span>Always current, but unevaluated and unaccountable. Rejected.</span></div>
+        <div class="alt"><b>Automatic release when training loss improves</b><span>Lower loss does not mean better citations or fewer unsupported claims. Rejected: training loss alone never qualifies a release.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> improvements reach the ward weeks later rather than immediately. Facts still reach it immediately, because a published case is retrievable at once through RAG.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--alert)">
+    <summary><span class="n">9</span><span class="sum"><h3>The model is useful, but the system works without it</h3><p>If the adapter is unavailable, the alert and evidence still reach the expert. No silent substitution.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> if the resident is off sick, the nurse still pages the attending with the vital signs and the chart. Nobody asks an unqualified stand-in to sign notes in the resident's name.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>Detection, evidence gathering and dispatch must keep working through a model outage, an evaluation failure or a rollback.</li>
+        <li>Quietly swapping in the untuned base model would put an unevaluated model's text in front of the expert under the fine-tuned model's authority.</li>
+        <li>The degraded mode is honest: no drafted explanation, and extraction falls back to manual review.</li>
+      </ul>
+      <h4>What changed</h4>
+      <p>An earlier draft made the fine-tuned output a required step before the expert. I changed that, because it made the model a single point of failure for safety-relevant alerts.</p>
+      <p class="cost"><b>Cost:</b> during an outage the expert does more reading. That is a safer failure than a missing alert.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--workflow)">
+    <summary><span class="n">10</span><span class="sum"><h3>A person approves every action that touches the real world</h3><p>Expert scope, dispatcher approval, technician acceptance, recovery verification, publication, report sign-off and model release.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> the attending authorises the procedure, the scheduler books theatre, the surgeon agrees to operate, someone confirms recovery, and the case conference decides what goes into the handbook.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>Every one of these steps has consequences for safety, money or future decisions, and needs a named, accountable person.</li>
+        <li>The model has no approval authority anywhere. It drafts, and people decide.</li>
+        <li>Gates create an audit trail: who decided what, when, and on which evidence.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>Fully automatic dispatch</b><span>Faster on paper, but a wrong automatic booking sends a person to the wrong machine with the wrong permit.</span></div>
+        <div class="alt"><b>One single approval at the end</b><span>Too late. By then the work has already been done on an unreviewed diagnosis.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> each gate adds minutes. In the simplified page the walkthrough no longer pauses at gates, but the gates are still part of the design.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--workflow)">
+    <summary><span class="n">11</span><span class="sum"><h3>Eligibility first, then minimise production loss</h3><p>Hard rules filter out who can go; cost decides among those left.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> an uncredentialed surgeon is never booked, however available. Among credentialed surgeons, the most urgent patient gets the first available one.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>Safety and qualification rules must never be traded off against a favourable cost score, so they are constraints, not weights.</li>
+        <li>The goal is total production loss across all open jobs, not "nearest person to this job". The fixture shows why: the locally obvious choice costs $150 more.</li>
+        <li>Running and stopped machines lose production differently. Travel time is downtime only for a stopped machine.</li>
+      </ul>
+      <h4>Alternatives considered</h4>
+      <div class="alts">
+        <div class="alt"><b>Nearest or first-available technician</b><span>Simple, but ignores how expensive each job's downtime is.</span></div>
+        <div class="alt"><b>A full constraint solver from day one</b><span>The right tool once shared crews, parts and calendars compete. It is overkill for a two-job demo, so a transparent exhaustive comparison comes first.</span></div>
+      </div>
+      <p class="cost"><b>Cost:</b> it needs real qualification, calendar and loss-rate data, none of which exists yet. The fixture numbers are fictional.</p>
+    </div>
+  </details>
+
+  <details class="card decision" style="--c:var(--learning)">
+    <summary><span class="n">12</span><span class="sum"><h3>Verify recovery before closing, and publish knowledge only after review</h3><p>A failed check reopens the incident. Publication is immediately retrievable, but never trains automatically.</p></span><span class="chev">›</span></summary>
+    <div class="body">
+      <div class="analogy"><b>Hospital:</b> the patient is discharged when the vital signs recover, not when the operation ends. Lessons go into the handbook after the case conference. Wrong diagnoses are discussed too, labelled as wrong.</div>
+      <h4>Why</h4>
+      <ul>
+        <li>Repairs fail. Closing a case on "work done" would hide that and teach the system the wrong lesson.</li>
+        <li>Rejected and inconclusive cases are kept and labelled. They are what teach the reasoning adapter when to abstain.</li>
+        <li>Separating "retrievable now" (RAG) from "trained later" (fine-tuning) gives fast fact updates without risky model updates.</li>
+      </ul>
+      <p class="cost"><b>Cost:</b> cases stay open longer, and someone has to run the review. Both are deliberate.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ============================================================ -->
+<section id="finetune">
+  <h2>Fine-tuning in depth</h2>
+  <p class="intro">Fine-tuning was the new requirement, so this section explains it on its own: what it is for, what goes into it, and how a release earns its place.</p>
+
+  <div class="callout">
+    <h3>The single most important distinction: skills versus facts</h3>
+    <p>A resident is trained to read charts, reason from evidence and write clear notes. She is <em>not</em> trained by memorising every patient's chart. Each morning she reads the current chart. IGNIS splits the work the same way.</p>
+    <div class="split">
+      <div class="card ok"><h3>Fine-tuning teaches skills</h3>
+        <ul>
+          <li>Produce strict, schema-valid JSON every time.</li>
+          <li>Mark component, fault and action spans with exact character offsets.</li>
+          <li>Use maintenance vocabulary correctly.</li>
+          <li>Attach evidence IDs to every hypothesis.</li>
+          <li>Say "insufficient evidence" instead of guessing.</li>
+        </ul>
+      </div>
+      <div class="card no"><h3>Fine-tuning never supplies facts</h3>
+        <ul>
+          <li>Today's readings, baselines and limits come from trusted data.</li>
+          <li>Which manual applies comes from the knowledge graph.</li>
+          <li>Relevant passages and past cases come from RAG.</li>
+          <li>Every number, forecast, count and schedule is computed by code.</li>
+          <li>Approvals and bookings are made by people.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="border-top:3px solid var(--training)">
+      <div class="eyebrow" style="color:var(--training)">Adapter 1 · in Ingest &amp; review</div>
+      <h3 style="margin-top:4px">Extraction adapter, the medical coder</h3>
+      <p><b>Input:</b> raw work-order text, for example "replaced worn seal on P-101, leaking at gland".<br><b>Output:</b> JSON spans such as component <span class="mono">seal</span>, fault <span class="mono">worn</span> and <span class="mono">leaking</span>, action <span class="mono">replaced</span>, each with exact offsets.</p>
+      <p><b>Trained on:</b> MaintIE train and validation splits, plus approved annotations from the review queue.</p>
+      <p><b>Measured by:</b> span F1 and schema validity on held-out data. The MaintIE test split is never touched.</p>
+      <p><b>If unavailable:</b> the supervisor annotates manually, as before.</p>
+    </div>
+    <div class="card" style="border-top:3px solid var(--training)">
+      <div class="eyebrow" style="color:var(--training)">Adapter 2 · in Evidence &amp; explanation</div>
+      <h3 style="margin-top:4px">Reasoning adapter, the resident's note</h3>
+      <p><b>Input:</b> a frozen evidence pack (condition facts, retrieved passages, graph paths).<br><b>Output:</b> JSON hypotheses with evidence IDs, stated uncertainty and a suggested inspection, or an explicit abstention.</p>
+      <p><b>Trained on:</b> expert-reviewed cases, including rejected and inconclusive ones labelled as such. Synthetic cases for the first demo.</p>
+      <p><b>Measured by:</b> citation accuracy, unsupported-claim rate and correct abstention.</p>
+      <p><b>If unavailable:</b> the expert receives the alert and the evidence pack without a draft.</p>
+    </div>
+  </div>
+
+  <h4>The four-step release cycle</h4>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Step</th><th>Hospital equivalent</th><th>What happens</th><th>What stops a bad release</th></tr></thead>
+      <tbody>
+        <tr><td>1 · Curate dataset</td><td>Writing the curriculum from reviewed cases</td><td>Gather reviewed examples and freeze a dataset version. Preserve MaintIE's published splits; use asset/time holdouts for additional asset-linked cases and keep related incidents or reformatted copies together.</td><td>Reviewed data and split checks reduce leakage. Do not invent asset metadata for MaintIE or expose held-out examples during tuning.</td></tr>
+        <tr><td>2 · Fine-tune (LoRA)</td><td>The rotation itself</td><td>Supervised fine-tuning of each adapter on its own task, on the proposed MI300X if access is confirmed.</td><td>The base model stays frozen. Only the small adapter changes.</td></tr>
+        <tr><td>3 · Evaluate</td><td>Board exam against a fixed standard</td><td>Score the adapter and the untuned base model on the same held-out data.</td><td>It must beat the baseline and must not regress on safety checks. Training loss never qualifies on its own.</td></tr>
+        <tr class="gate"><td>4 · Approve &amp; register</td><td>Credentialing committee</td><td>The model owner approves or rejects. The registry records base model, adapter, dataset version, metrics and the previous version as a rollback target.</td><td>A named human decision, and an immediate way back.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>When does a cycle run?</h4>
+  <p>Deliberately, when enough new reviewed cases have accumulated to make a better dataset. Never on a timer tied to alerts, and never because a case was published. Publishing makes a case useful <em>immediately</em> through retrieval. Training only changes how well the model uses evidence, so it can wait.</p>
+  <p>The same release block also carries optional updates to numeric rules and baselines, shown as the dashed arrow to the hourly check. Those are approved separately: a change to what counts as a deviation is a different decision from a change to how explanations are written.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="simplify">
+  <h2>Why 11 parts and not 36</h2>
+  <p class="intro">The detailed map in <a href="ignis-data-flow.html">ignis-data-flow.html</a> has 36 blocks and 47 arrows. The previous high-level page had 16 runtime components, 3 separate fine-tuning modules and about 29 arrows. You found it clunky, and you were right.</p>
+  <div class="card">
+    <p style="margin-top:0"><b>The rule I used:</b> a block earns its place on the high-level view only if it has a different <em>owner</em>, a different <em>speed</em> or a different <em>human gate</em> from its neighbours. Anything else is an internal step and belongs in the details panel.</p>
+    <ul>
+      <li>Validation, identity resolution and text extraction share one owner and one gate, so they became <b>Ingest &amp; review</b>.</li>
+      <li>History, snapshots, the search index and the graph are all "trusted state", so they became <b>Trusted data</b>.</li>
+      <li>Baseline, deviation and forecast run together once an hour, so they became <b>Hourly check</b>.</li>
+      <li>Graph resolution, retrieval, evidence pack, model and claim checker are one fenced explanation step, so they became <b>Evidence &amp; explanation</b>.</li>
+      <li>The three fine-tuning modules (dataset, training, evaluation and registry) share one owner and one approval, so they became <b>one block with four steps</b>.</li>
+    </ul>
+    <p>Nothing was deleted from the design. It was folded inward. The detailed map still exists for engineers, but it predates fine-tuning and has not been updated.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="breaks">
+  <h2>Where the analogy breaks</h2>
+  <p class="intro">Every analogy is wrong somewhere. These are the places where thinking "hospital" would mislead you about IGNIS.</p>
+  <div class="grid2 breaks">
+    <div class="card"><h3>Adapters don't learn on the job</h3><p>A human resident gets a little better with every patient. An adapter does not change at all between releases. Every improvement waits for the next approved cycle.</p></div>
+    <div class="card"><h3>Real monitors alarm instantly</h3><p>Hospital alarms are continuous. IGNIS assesses hourly by explicit choice, so an event at 10:01 may wait until 11:00. The fast critical-alarm path is optional and off by default.</p></div>
+    <div class="card"><h3>The forecast is not a prognosis</h3><p>"Crosses 85 °C at about 11:15" is a straight-line extrapolation of three hourly means against a fictional limit. It is not a failure time, a remaining useful life or a probability.</p></div>
+    <div class="card"><h3>The cost model is money, not harm</h3><p>Dispatch minimises estimated production loss. Safety is never weighed against cost; it is a hard eligibility rule, much stricter than the analogy implies.</p></div>
+    <div class="card"><h3>The "resident" can be absent without a stand-in</h3><p>Hospitals always cover a shift. IGNIS deliberately runs with no explanation at all rather than substitute an unevaluated model.</p></div>
+    <div class="card"><h3>The chart is not omniscient</h3><p>The knowledge graph only knows what reviewed data recorded. A graph path shows a relationship, not the cause of today's problem.</p></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="real">
+  <h2>What is real and what is proposed</h2>
+  <p class="intro">This page describes a design. None of it runs yet.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Item</th><th>State today</th></tr></thead>
+      <tbody>
+        <tr><td>Architecture documents and HTML walkthroughs</td><td>Exist in the repository.</td></tr>
+        <tr><td>Sensor simulator, hourly worker, databases</td><td>Proposed, not built.</td></tr>
+        <tr><td>Knowledge graph and RAG</td><td>Proposed. No store or framework selected.</td></tr>
+        <tr><td>Base model</td><td>Not selected. "7–8B open instruct model" is a size class, not a choice.</td></tr>
+        <tr><td>Extraction and reasoning adapters</td><td>Not trained. No dataset has been curated.</td></tr>
+        <tr><td>AMD MI300X with ROCm</td><td>Proposed, and depends on access being confirmed by an actual smoke test.</td></tr>
+        <tr><td>vLLM adapter serving</td><td>Proposed, compatibility unverified.</td></tr>
+        <tr><td>Pump, temperatures, limits, technicians, dollar figures</td><td>Fictional fixtures for demonstration.</td></tr>
+        <tr><td>MaintIE</td><td>A public dataset referenced for extraction. Rights, taxonomy mapping and split policy still need checking.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="glossary">
+  <h2>Glossary</h2>
+  <dl class="gloss">
+    <dt>Adapter</dt><dd>A small set of extra trained weights attached to a frozen base model. It changes behaviour for one task and can be swapped or removed.</dd>
+    <dt>LoRA</dt><dd>Low-rank adaptation: a common, cheap way to train adapters by learning small matrices instead of updating every weight.</dd>
+    <dt>Supervised fine-tuning (SFT)</dt><dd>Training on input–output examples that show the desired behaviour.</dd>
+    <dt>Base model</dt><dd>The untuned open model the adapters attach to. It is also the baseline every adapter must beat.</dd>
+    <dt>RAG</dt><dd>Retrieval-augmented generation: fetch relevant documents at run time and give them to the model, so facts come from sources rather than memory.</dd>
+    <dt>Knowledge graph / "KAG"</dt><dd>A structured map of assets, sensors, components, manuals and cases and how they relate. In IGNIS it decides what applies before RAG retrieves.</dd>
+    <dt>Evidence pack</dt><dd>The frozen bundle of facts, passages and graph paths, each with an ID, that the reasoning adapter is allowed to use.</dd>
+    <dt>Claim checker</dt><dd>Code that rejects any number, asset or time scope in the model's output that does not appear in the evidence pack.</dd>
+    <dt>Abstention</dt><dd>The model explicitly saying the evidence is insufficient. Treated as a correct answer when it is true.</dd>
+    <dt>Held-out data</dt><dd>Examples never used in training, kept aside for honest evaluation.</dd>
+    <dt>MaintIE</dt><dd>A public dataset of annotated maintenance work-order text, used for training and evaluating extraction.</dd>
+    <dt>Model registry</dt><dd>The record of every released model version: base, adapter, dataset, metrics, approver and rollback target.</dd>
+    <dt>ROCm</dt><dd>AMD's open GPU software stack, the counterpart to NVIDIA's CUDA.</dd>
+    <dt>vLLM</dt><dd>An open-source model-serving engine that can serve several LoRA adapters on one base model.</dd>
+    <dt>Human gate</dt><dd>A point where a named person must approve before work moves on.</dd>
+  </dl>
+</section>
+
+<footer>
+  <span>IGNIS · AMD Hackathon ACT III · Track 1, Intelligent Industry · proposed design, fictional numbers</span>
+  <span><a href="ignis-high-level-architecture.html">Animated high-level view</a> · <a href="ignis-data-flow.html">Detailed map (predates fine-tuning)</a> · <a href="../docs/ARCHITECTURE.md">ARCHITECTURE.md</a></span>
+</footer>
+</main>
+</div>
+
+<script>
+const root=document.documentElement, themeBtn=document.getElementById('theme');
+themeBtn.addEventListener('click',()=>{const light=root.dataset.theme!=='light';root.dataset.theme=light?'light':'dark';themeBtn.textContent=light?'Dark theme':'Light theme'});
+
+const expandBtn=document.getElementById('expand'), decisions=[...document.querySelectorAll('details.decision')];
+expandBtn.addEventListener('click',()=>{const open=!decisions.every(d=>d.open);decisions.forEach(d=>d.open=open);expandBtn.textContent=open?'Collapse all':'Expand all'});
+decisions.forEach(d=>d.addEventListener('toggle',()=>{expandBtn.textContent=decisions.every(x=>x.open)?'Collapse all':'Expand all'}));
+
+const links=[...document.querySelectorAll('#toc a')], sections=links.map(a=>document.querySelector(a.getAttribute('href')));
+const spy=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+e.target.id))}})},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>s&&spy.observe(s));
+</script>
+</body>
+</html>
