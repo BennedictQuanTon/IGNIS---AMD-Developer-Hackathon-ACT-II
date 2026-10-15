@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+/* Tokens follow the IGNIS brand kit (public/brand) and docs/design/DESIGN.md.
+   Type metrics follow linear.app. Fonts are system only: the stack mirrors Linear's
+   fallback chain without loading a web font. */
+@theme {
+  /* Surfaces: brand surface-0 / surface-1, with two steps between */
+  --color-bg: #0b0b0c;
+  --color-elevated: #111113;
+  --color-card: #18181a;
+  --color-hover: #1f1f22;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.14);
+  --color-line-brand: #2e2e32;
+
+  /* Ink */
+  --color-fg: #f5f4f2;
+  --color-fg-2: #d0d0d4;
+  --color-fg-3: #a1a1a8;
+  --color-fg-4: #6b6b72;
+
+  /* Brand: yellow is a fill (one primary per screen); brand-text is yellow as text */
+  --color-accent: #ffc400;
+  --color-accent-hover: #ffd233;
+  --color-accent-soft: rgb(255 196 0 / 0.1);
+  --color-on-brand: #0b0b0c;
+  --color-brand-text: #ffd54a;
+
+  /* Semantic, always paired with a text label */
+  --color-ok: #4cb782;
+  --color-warn: #f2994a;
+  --color-danger: #eb5757;
+  --color-info: #5e9eff;
+  --color-neutral: #a1a1a8;
+  --color-synthetic: #b48cff;
+
+  --font-sans: "SF Pro Display", -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu,
+    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgb(255 196 0 / 0.3);
+  color: var(--color-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Linear type scale: weight 510, -0.022em tracking, line-height 1 */
+.t-display {
+  font-size: clamp(40px, 6vw, 64px);
+  line-height: 1;
+  font-weight: 510;
+  letter-spacing: -0.022em;
+}
+.t-h2 {
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1;
+  font-weight: 510;
+  letter-spacing: -0.022em;
+}
+.t-closing {
+  font-size: clamp(40px, 6vw, 72px);
+  line-height: 1;
+  font-weight: 510;
+  letter-spacing: -0.022em;
+}
+.t-lead {
+  font-size: clamp(18px, 2vw, 24px);
+  line-height: 1.33;
+  letter-spacing: -0.012em;
+}
+.t-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--color-fg-4);
+}
+
+/* Cursor spotlight for cards; --x/--y are set from pointer position */
+.spotlight {
+  --x: 50%;
+  --y: 50%;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out-expo);
+  background: radial-gradient(360px circle at var(--x) var(--y), rgb(255 255 255 / 0.05), transparent 60%);
+}
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms var(--ease-out-expo);
+  padding: 1px;
+  background: radial-gradient(240px circle at var(--x) var(--y), rgb(255 196 0 / 0.5), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.spotlight:hover::before,
+.spotlight:hover::after {
+  opacity: 1;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.14) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Tech-stack marquee: two copies of the list, shifted by exactly one copy. */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  animation: marquee linear infinite;
+}
+.marquee-reverse {
+  animation-direction: reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  .marquee {
+    overflow-x: auto;
+  }
+}
