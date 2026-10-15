@@ -1,0 +1,13 @@
+{
+  "graph_version": "pump-applicability-v1",
+  "approval_status": "SYNTHETIC FIXTURE: simulated review metadata; no external expert approval claimed",
+  "assets": {
+    "PUMP-SYN-01": {
+      "model": "PX-100",
+      "components": {
+        "seal": ["MAN-PUMP-A-v1", "CASE-PUMP-SEAL-01-v1"],
+        "bearing": ["MAN-PUMP-A-BEARING-v1"]
+      }
+    }
+  }
+}

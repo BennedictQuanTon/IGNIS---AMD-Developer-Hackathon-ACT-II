@@ -1,0 +1,440 @@
+{
+  "schema_proposal": "ignis-demo-context-v1",
+  "status": "illustrative_unimplemented_contract",
+  "synthetic": true,
+  "review_status": "pending_real_review",
+  "scope": {
+    "asset_id": "PUMP-01",
+    "model_id": "DEMO-P100",
+    "component_id": "BRG-01",
+    "operating_regime": "70pct-load-demo"
+  },
+  "window": {
+    "start_inclusive": "2026-10-14T09:00:00+07:00",
+    "end_exclusive": "2026-10-14T10:00:00+07:00",
+    "timezone": "Asia/Bangkok",
+    "start_utc": "2026-10-14T02:00:00Z",
+    "end_utc": "2026-10-14T03:00:00Z"
+  },
+  "source_mode": "authored_fixture",
+  "observations": [
+    {
+      "observation_id": "O-01",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-14T09:00:00+07:00",
+      "temperature_degC": 78,
+      "vibration_rms_mm_per_s": 2.0,
+      "motor_current_A": 10,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "O-02",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-14T09:10:00+07:00",
+      "temperature_degC": 79,
+      "vibration_rms_mm_per_s": 2.1,
+      "motor_current_A": 10,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "O-03",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-14T09:20:00+07:00",
+      "temperature_degC": 80,
+      "vibration_rms_mm_per_s": 2.0,
+      "motor_current_A": 10,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "O-04",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-14T09:30:00+07:00",
+      "temperature_degC": 80,
+      "vibration_rms_mm_per_s": 2.1,
+      "motor_current_A": 10,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "O-05",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-14T09:40:00+07:00",
+      "temperature_degC": 81,
+      "vibration_rms_mm_per_s": 2.2,
+      "motor_current_A": 10,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "O-06",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-14T09:50:00+07:00",
+      "temperature_degC": 82,
+      "vibration_rms_mm_per_s": 2.2,
+      "motor_current_A": 10,
+      "load_percent": 70,
+      "synthetic": true
+    }
+  ],
+  "baseline_observations": [
+    {
+      "observation_id": "B-01",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-13T09:00:00+07:00",
+      "temperature_degC": 72,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "B-02",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-13T09:10:00+07:00",
+      "temperature_degC": 72,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "B-03",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-13T09:20:00+07:00",
+      "temperature_degC": 72,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "B-04",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-13T09:30:00+07:00",
+      "temperature_degC": 72,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "B-05",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-13T09:40:00+07:00",
+      "temperature_degC": 72,
+      "load_percent": 70,
+      "synthetic": true
+    },
+    {
+      "observation_id": "B-06",
+      "asset_id": "PUMP-01",
+      "event_time": "2026-10-13T09:50:00+07:00",
+      "temperature_degC": 72,
+      "load_percent": 70,
+      "synthetic": true
+    }
+  ],
+  "baseline_scope": {
+    "baseline_id": "BASE-01-v1",
+    "asset_id": "PUMP-01",
+    "operating_regime": "70pct-load-demo",
+    "approval": "fictional_design_input_pending_real_review"
+  },
+  "expected_facts": [
+    {
+      "fact_id": "F-TEMP-MEAN",
+      "kind": "hourly_metric",
+      "metric": "bearing_temperature_mean",
+      "scope": {
+        "asset_id": "PUMP-01",
+        "component_id": "BRG-01",
+        "operating_regime": "70pct-load-demo"
+      },
+      "value": 80.0,
+      "unit": "degC",
+      "interval": {
+        "start_inclusive": "2026-10-14T09:00:00+07:00",
+        "end_exclusive": "2026-10-14T10:00:00+07:00",
+        "timezone": "Asia/Bangkok",
+        "start_utc": "2026-10-14T02:00:00Z",
+        "end_utc": "2026-10-14T03:00:00Z"
+      },
+      "record_ids": [
+        "O-01",
+        "O-02",
+        "O-03",
+        "O-04",
+        "O-05",
+        "O-06"
+      ],
+      "calculation": "arithmetic mean of six temperature_degC samples"
+    },
+    {
+      "fact_id": "F-BASELINE",
+      "kind": "baseline",
+      "metric": "bearing_temperature_mean",
+      "scope": {
+        "asset_id": "PUMP-01",
+        "component_id": "BRG-01",
+        "operating_regime": "70pct-load-demo"
+      },
+      "value": 72.0,
+      "unit": "degC",
+      "baseline_id": "BASE-01-v1",
+      "record_ids": [
+        "B-01",
+        "B-02",
+        "B-03",
+        "B-04",
+        "B-05",
+        "B-06"
+      ],
+      "calculation": "arithmetic mean of separate prior synthetic baseline samples"
+    },
+    {
+      "fact_id": "F-DEVIATION",
+      "kind": "derived_metric",
+      "metric": "bearing_temperature_deviation",
+      "scope": {
+        "asset_id": "PUMP-01",
+        "component_id": "BRG-01",
+        "operating_regime": "70pct-load-demo"
+      },
+      "value": 8.0,
+      "unit": "degC",
+      "interval": {
+        "start_inclusive": "2026-10-14T09:00:00+07:00",
+        "end_exclusive": "2026-10-14T10:00:00+07:00",
+        "timezone": "Asia/Bangkok",
+        "start_utc": "2026-10-14T02:00:00Z",
+        "end_utc": "2026-10-14T03:00:00Z"
+      },
+      "input_fact_ids": [
+        "F-TEMP-MEAN",
+        "F-BASELINE"
+      ],
+      "calculation": "F-TEMP-MEAN minus F-BASELINE"
+    },
+    {
+      "fact_id": "F-RULE-LIMIT",
+      "kind": "rule_parameter",
+      "metric": "bearing_temperature_deviation_limit",
+      "scope": {
+        "asset_id": "PUMP-01",
+        "component_id": "BRG-01",
+        "operating_regime": "70pct-load-demo"
+      },
+      "value": 5.0,
+      "unit": "degC",
+      "rule_id": "RULE-01-v1",
+      "source_kind": "original_synthetic_demo_rule",
+      "review_status": "pending_real_review"
+    },
+    {
+      "fact_id": "F-CURRENT-MEAN",
+      "kind": "hourly_metric",
+      "metric": "motor_current_mean",
+      "scope": {
+        "asset_id": "PUMP-01",
+        "component_id": "MOTOR-01",
+        "operating_regime": "70pct-load-demo"
+      },
+      "value": 10.0,
+      "unit": "A",
+      "interval": {
+        "start_inclusive": "2026-10-14T09:00:00+07:00",
+        "end_exclusive": "2026-10-14T10:00:00+07:00",
+        "timezone": "Asia/Bangkok",
+        "start_utc": "2026-10-14T02:00:00Z",
+        "end_utc": "2026-10-14T03:00:00Z"
+      },
+      "record_ids": [
+        "O-01",
+        "O-02",
+        "O-03",
+        "O-04",
+        "O-05",
+        "O-06"
+      ],
+      "calculation": "arithmetic mean of six motor_current_A samples"
+    }
+  ],
+  "expected_numeric_assessment": {
+    "alert_id": "ALERT-001",
+    "rule_id": "RULE-01-v1",
+    "status": "deviation",
+    "comparison": "F-DEVIATION > F-RULE-LIMIT",
+    "root_cause": "unconfirmed",
+    "maintenance_authorised": false
+  },
+  "graph": {
+    "version": "graph-demo-v1",
+    "nodes": [
+      {
+        "id": "PUMP-01",
+        "type": "asset",
+        "model_id": "DEMO-P100"
+      },
+      {
+        "id": "DEMO-P100",
+        "type": "model"
+      },
+      {
+        "id": "BRG-01",
+        "type": "component"
+      },
+      {
+        "id": "MOTOR-01",
+        "type": "component"
+      },
+      {
+        "id": "TEMP-01",
+        "type": "sensor",
+        "unit": "degC"
+      },
+      {
+        "id": "DOC-P100",
+        "type": "document",
+        "revision": "v1"
+      },
+      {
+        "id": "CASE-001",
+        "type": "case",
+        "revision": "v1"
+      },
+      {
+        "id": "DEMO-P900",
+        "type": "model"
+      },
+      {
+        "id": "DOC-P900",
+        "type": "document",
+        "revision": "v1"
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "G-01",
+        "from": "PUMP-01",
+        "relation": "has_model",
+        "to": "DEMO-P100",
+        "graph_version": "graph-demo-v1",
+        "synthetic": true,
+        "review_status": "pending_real_review",
+        "provenance": "original authored fixture; no manufacturer relationship implied"
+      },
+      {
+        "edge_id": "G-02",
+        "from": "PUMP-01",
+        "relation": "has_component",
+        "to": "BRG-01",
+        "graph_version": "graph-demo-v1",
+        "synthetic": true,
+        "review_status": "pending_real_review",
+        "provenance": "original authored fixture; no manufacturer relationship implied"
+      },
+      {
+        "edge_id": "G-03",
+        "from": "TEMP-01",
+        "relation": "measures_component",
+        "to": "BRG-01",
+        "graph_version": "graph-demo-v1",
+        "synthetic": true,
+        "review_status": "pending_real_review",
+        "provenance": "original authored fixture; no manufacturer relationship implied"
+      },
+      {
+        "edge_id": "G-04",
+        "from": "DEMO-P100",
+        "relation": "has_applicable_document",
+        "to": "DOC-P100",
+        "graph_version": "graph-demo-v1",
+        "synthetic": true,
+        "review_status": "pending_real_review",
+        "provenance": "original authored fixture; no manufacturer relationship implied"
+      },
+      {
+        "edge_id": "G-05",
+        "from": "BRG-01",
+        "relation": "has_context_case",
+        "to": "CASE-001",
+        "graph_version": "graph-demo-v1",
+        "synthetic": true,
+        "review_status": "pending_real_review",
+        "provenance": "original authored fixture; no manufacturer relationship implied"
+      },
+      {
+        "edge_id": "G-06",
+        "from": "DEMO-P900",
+        "relation": "has_applicable_document",
+        "to": "DOC-P900",
+        "graph_version": "graph-demo-v1",
+        "synthetic": true,
+        "review_status": "pending_real_review",
+        "provenance": "original authored fixture; no manufacturer relationship implied"
+      }
+    ]
+  },
+  "corpus": [
+    {
+      "chunk_id": "D-P100-v1-c1",
+      "document_id": "DOC-P100",
+      "revision": "v1",
+      "model_id": "DEMO-P100",
+      "component_id": "BRG-01",
+      "source_kind": "original_synthetic_demo_guidance",
+      "text": "In this fictional DEMO-P100 scenario, a sustained bearing temperature deviation at comparable load warrants expert investigation. Friction, lubrication condition and a measurement problem are possible explanations. Temperature deviation alone does not establish a root cause.",
+      "synthetic": true,
+      "review_status": "pending_real_review"
+    },
+    {
+      "chunk_id": "D-P100-v1-c2",
+      "document_id": "DOC-P100",
+      "revision": "v1",
+      "model_id": "DEMO-P100",
+      "component_id": "BRG-01",
+      "source_kind": "original_synthetic_demo_guidance",
+      "text": "For this fictional scenario, ask an expert to review operating load, sensor validity and mounting observations. Any inspection or repair needs a separately authorised scope. A language-model suggestion does not authorise work.",
+      "synthetic": true,
+      "review_status": "pending_real_review"
+    },
+    {
+      "chunk_id": "CASE-001-v1-c1",
+      "document_id": "CASE-001",
+      "revision": "v1",
+      "model_id": "DEMO-P100",
+      "component_id": "BRG-01",
+      "source_kind": "original_synthetic_case",
+      "text": "A fictional earlier case for this model found loose mounting during an authorised inspection and recorded recovery after correction. That case is context for an inspection question; it does not establish the cause of the current temperature deviation.",
+      "synthetic": true,
+      "review_status": "pending_real_review"
+    },
+    {
+      "chunk_id": "D-P900-v1-c1",
+      "document_id": "DOC-P900",
+      "revision": "v1",
+      "model_id": "DEMO-P900",
+      "component_id": "BRG-900",
+      "source_kind": "original_synthetic_decoy",
+      "text": "DEMO-P900 bearing temperature troubleshooting and maintenance procedure for another fictional model. This passage is intentionally irrelevant to DEMO-P100.",
+      "synthetic": true,
+      "review_status": "pending_real_review"
+    }
+  ],
+  "expected_fixture_only_eligible_chunk_ids": [
+    "D-P100-v1-c1",
+    "D-P100-v1-c2",
+    "CASE-001-v1-c1"
+  ],
+  "expected_excluded_chunk_ids": [
+    "D-P900-v1-c1"
+  ],
+  "expected_path_ids": {
+    "DOC-P100": [
+      "G-01",
+      "G-04"
+    ],
+    "CASE-001": [
+      "G-02",
+      "G-05"
+    ]
+  },
+  "engineering_limit": "All limits, asset relationships, cases and procedures are invented demo material; no real expert review or operational suitability is implied.",
+  "fixture_payload_sha256": "a458fe064f38238527e7480796b64cad8d034ee3e67ccd5e9f422de1435fc465",
+  "evidence_pack_id": "EP-a458fe064f382385"
+}

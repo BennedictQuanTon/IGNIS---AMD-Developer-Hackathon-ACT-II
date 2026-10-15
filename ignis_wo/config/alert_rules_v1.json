@@ -1,0 +1,11 @@
+{
+  "version": "work-order-alert-v1",
+  "criticality_policy_version": "criticality-supervisor-3plus-v1",
+  "criticality_set_by": "supervisor",
+  "criticality_value_minimum": 3,
+  "priority": "severity x recurrence x criticality",
+  "high_band_first_snapshot": "initial_notice",
+  "alert_rules": ["crossing_below_to_high", "new_failed_state_on_critical_component"],
+  "dedupe_key": "snapshot_id + component + rule + stable_work_order_id",
+  "severity_is_probability": false
+}

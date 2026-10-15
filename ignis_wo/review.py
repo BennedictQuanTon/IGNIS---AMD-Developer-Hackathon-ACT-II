@@ -3,6 +3,7 @@
 from ignis_wo.contracts import CanonicalRecord, ExtractionSuggestion, ReviewedAnnotation
 from ignis_wo.extraction.validate import validate_output
 from ignis_wo.hashing import content_hash, short_id
+import datetime
 
 
 def annotate(
@@ -12,8 +13,9 @@ def annotate(
     reviewer: str,
     reason: str,
     revision: int = 1,
+    decided_at: str | None = None,
 ) -> ReviewedAnnotation:
-    annotation_id = short_id("ann", suggestion.suggestion_id, status, content_hash(output), str(revision))
+    annotation_id = short_id("ann", suggestion.suggestion_id, status, content_hash(output), str(revision), reviewer)
     return ReviewedAnnotation(
         annotation_id=annotation_id,
         record_id=suggestion.record_id,
@@ -23,6 +25,7 @@ def annotate(
         reviewer=reviewer,
         revision=revision,
         reason=reason,
+        decided_at=decided_at or datetime.datetime.now(datetime.timezone.utc).isoformat(),
     )
 
 
@@ -49,6 +52,9 @@ def apply_decisions(
             continue
         status = decision["status"]
         reason = decision.get("reason", "")
+        decision_reviewer = decision.get("reviewer", reviewer)
+        if not isinstance(decision_reviewer, str) or not decision_reviewer.strip():
+            raise ValueError(f"{suggestion.record_id}: reviewer attribution is required")
         if status == "accepted":
             if suggestion.output is None:
                 raise ValueError(f"{suggestion.record_id}: cannot accept a suggestion without valid output")
@@ -61,5 +67,5 @@ def apply_decisions(
             output = None
         else:
             raise ValueError(f"{suggestion.record_id}: unknown review status {status!r}")
-        annotations.append(annotate(suggestion, status, output, reviewer, reason))
+        annotations.append(annotate(suggestion, status, output, decision_reviewer, reason, decision.get("revision", 1), decision.get("reviewed_at")))
     return annotations

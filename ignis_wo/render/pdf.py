@@ -10,7 +10,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from ignis_wo.contracts import ComponentExplanation, FactRow, ReportClaim, Snapshot
 from ignis_wo.render.templates import class_label, format_value, kpi_label
@@ -45,13 +45,13 @@ def table(rows: list[list[str]], widths: list[float]) -> Table:
 
 
 def bar_chart(labels: list[str], values: list[float]) -> Drawing:
-    height = max(40, 9 * len(labels)) * mm / 2
+    height = max(46, 9 * len(labels) + 14) * mm / 2
     drawing = Drawing(170 * mm, height)
     chart = HorizontalBarChart()
-    chart.x = 60 * mm
-    chart.y = 5
-    chart.width = 100 * mm
-    chart.height = drawing.height - 10
+    chart.x = 66 * mm
+    chart.y = 12
+    chart.width = 94 * mm
+    chart.height = drawing.height - 24
     chart.data = [list(reversed(values))]
     chart.categoryAxis.categoryNames = list(reversed(labels))
     chart.categoryAxis.labels.fontSize = 7
@@ -95,6 +95,8 @@ def fault_section(facts: list[FactRow]) -> list:
     if class_facts:
         content.append(bar_chart(labels, values))
     content.append(table(rows, [80, 30, 60]))
+    if class_facts:
+        content.insert(-1, Spacer(1, 4 * mm))
     return content
 
 
@@ -123,7 +125,7 @@ def triage_section(explanations: list[ComponentExplanation], known: dict[str, Fa
             ]
         )
     note = "Priority = severity x recurrence x criticality, computed in code from the approved snapshot."
-    return [heading("6. Triage priority"), paragraph(note), table(rows, [36, 18, 17, 17, 24, 22, 36])]
+    return [KeepTogether([heading("6. Triage priority"), paragraph(note), table(rows, [25, 31, 18, 17, 21, 20, 38])])]
 
 
 def kpi_section(facts: list[FactRow]) -> list:
@@ -154,6 +156,7 @@ def build_pdf(
     claims: list[ReportClaim],
     run_info: dict,
     top_components: int = 15,
+    context_review: dict | None = None,
 ) -> None:
     known = {fact.fact_id: fact for fact in facts}
     claims_by_template = {}
@@ -187,12 +190,34 @@ def build_pdf(
     story.append(paragraph("Reserved for the reviewing engineer. No repair recommendation is generated."))
     story.append(Spacer(1, 30 * mm))
 
-    story.append(heading("11. Claim-to-fact appendix"))
     rows = [["Claim", "Template", "Facts"]]
     for claim in claims:
         fact_ids = ", ".join(slot.fact_id for slot in claim.slots) or "none"
         rows.append([claim.claim_id, claim.template_id, fact_ids])
-    story.append(table(rows, [35, 45, 90]))
+    story.append(KeepTogether([heading("11. Claim-to-fact appendix"), table(rows, [35, 45, 90])]))
+
+    if context_review is not None:
+        story.append(heading("12. Context review and provenance"))
+        story.append(paragraph(f"Review status: {context_review.get('review_status', context_review.get('decision', 'unavailable'))}."))
+        story.append(paragraph(f"Snapshot: {context_review.get('snapshot_id', snapshot.snapshot_id)}; evidence pack: {context_review.get('pack_id') or 'none'}."))
+        story.append(paragraph(f"Explanation mode: {context_review.get('explanation_mode', 'unavailable')}; prompt identity: {context_review.get('prompt_id', 'none configured')}."))
+        story.append(paragraph(f"Explanation model identity: {context_review.get('model_id', 'unavailable')}."))
+        story.append(paragraph("Contextual output is an expert-reviewed hypothesis and does not establish causation or authorize maintenance action."))
+        draft = context_review.get("approved_draft")
+        if draft:
+            story.append(paragraph(f"Draft hash: {context_review.get('draft_hash', 'unavailable')}"))
+            for label in ("hypotheses", "alternatives"):
+                for claim in draft.get(label, []):
+                    citations = ", ".join(claim.get("citations", []))
+                    story.append(paragraph(f"{label.title()}: {claim.get('text', '')} [references: {citations}]"))
+            story.append(paragraph(f"Uncertainty: {draft.get('uncertainty', 'not supplied')}"))
+            if draft.get("inspection"):
+                story.append(paragraph(f"Suggested inspection for expert consideration: {draft['inspection'].get('text', '')} [references: {', '.join(draft['inspection'].get('citations', []))}]"))
+        else:
+            story.append(paragraph(f"No contextual draft was included: {context_review.get('reason', 'context unavailable or not approved')}. Facts and numeric alerts remain independently computed."))
+        story.append(paragraph(f"Expert reviewer: {context_review.get('reviewer', 'none')}; review time: {context_review.get('reviewed_at', 'none')}; review revision: {context_review.get('revision', 'none')}."))
+        if context_review.get("reason"):
+            story.append(paragraph(f"Review note: {context_review['reason']}"))
 
     document = SimpleDocTemplate(str(path), pagesize=A4, title="Maintenance work-order report", author="ignis_wo")
     document.build(story)

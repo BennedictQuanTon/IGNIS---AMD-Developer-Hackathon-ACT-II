@@ -74,7 +74,7 @@ class IngestTests(unittest.TestCase):
             records, issues = records_from(path)
         self.assertEqual(len(records), 1)
         self.assertIsNone(records[0].downtime_hours)
-        self.assertEqual(issues, ["row 2: rejected, empty text", "row 3: downtime is not a number, left empty"])
+        self.assertEqual(issues, ["row 2: rejected, empty text", "row 3: downtime is not a number, left empty", "row 3: event date missing"])
 
     def test_record_ids_are_stable_across_runs(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -82,6 +82,19 @@ class IngestTests(unittest.TestCase):
             first, _ = records_from(path)
             second, _ = records_from(path)
         self.assertEqual([record.record_id for record in first], [record.record_id for record in second])
+
+    def test_negative_nan_and_infinite_downtime_are_exposed_and_not_computed(self):
+        from ignis_wo.ingest.mapping import build_records, confirm_mapping, propose_mapping
+        from ignis_wo.ingest.registry import parse_file
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invalid-hours.csv"
+            path.write_text("WO #,Work Order Description,Downtime (h)\n1,pump noise,-2\n2,pump seal,NaN\n3,pump leak,Infinity\n", encoding="utf-8")
+            source, rows = parse_file(path)
+            revision = confirm_mapping(propose_mapping(["WO #", "Work Order Description", "Downtime (h)"]), "reviewer", "checked")
+            records, issues = build_records(source, rows, revision)
+            self.assertEqual([record.downtime_hours for record in records], [None, None, None])
+            self.assertEqual(sum("must be finite and nonnegative" in issue for issue in issues), 3)
 
 
 if __name__ == "__main__":

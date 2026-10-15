@@ -12,6 +12,8 @@ from ignis_wo.evaluation.maintie import load_gold, load_verified_splits
 from ignis_wo.evaluation.scorer import score_items
 from ignis_wo.extraction.adapters import FixtureAdapter, LiveAdapter, ReplayAdapter
 from ignis_wo.pipeline import RunOptions, run_pipeline
+from ignis_wo.workflow.api import serve
+from ignis_wo.workflow.service import Workflow
 
 DEFAULT_GOLD = Path("data/maintie/gold_release.json")
 DEFAULT_LEDGER = Path("outputs/eval_ledger.jsonl")
@@ -57,6 +59,8 @@ def command_run(arguments) -> int:
         mapping_overrides=read_json(arguments.mapping),
         decisions=read_json(arguments.decisions),
         criticalities=[ComponentCriticality.model_validate(rating) for rating in ratings],
+        confirm_mapping=arguments.confirm_mapping,
+        demo_auto_review=arguments.demo_auto_review,
     )
     try:
         summary = run_pipeline(options)
@@ -109,6 +113,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="ignis_wo")
     commands = parser.add_subparsers(dest="command", required=True)
 
+    backend = commands.add_parser("serve", help="start the local persistent workflow API")
+    backend.add_argument("--db", type=Path, default=Path("outputs/backend/ignis.sqlite3"))
+    backend.add_argument("--data", type=Path, default=Path("outputs/backend"))
+    backend.add_argument("--host", default="127.0.0.1")
+    backend.add_argument("--port", type=int, default=8765)
+    backend.add_argument("--fixture-items", type=Path, help="explicitly configure a MaintIE-format fixture extractor")
+    backend.set_defaults(handler=command_serve)
+
     run = commands.add_parser("run", help="run the full pipeline on one export file")
     run.add_argument("--input", type=Path, required=True)
     run.add_argument("--out", type=Path, required=True)
@@ -117,6 +129,8 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--allow-rejected", action="store_true", help="continue when some outputs fail validation")
     run.add_argument("--mapping", type=Path, help="JSON of field to column overrides")
     run.add_argument("--decisions", type=Path, help="JSON review decisions keyed by record id")
+    run.add_argument("--confirm-mapping", action="store_true", help="confirm the proposed mapping as the named reviewer")
+    run.add_argument("--demo-auto-review", action="store_true", help="explicitly label fixture outputs as synthetic demo auto-review")
     run.add_argument("--criticality", type=Path, help="JSON list of component criticality ratings")
     add_adapter_arguments(run)
     run.set_defaults(handler=command_run)
@@ -130,6 +144,13 @@ def build_parser() -> argparse.ArgumentParser:
     add_adapter_arguments(evaluate)
     evaluate.set_defaults(handler=command_eval)
     return parser
+
+
+def command_serve(arguments) -> int:
+    fixture_items = read_json(arguments.fixture_items)
+    workflow = Workflow(arguments.db, arguments.data, fixture_items)
+    serve(workflow, arguments.host, arguments.port)
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

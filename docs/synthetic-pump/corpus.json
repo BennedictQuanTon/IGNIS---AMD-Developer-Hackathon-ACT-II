@@ -1,0 +1,13 @@
+{
+  "corpus_version": "pump-corpus-v1",
+  "approval_status": "SYNTHETIC FIXTURE: simulated approval metadata; no real expert review is claimed",
+  "synthetic": true,
+  "documents": [
+    {"document_id":"MAN-PUMP-A-v1","version":"1","asset_model":"PX-100","component":"seal","status":"simulated_approved","reviewer":"SYNTHETIC FIXTURE metadata","source_id":"SYN-MAN-PUMP-A","location":"section 3.2 / chunk 1","text":"For pump PX-100, inspect seal leakage, seal flush supply, and the surrounding pipework. Record whether leakage is active and whether the flush line is obstructed. This inspection guidance does not identify a root cause."},
+    {"document_id":"CASE-PUMP-SEAL-01-v1","version":"1","asset_model":"PX-100","component":"seal","status":"simulated_approved","reviewer":"SYNTHETIC FIXTURE metadata","source_id":"SYN-CASE-01","location":"case 1 / paragraph 2","text":"Synthetic historical case: a seal leak was observed with reduced flush flow. The case records correlation only and does not establish that reduced flush flow caused the leak."},
+    {"document_id":"MAN-PUMP-B-v1","version":"1","asset_model":"PX-200","component":"seal","status":"simulated_approved","reviewer":"SYNTHETIC FIXTURE metadata","source_id":"SYN-MAN-PUMP-B","location":"section 8 / chunk 2","text":"For pump PX-200 inspect bearing temperature and lubricant condition. This passage belongs to a different pump model."},
+    {"document_id":"MAN-PUMP-A-v0","version":"0","asset_model":"PX-100","component":"seal","status":"superseded","reviewer":"demo-review-board","source_id":"SYN-MAN-PUMP-A","location":"section 3.2 / old revision","text":"Old procedure for PX-100 seal leakage; superseded by revision 1."},
+    {"document_id":"CASE-UNREVIEWED-v1","version":"1","asset_model":"PX-100","component":"seal","status":"unapproved","reviewer":null,"source_id":"SYN-CASE-UNREVIEWED","location":"draft","text":"Draft case claims bearing heat proves imminent failure."},
+    {"document_id":"MAN-PUMP-A-BEARING-v1","version":"1","asset_model":"PX-100","component":"bearing","status":"simulated_approved","reviewer":"SYNTHETIC FIXTURE metadata","source_id":"SYN-MAN-PUMP-A","location":"section 4 / chunk 1","text":"For pump PX-100, inspect bearing temperature and lubrication condition. Trend values only when measurement units and operating conditions are recorded."}
+  ]
+}

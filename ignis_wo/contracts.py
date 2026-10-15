@@ -95,6 +95,7 @@ class ReviewedAnnotation(Contract):
     reviewer: str
     revision: int
     reason: str
+    decided_at: str
 
 
 class ComponentCriticality(Contract):

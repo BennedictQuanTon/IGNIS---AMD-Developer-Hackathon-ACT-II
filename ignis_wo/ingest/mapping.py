@@ -1,6 +1,7 @@
 """Proposes a column mapping, records who confirmed it, and builds canonical records."""
 
 import datetime
+import math
 import re
 
 from ignis_wo.contracts import CanonicalRecord, MappingProposal, MappingRevision, RawRow, SourceFile
@@ -66,15 +67,16 @@ def confirm_mapping(
 
 def parse_hours(value: str) -> float | None:
     try:
-        return float(value)
-    except ValueError:
+        hours = float(value)
+        return hours if math.isfinite(hours) and hours >= 0 else None
+    except (TypeError, ValueError):
         return None
 
 
 def parse_date(value: str) -> str | None:
     try:
         return datetime.date.fromisoformat(value).isoformat()
-    except ValueError:
+    except (TypeError, ValueError):
         return None
 
 
@@ -96,14 +98,30 @@ def build_records(
             continue
         downtime = None
         if fields["downtime_hours"]:
-            downtime = parse_hours(fields["downtime_hours"])
-            if downtime is None:
-                issues.append(f"{where}: downtime is not a number, left empty")
+            unit_header = normalize_header(revision.mapping.get("downtime_hours") or "")
+            if re.search(r"\b(minutes?|mins?|seconds?|secs?|days?)\b", unit_header):
+                issues.append(f"{where}: downtime source unit is not hours; value left uncomputed")
+                fields["downtime_hours"] = None
+            else:
+                raw_hours = fields["downtime_hours"]
+                try:
+                    parsed_hours = float(raw_hours)
+                except (TypeError, ValueError):
+                    issues.append(f"{where}: downtime is not a number, left empty")
+                else:
+                    if not math.isfinite(parsed_hours) or parsed_hours < 0:
+                        issues.append(f"{where}: downtime is invalid (must be finite and nonnegative), left empty")
+                    else:
+                        downtime = parsed_hours
+        else:
+            issues.append(f"{where}: downtime hours missing; KPI may be not computed")
         event_date = None
         if fields["event_date"]:
             event_date = parse_date(fields["event_date"])
             if event_date is None:
                 issues.append(f"{where}: date is not ISO formatted, left empty")
+        else:
+            issues.append(f"{where}: event date missing")
         record_id = short_id(
             "rec",
             source_file.sha256,

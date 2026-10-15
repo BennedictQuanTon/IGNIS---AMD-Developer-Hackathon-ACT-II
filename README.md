@@ -1,12 +1,12 @@
 # AMD ACT III — Intelligent Industry
 
-Repository foundation for a sensor-informed maintenance-intelligence prototype proposed for AMD Developer Hackathon: ACT III, Track 1: Intelligent Industry. The repository currently contains planning, architecture, contribution guidance, and repository-integrity checks. It does not yet contain an application, sensor simulator, trained model, evaluation results, or a deployed service.
+Maintenance-intelligence prototype for AMD Developer Hackathon: ACT III, Track 1: Intelligent Industry. The repository now includes a local persistent work-order backend with explicit review, deterministic facts and alerts, scoped evidence packs and evidence-linked PDFs. See the [API guide and Windows startup commands](docs/API_CONTRACT.md). The seeded walkthrough uses synthetic fixtures and simulated signoff; hosted AMD inference, model benchmarks and deployment remain unverified.
 
 ## Product direction
 
 **Current proposed system, confirmed 14 October 2026:** three loops and eleven logical parts connect hourly monitoring, human-approved incident response and offline model improvement. Read the [complete workflow and architecture comparison](docs/PROPOSED_SYSTEM_WORKFLOW.md) and the [architecture explained through the hospital analogy](artifacts/ignis-architecture-explained.html). Adoption of this direction does not mean the application is implemented or its benefits are measured. Earlier build schedules and detailed diagrams remain historical where they differ from this proposal.
 
-Team review and proposed implementation criteria are tracked in [issue #12](https://github.com/khanhtuongnakitomo/IGNIS/issues/12), assigned jointly to all three repository assignees. Implementation-stream ownership remains to be agreed.
+The current API-based demo proposal is tracked in [issue #16](https://github.com/khanhtuongnakitomo/IGNIS/issues/16). Ownership is split into [backend #17](https://github.com/khanhtuongnakitomo/IGNIS/issues/17), [models and benchmarks #18](https://github.com/khanhtuongnakitomo/IGNIS/issues/18), and [UI/UX and E2E #19](https://github.com/khanhtuongnakitomo/IGNIS/issues/19). The [UI design preview in PR #20](https://github.com/khanhtuongnakitomo/IGNIS/pull/20) uses browser-local mock data; backend integration is a separate step.
 
 The latest requested expansion adds problem recognition, forecasting, technician assignment and maintenance scheduling to reduce production loss. The [detailed maintenance direction](docs/MAINTENANCE_DIRECTION.md) defines the proposed layers, approval boundaries, dispatch example and implementation phases. These capabilities remain proposed; the revised [interactive architecture walkthrough](artifacts/ignis-data-flow.html) demonstrates synthetic flows and decisions locally. The [simplified high-level view](artifacts/ignis-high-level-architecture.html) shows the same system as eleven parts in three loops and adds the proposed fine-tuning role: LoRA adapters for work-order extraction and evidence-cited explanation, released only after held-out evaluation and approval.
 
@@ -22,7 +22,7 @@ The proposed demo supports historical playback and a simulated live stream, both
 
 The confirmed assessment loop collects data continuously and compares the previous completed hour with applicable healthy historical data once each hour. Deviations create an in-app alert and evidence-backed RAG/graph evaluation. Only validated expert-confirmed or corrected findings enter a versioned case knowledge base for future retrieval; uncertain/rejected diagnoses do not become confirmed facts. Adding cases does not automatically retrain the model or change the normal baseline. Hourly jobs, alerts and knowledge publication remain proposed, not running services.
 
-This is a documentation and repository foundation. Proposed technology choices and future acceptance criteria are identified as proposals throughout the docs. No GPU-hour allocation, model compatibility, hosting price, benchmark score, or user interface is claimed as verified.
+The implemented slice is bounded to historical exports, explicit mapping and annotation review, deterministic work-order priority alerts, applicability-filtered context, expert-reviewed drafts and issued reports. SQLite retains runs and history through restart. The broader sensor, dispatch and fine-tuning architecture above remains proposed. Hosted inference is injectable but not configured; no GPU allocation, trained adapter or benchmark score is claimed.
 
 For contributors, read [CONTRIBUTING.md](CONTRIBUTING.md), then run the repository checks:
 
@@ -32,7 +32,7 @@ python -m unittest discover -s tests -v
 python scripts/check_repository.py
 ```
 
-The CI job named **Repository checks** runs these same commands. It validates Markdown targets and YAML/JSON syntax; it does not validate provider schemas, test the future product, or perform security scanning.
+The CI job named **Repository checks** validates Markdown targets and YAML/JSON syntax and runs the Python behavior tests. When a frontend lockfile is present, it also installs its locked dependencies, typechecks and builds it. These checks do not establish live-provider quality or production readiness.
 
 Use the tracked `.gitignore` for shared exclusions such as environments, secrets, datasets, uploads, reports, and model artifacts. Add personal, machine-specific ignore patterns to `.git/info/exclude`; that file stays local and is not shared with the team.
 

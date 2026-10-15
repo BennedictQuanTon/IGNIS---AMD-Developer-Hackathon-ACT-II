@@ -1,0 +1,163 @@
+{
+  "checked_on": "2026-10-14",
+  "purpose": "Research receipts, not a training-admission ledger",
+  "pr": {
+    "url": "https://github.com/khanhtuongnakitomo/IGNIS/pull/14",
+    "head_commit": "00ad51d14f8be5cd754e524343f4280cb8cc7fba"
+  },
+  "datasets": [
+    {
+      "id": "maintie_gold",
+      "url": "https://github.com/nlp-tlp/maintie",
+      "revision": "825e7710e4129598da997276a38b3cb40b200bc2",
+      "license_stated": "MIT",
+      "role": "extraction",
+      "file": "data/gold_release.json",
+      "sha256": "ef811cf4ffd0c90e6a13b1369e24e9d1d08f9a294d873ab4fb1a580096d7d6e0",
+      "rows": 1076,
+      "pr_splits": {
+        "train": 860,
+        "dev": 108,
+        "test": 108
+      },
+      "verification": "PR pinned download script and split lock; upstream dataset documentation",
+      "training_admitted": false
+    },
+    {
+      "id": "industrial_instruction",
+      "url": "https://huggingface.co/datasets/Parssky/industrial-instruction-dataset",
+      "metadata_url": "https://huggingface.co/api/datasets/Parssky/industrial-instruction-dataset",
+      "revision": "894b5104d5cdf40cb55eec2fe0ba704745f539f0",
+      "license_stated": "CC-BY-NC-4.0",
+      "additional_terms": "Dataset card says source-document terms and applicable data-use restrictions also apply",
+      "role": "conditional evidence-use instruction-tuning pilot",
+      "configs": {
+        "pana_qa_v1": {
+          "train": 12557,
+          "test": 1000
+        },
+        "pana_qa_claude_v1": {
+          "train": 25252,
+          "test": 1000
+        }
+      },
+      "fields": [
+        "question",
+        "answer",
+        "documents"
+      ],
+      "verification": "Live dataset card, API metadata/file tree and first 2 Qwen train rows + first Claude train row through dataset viewer API",
+      "sample_limit": "3 rows inspected; label quality and split independence not established",
+      "quality_observation": "First sampled Qwen row has numeric answer choices not all explicitly supported by its supplied passage; first Claude row asks protocols not explicitly supported by its supplied passage. This is a screening concern, not a dataset-wide quality estimate.",
+      "files": [
+        {
+          "path": "pana_qa_v1/train-00000-of-00001.parquet",
+          "size_bytes": 2461602,
+          "provider_lfs_sha256": "2abf3fa6907ee4f6776b25381b347a76401d142f546dce421c11f9e351234dbe"
+        },
+        {
+          "path": "pana_qa_v1/test-00000-of-00001.parquet",
+          "size_bytes": 339068,
+          "provider_lfs_sha256": "ded85ad6e93fe66470bd75881fb5293fcd28f2baaaf4469090f9445872090e4e"
+        },
+        {
+          "path": "pana_qa_claude_v1/train-00000-of-00001.parquet",
+          "size_bytes": 156161877,
+          "provider_lfs_sha256": "ccb47eefcab47c199ef2915d07784fdcb53fe43e7b162a7d08b9e495d85d74d6"
+        },
+        {
+          "path": "pana_qa_claude_v1/test-00000-of-00001.parquet",
+          "size_bytes": 6145590,
+          "provider_lfs_sha256": "b5f891f55893cdc8f373d72d4f1daa2304f574d6339a4cef76d831f6a554a14e"
+        }
+      ],
+      "file_hash_note": "Hashes are provider LFS identities from the API; full parquet payloads were not downloaded or hashed locally",
+      "training_admitted": false
+    },
+    {
+      "id": "assetopsbench",
+      "url": "https://huggingface.co/datasets/ibm-research/AssetOpsBench",
+      "revision": "5e25bb7f2cd37fb68b9a9e1f99d170ca5be7ce17",
+      "license_stated": "Apache-2.0",
+      "role": "maintenance scenario and evaluation design",
+      "verification": "Live dataset card/API and full small JSONL files inspected in memory",
+      "files": [
+        {
+          "config": "compressor",
+          "path": "data/asset/compressor_utterance.jsonl",
+          "rows": 15,
+          "sha256": "3858e35ba9cbd08687ccbd8c7cf04766db30df8c6f9420729d43b72689f54407"
+        },
+        {
+          "config": "hydrolic_pump",
+          "path": "data/asset/hydrolicpump_utterance.jsonl",
+          "rows": 17,
+          "sha256": "654ff0181dc3a8ef586585db45da16a6b36c618ac933279c90ec5aa923a0fa30"
+        },
+        {
+          "config": "failure_mode_sensor_mapping",
+          "path": "data/task/failure_mapping_senarios.jsonl",
+          "rows": 88,
+          "sha256": "ce2eb5ccc8596dca2efb777621a22be0e8e84101390e2b036d9469dccee0837b"
+        }
+      ],
+      "label_caveat": "characteristic_form is an expected-response rubric, not a complete verified response; exclude hint/failure_event/characteristic_form from inference input when they reveal expected outcomes",
+      "training_admitted": false
+    },
+    {
+      "id": "pandax",
+      "url": "https://zenodo.org/records/14510798",
+      "metadata_url": "https://zenodo.org/api/records/14510798",
+      "version": "v1",
+      "doi": "10.5281/zenodo.14510798",
+      "license_stated": "CC-BY-4.0",
+      "license_evidence": "Zenodo API metadata.license.id=cc-by-4.0",
+      "role": "optional reviewed relationship/explanation subset",
+      "file": "PANDAX_dataset.json",
+      "sha256": "c0c9fc54d657d1c5a33f7859b412c3e4ea9d3e091769d13935ee2e94e4b0f520",
+      "publisher_md5": "dbe53f94f49605fb37c60742185ff11d",
+      "patent_groups": 20,
+      "rows": 1860,
+      "explanation_source_counts": {
+        "gpt4mini": 90,
+        "claude": 1375,
+        "human_eval": 346,
+        "gemini": 42,
+        "gpt4": 3,
+        "llama": 4
+      },
+      "verification": "Full small JSON file loaded/counts hashed in memory; source patents not downloaded",
+      "review_caveat": "E_source=human_eval identifies the released provenance field; independent engineering correctness was not revalidated",
+      "training_admitted": false
+    },
+    {
+      "id": "metropt3",
+      "url": "https://archive.ics.uci.edu/dataset/791/metropt+3+dataset",
+      "doi": "10.24432/C5VW3R",
+      "license_stated": "CC-BY-4.0",
+      "role": "deferred numeric condition replay",
+      "verification": "Official UCI metadata page only; payload not downloaded",
+      "revision": null,
+      "sha256": null,
+      "training_admitted": false
+    },
+    {
+      "id": "ingenzi",
+      "url": "https://huggingface.co/datasets/BernesLy/INGENZI_DatasetV1",
+      "license_stated": "CC-BY-NC-4.0",
+      "role": "lower-priority grounded QA candidate, equipment mismatch",
+      "rows_stated_by_card": 10294,
+      "verification": "Live dataset card only; full payload not inspected",
+      "revision": null,
+      "training_admitted": false
+    }
+  ],
+  "raw_data_storage": "Third-party sample payloads inspected in memory; no public dataset payload is included in this pack",
+  "no_claims": [
+    "No fine-tuning run",
+    "No benchmark reproduction",
+    "No dataset-wide label-quality estimate",
+    "No GPU/runtime validation",
+    "No cross-dataset asset linkage"
+  ]
+}

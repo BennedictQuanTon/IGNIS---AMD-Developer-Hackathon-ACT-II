@@ -1,0 +1,93 @@
+{
+  "status": "proposed_scenario_specifications_not_executed",
+  "synthetic": true,
+  "base_fixture": "demo-context.json",
+  "case_count": 12,
+  "cases": [
+    {
+      "case_id": "E01",
+      "name": "applicable_context",
+      "transformation": "Use the base fixture after explicit fixture admission.",
+      "expected_behavior": "deviation alert + cited draft; no confirmed root cause",
+      "observed_result": null
+    },
+    {
+      "case_id": "E02",
+      "name": "wrong_model_decoy",
+      "transformation": "Rank the DEMO-P900 chunk highest before graph filtering.",
+      "expected_behavior": "wrong-model chunk excluded from generation input and citations",
+      "observed_result": null
+    },
+    {
+      "case_id": "E03",
+      "name": "missing_context",
+      "transformation": "Remove all applicable document/case chunks.",
+      "expected_behavior": "alert remains; abstain from contextual cause; show missing evidence",
+      "observed_result": null
+    },
+    {
+      "case_id": "E04",
+      "name": "conflicting_context",
+      "transformation": "Add a same-scope current approved chunk contradicting the first hypothesis.",
+      "expected_behavior": "expose conflict, keep cause inconclusive and preserve alert",
+      "observed_result": null
+    },
+    {
+      "case_id": "E05",
+      "name": "unattributed_work_order_fault",
+      "transformation": "Provide two component spans plus FailedState without an attachment relation.",
+      "expected_behavior": "show unattributed fault warning; never present no fault recorded as absence of failure",
+      "observed_result": null
+    },
+    {
+      "case_id": "E06",
+      "name": "bad_numeric_binding",
+      "transformation": "Change model F-TEMP-MEAN value from 80 to 85, or unit from degC to A.",
+      "expected_behavior": "reject draft; keep numeric facts and alert unchanged",
+      "observed_result": null
+    },
+    {
+      "case_id": "E07",
+      "name": "unknown_citation",
+      "transformation": "Add a nonexistent chunk or graph path ID to model output.",
+      "expected_behavior": "reject draft and expose unresolved citation",
+      "observed_result": null
+    },
+    {
+      "case_id": "E08",
+      "name": "model_unavailable",
+      "transformation": "Cause the configured live explanation endpoint to fail.",
+      "expected_behavior": "degraded explanation status; alert/evidence/expert review still available",
+      "observed_result": null
+    },
+    {
+      "case_id": "E09",
+      "name": "stale_evidence",
+      "transformation": "Generate against an old pack, then change document/graph revision before review.",
+      "expected_behavior": "mark draft stale and revalidate/regenerate; preserve the old revision",
+      "observed_result": null
+    },
+    {
+      "case_id": "E10",
+      "name": "insufficient_observations",
+      "transformation": "Remove expected samples below the configured coverage gate or make them stale.",
+      "expected_behavior": "data-quality notice, no healthy declaration or invented diagnosis",
+      "observed_result": null
+    },
+    {
+      "case_id": "E11",
+      "name": "unreviewed_work_orders",
+      "transformation": "Omit explicit mapping/annotation decisions in source-data mode.",
+      "expected_behavior": "stop at review; no approved-record report or fabricated reviewer",
+      "observed_result": null
+    },
+    {
+      "case_id": "E12",
+      "name": "failed_rerun",
+      "transformation": "Complete one report, then make the next run fail during extraction or rendering.",
+      "expected_behavior": "failed new run is explicit; no old output advertised as its report",
+      "observed_result": null
+    }
+  ],
+  "coverage_note": "These are 12 transformations, not 12 independently sampled incidents; the later 30-family evaluation set remains to be built and reviewed."
+}

@@ -27,7 +27,8 @@ class EndToEndTests(unittest.TestCase):
         self.directory.cleanup()
 
     def run_into(self, name: str, adapter=None) -> dict:
-        options = RunOptions(self.export, self.path / name, adapter or sample_adapter(), synthetic=True)
+        options = RunOptions(self.export, self.path / name, adapter or sample_adapter(), synthetic=True,
+                             confirm_mapping=True, demo_auto_review=True)
         return run_pipeline(options)
 
     def test_every_stage_succeeds_and_is_reproducible(self):
@@ -36,7 +37,10 @@ class EndToEndTests(unittest.TestCase):
         first_stages = read_manifest(self.path / "first")
         second_stages = read_manifest(self.path / "second")
         self.assertEqual([entry["stage"] for entry in first_stages], STAGES)
-        self.assertEqual([entry["output_hash"] for entry in first_stages], [entry["output_hash"] for entry in second_stages])
+        self.assertEqual(
+            [entry["output_hash"] for entry in first_stages if entry["stage"] != "04_review"],
+            [entry["output_hash"] for entry in second_stages if entry["stage"] != "04_review"],
+        )
         self.assertEqual(first["pdf_sha256"], second["pdf_sha256"])
         self.assertEqual(first["records"], 8)
 
@@ -45,7 +49,7 @@ class EndToEndTests(unittest.TestCase):
         pdf = (self.path / "run" / "report.pdf").read_bytes()
         board = (self.path / "run" / "board.html").read_text(encoding="utf-8")
         self.assertTrue(pdf.startswith(b"%PDF"))
-        self.assertIn("SYNTHETIC DATA / FIXTURE MODE", board)
+        self.assertIn("SYNTHETIC DATA / AUTO-REVIEW DEMO / FIXTURE MODE", board)
         self.assertIn("hose has triage priority 12 (Medium)", board)
 
     def test_corrupt_model_output_stops_at_the_extraction_stage(self):
@@ -59,6 +63,32 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(stages[-1]["status"], "failed")
         self.assertIn("unknown label", stages[-1]["errors"][0])
         self.assertFalse((self.path / "corrupt" / "report.pdf").exists())
+
+    def test_normal_source_run_requires_explicit_mapping_and_record_decisions(self):
+        options = RunOptions(self.export, self.path / "gated", sample_adapter(), synthetic=True)
+        with self.assertRaises(StageFailed) as mapping_failure:
+            run_pipeline(options)
+        self.assertEqual(mapping_failure.exception.stage, "02_mapping")
+        self.assertFalse((self.path / "gated" / "report.pdf").exists())
+
+        options.confirm_mapping = True
+        with self.assertRaises(StageFailed) as review_failure:
+            run_pipeline(options)
+        self.assertEqual(review_failure.exception.stage, "05_snapshot")
+        review = json.loads((self.path / "gated" / "04_review.json").read_text(encoding="utf-8"))
+        self.assertEqual(review, [])
+
+    def test_demo_auto_review_cannot_approve_source_data_or_reuse_report_directory(self):
+        invalid = RunOptions(self.export, self.path / "invalid-demo", sample_adapter(), synthetic=False, confirm_mapping=True, demo_auto_review=True)
+        with self.assertRaises(StageFailed) as raised:
+            run_pipeline(invalid)
+        self.assertEqual(raised.exception.stage, "04_review")
+
+        result = self.run_into("published")
+        original_pdf = (self.path / "published" / "report.pdf").read_bytes()
+        with self.assertRaises(ValueError):
+            self.run_into("published")
+        self.assertEqual((self.path / "published" / "report.pdf").read_bytes(), original_pdf)
 
 
 if __name__ == "__main__":
