@@ -28,7 +28,7 @@ export function ProductFrame() {
 
   return (
     <Section
-      eyebrow="03 — Inside IGNIS"
+      eyebrow="04 — Inside IGNIS"
       title="The review workspace"
       intro="Six stages from source file to signed report. Try it below."
     >
@@ -115,7 +115,7 @@ function SplitVisual() {
 
 export function Delivered() {
   return (
-    <Section eyebrow="04 — Delivered" title="Built and verifiable today">
+    <Section eyebrow="05 — Delivered" title="Built and verifiable today">
       <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {delivered.map((m) => (
           <StaggerItem key={m.label}>
@@ -212,7 +212,7 @@ export function Comparison() {
   return (
     <Section
       id="comparison"
-      eyebrow="05 — Why IGNIS"
+      eyebrow="06 — Why IGNIS"
       title="Traceable by design"
       intro="Compared by design properties, not by benchmark scores."
     >
@@ -283,7 +283,7 @@ export function Comparison() {
 
 export function Team() {
   return (
-    <Section id="team" eyebrow="06 — Team" title={team.name}>
+    <Section id="team" eyebrow="07 — Team" title={team.name}>
       <Stagger className="grid gap-3 md:grid-cols-3">
         {team.members.map((m) => (
           <StaggerItem key={m.github}>
@@ -332,7 +332,7 @@ export function Team() {
 
 export function Sources() {
   return (
-    <Section eyebrow="07 — Sources" title="Where every claim comes from">
+    <Section eyebrow="08 — Sources" title="Where every claim comes from">
       <Stagger className="grid gap-x-10 sm:grid-cols-2">
         {sources.map((s) => (
           <StaggerItem key={s.href}>

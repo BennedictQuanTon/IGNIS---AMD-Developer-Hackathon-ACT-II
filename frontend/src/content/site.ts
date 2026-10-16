@@ -10,6 +10,7 @@ export const demoUrl: string | null = null;
 
 export const nav = [
   { id: "challenge", label: "Challenge" },
+  { id: "problem", label: "Problem" },
   { id: "product", label: "Product" },
   { id: "comparison", label: "Comparison" },
   { id: "team", label: "Team" },
@@ -23,34 +24,63 @@ export const hero = {
   badgeLink: "AMD Developer Hackathon",
 };
 
-/** Text strip under the hero, in place of customer logos. Facts about the event, not endorsements. */
-export const strip = {
-  caption: "Built for AMD Developer Hackathon ACT III · Track 1 Intelligent Industry",
-  items: ["AMD ACT III", "Track 1", "$17,000+ pool", "12–18 Oct 2026", "lablab.ai", "MaintIE"],
+/** Problem figures from issue #21, checked against the cited reports on 16 Oct 2026.
+    Keep each scope note: multiple-answer survey, one HVAC case, sector context only. */
+export const problem = {
+  lead: "Maintenance history is hard to trust.",
+  rest: "Records still live in spreadsheets and on paper, close dates drift from the work they describe, and every unplanned hour is expensive. IGNIS makes that history checkable.",
+  tools: {
+    rows: [
+      { label: "CMMS software", value: 58, manual: false },
+      { label: "In-house spreadsheets", value: 45, manual: true },
+      { label: "Paper or clipboards", value: 39, manual: true },
+    ],
+    note: "n = 198 · multiple answers allowed",
+  },
+  closing: {
+    bars: [
+      { label: "Closed on Friday", value: 19597 },
+      { label: "All other days", value: 1510 },
+    ],
+  },
+  downtime: {
+    rows: [
+      { label: "Automotive, large plant", value: 2_300_000, display: "$2.3M" },
+      { label: "Fast-moving consumer goods", value: 36_000, display: "$36K" },
+    ],
+    note: "181 interviews · data Apr 2019 – Mar 2023",
+  },
+  figures: [
+    {
+      fig: "FIG 2.1",
+      title: "Paper and spreadsheets persist",
+      body: "In a 2019 survey of plant engineers, 45% tracked maintenance in in-house spreadsheets and 39% on paper, alongside 58% using a CMMS.",
+      source: {
+        label: "Plant Engineering, 2019 Maintenance Report, p. 16",
+        href: "https://www.plantengineering.com/wp-content/uploads/sites/4/2019/02/Plant-Engineering-2019-Maintenance-Report.pdf#page=16",
+      },
+    },
+    {
+      fig: "FIG 2.2",
+      title: "Close dates drift from the work",
+      body: "In one HVAC case study, about 93% of 21,107 work orders were closed on a Friday, a sign of batch closing that can misdate when work actually finished.",
+      source: {
+        label: "Conte et al., NIST / PHM Society 2021, Table 3",
+        href: "https://www.nist.gov/publications/impact-data-quality-maintenance-work-order-analysis-case-study-historical-hvac",
+      },
+    },
+    {
+      fig: "FIG 2.3",
+      title: "Every unplanned hour is expensive",
+      body: "One hour of unplanned downtime is estimated to cost a large automotive plant $2.3 million and a consumer-goods plant $36,000.",
+      source: {
+        label: "Siemens, The True Cost of Downtime 2024, pp. 2–4",
+        href: "https://assets.new.siemens.com/siemens/assets/api/uuid:1b43afb5-2d07-47f7-9eb7-893fe7d0bc59/TCOD-2024_original.pdf",
+      },
+    },
+  ],
+  disclaimer: "These figures describe the problem. They are not savings or accuracy measured with IGNIS.",
 };
-
-export const statement = {
-  lead: "An evidence desk for maintenance.",
-  rest: "Models propose, code computes and people approve, so every claim in the final report resolves to a fact, a passage and an original record.",
-};
-
-export const pillars = [
-  {
-    fig: "FIG 0.1",
-    title: "Models propose",
-    body: "The planned AMD adapter will suggest components, faults and actions as spans of the original text. This preview uses fixtures; suggestions stay pending.",
-  },
-  {
-    fig: "FIG 0.2",
-    title: "Code computes",
-    body: "Counts, priority bands and alerts come from versioned rules over the approved snapshot, never from model prose.",
-  },
-  {
-    fig: "FIG 0.3",
-    title: "People approve",
-    body: "Reviewers accept, correct or reject each record, and an expert signs off the finding before any report is issued.",
-  },
-];
 
 export const challenge = {
   title: "AMD Developer Hackathon: ACT III",
@@ -222,6 +252,21 @@ export const sources = [
     label: "Challenge",
     text: "AMD Developer Hackathon ACT III, lablab.ai",
     href: "https://lablab.ai/ai-hackathons/amd-developer-hackathon-act-iii",
+  },
+  {
+    label: "Survey",
+    text: "Plant Engineering 2019 Maintenance Report",
+    href: "https://www.plantengineering.com/wp-content/uploads/sites/4/2019/02/Plant-Engineering-2019-Maintenance-Report.pdf#page=16",
+  },
+  {
+    label: "Case study",
+    text: "NIST, Impact of data quality on work order analysis",
+    href: "https://www.nist.gov/publications/impact-data-quality-maintenance-work-order-analysis-case-study-historical-hvac",
+  },
+  {
+    label: "Downtime",
+    text: "Siemens, The True Cost of Downtime 2024",
+    href: "https://assets.new.siemens.com/siemens/assets/api/uuid:1b43afb5-2d07-47f7-9eb7-893fe7d0bc59/TCOD-2024_original.pdf",
   },
   { label: "Dataset", text: "MaintIE repository (MIT), revision 825e771", href: "https://github.com/nlp-tlp/maintie" },
   { label: "Paper", text: "MaintIE, LREC-COLING 2024", href: "https://aclanthology.org/2024.lrec-main.954.pdf" },

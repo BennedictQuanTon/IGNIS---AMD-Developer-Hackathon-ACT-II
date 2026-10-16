@@ -1,12 +1,14 @@
 import {
   siAmd,
   siGithubactions,
+  siNodedotjs,
   siPydantic,
   siPython,
   siReact,
   siSqlite,
   siTailwindcss,
   siTypescript,
+  siUv,
   siVite,
   siYaml,
   type SimpleIcon,
@@ -16,18 +18,19 @@ import { cx, Section } from "../ui/primitives";
 
 type Tech = { name: string; icon?: SimpleIcon; mono?: string };
 
-/* The stack for this demo: what the repository uses plus the backend pieces the
-   mission issues commit to. Later-phase research tools (fine-tuning, GPU serving)
-   are deliberately left out so the strip does not imply they are in use. */
+/* What the merged code on main uses: requirements.txt, the workflow API (#17),
+   hosted inference (#22), the frontend and CI. Tools that only appear in open PRs
+   or later phases (fine-tuning, GPU serving) are left out until they merge. */
 const rowA: Tech[] = [
   { name: "Python", icon: siPython },
   { name: "Pydantic", icon: siPydantic },
   { name: "openpyxl", mono: "xl" },
   { name: "ReportLab", mono: "RL" },
-  { name: "PyYAML", icon: siYaml },
   { name: "Python HTTP API", mono: "API" },
   { name: "SQLite", icon: siSqlite },
-  { name: "AMD Token Factory (planned)", icon: siAmd },
+  { name: "AMD Token Factory", icon: siAmd },
+  { name: "DeepSeek-V4-Flash", mono: "DS" },
+  { name: "uv", icon: siUv },
 ];
 
 const rowB: Tech[] = [
@@ -36,8 +39,9 @@ const rowB: Tech[] = [
   { name: "Vite", icon: siVite },
   { name: "Tailwind CSS", icon: siTailwindcss },
   { name: "Motion", mono: "M" },
-  { name: "Playwright", mono: "PW" },
+  { name: "Node.js", icon: siNodedotjs },
   { name: "GitHub Actions", icon: siGithubactions },
+  { name: "PyYAML", icon: siYaml },
   { name: "MaintIE", mono: "MI" },
 ];
 
@@ -87,8 +91,8 @@ export function Stack() {
   return (
     <Section
       eyebrow="Stack"
-      title="Open tools, with AMD inference planned"
-      intro="Typed Python for ingestion, rules and reports. A React workspace preview uses synthetic fixtures. The hosted AMD extraction and explanation adapters are not connected yet."
+      title="Open tools and AMD inference"
+      intro="Typed Python for ingestion, rules and reports, with extraction and cited drafts served by models on AMD Token Factory. The workspace preview on this page still runs on synthetic fixtures."
     >
       <Reveal className="-mx-4 space-y-6 sm:-mx-8">
         <Marquee items={rowA} seconds={42} />

@@ -188,7 +188,7 @@ function FlowDiagram() {
 
 export function Product() {
   return (
-    <Section id="product" eyebrow="02 — Product" title={product.title} intro={product.intro}>
+    <Section id="product" eyebrow="03 — Product" title={product.title} intro={product.intro}>
       <Reveal>
         <FlowDiagram />
       </Reveal>

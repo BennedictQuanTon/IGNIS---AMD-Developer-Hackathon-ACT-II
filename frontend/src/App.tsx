@@ -4,7 +4,7 @@ import { Nav } from "./components/landing/Nav";
 import { Hero } from "./components/landing/Hero";
 import { Challenge, Features, Product } from "./components/landing/Story";
 import { Closing, Comparison, Delivered, Footer, ProductFrame, Sources, Team } from "./components/landing/Proof";
-import { Figures, Statement, Strip } from "./components/landing/Intro";
+import { Problem } from "./components/landing/Intro";
 import { Stack } from "./components/landing/Stack";
 import { Workspace } from "./workspace/Workspace";
 
@@ -26,10 +26,8 @@ function Landing() {
       <Nav />
       <main>
         <Hero />
-        <Strip />
-        <Statement />
-        <Figures />
         <Challenge />
+        <Problem />
         <Product />
         <Features />
         <ProductFrame />
