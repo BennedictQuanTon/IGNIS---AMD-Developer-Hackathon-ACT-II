@@ -8,15 +8,17 @@ from pathlib import Path
 
 from ignis_wo.artifacts import StageFailed
 from ignis_wo.contracts import ComponentCriticality
+from ignis_wo.evaluation.benchmark import TEST_LEDGER, ledger_contains
 from ignis_wo.evaluation.maintie import load_gold, load_verified_splits
 from ignis_wo.evaluation.scorer import score_items
 from ignis_wo.extraction.adapters import FixtureAdapter, LiveAdapter, ReplayAdapter
+from ignis_wo.hosted.pacing import RequestPacer
+from ignis_wo.hosted.transport import DEFAULT_BASE_URL, ChatClient
 from ignis_wo.pipeline import RunOptions, run_pipeline
 from ignis_wo.workflow.api import serve
 from ignis_wo.workflow.service import Workflow
 
 DEFAULT_GOLD = Path("data/maintie/gold_release.json")
-DEFAULT_LEDGER = Path("outputs/eval_ledger.jsonl")
 
 
 def read_json(path: Path | None):
@@ -28,22 +30,22 @@ def read_json(path: Path | None):
 def make_adapter(arguments):
     if arguments.mode == "fixture":
         return FixtureAdapter(load_gold(arguments.gold))
+    if not arguments.model_id:
+        raise SystemExit(f"{arguments.mode} mode needs --model-id or MODEL_NAME")
     if arguments.mode == "replay":
         return ReplayAdapter(arguments.replay, arguments.model_id, arguments.model_version)
-    base_url = arguments.base_url or os.environ.get("MODEL_BASE_URL")
-    if not base_url:
-        raise SystemExit("live mode needs --base-url or MODEL_BASE_URL")
-    api_key = os.environ.get("MODEL_API_KEY")
-    return LiveAdapter(base_url, arguments.model_id, arguments.model_version, api_key, arguments.record)
+    base_url = arguments.base_url or os.environ.get("MODEL_BASE_URL") or DEFAULT_BASE_URL
+    client = ChatClient(base_url, os.environ.get("MODEL_API_KEY"), pacer=RequestPacer())
+    return LiveAdapter(client, arguments.model_id, record_path=arguments.record)
 
 
 def add_adapter_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--mode", choices=["fixture", "replay", "live"], default="fixture")
     parser.add_argument("--gold", type=Path, default=DEFAULT_GOLD, help="MaintIE-format gold file: fixture outputs and eval labels")
     parser.add_argument("--replay", type=Path, help="recorded JSONL responses for replay mode")
-    parser.add_argument("--model-id", default=os.environ.get("MODEL_NAME", "maintie-lora"))
-    parser.add_argument("--model-version", default="unversioned")
-    parser.add_argument("--base-url", help="OpenAI-compatible endpoint for live mode; the key comes from MODEL_API_KEY")
+    parser.add_argument("--model-id", default=os.environ.get("MODEL_NAME"))
+    parser.add_argument("--model-version", default="unversioned", help="replay mode only; live mode derives it from the prompt")
+    parser.add_argument("--base-url", help="hosted endpoint for live mode (default MODEL_BASE_URL, then the AMD API); the key comes from MODEL_API_KEY")
     parser.add_argument("--record", type=Path, help="append live responses to this replay file")
 
 
@@ -73,21 +75,12 @@ def command_run(arguments) -> int:
     return 0
 
 
-def already_scored(ledger: Path, model_version: str) -> bool:
-    if not ledger.exists():
-        return False
-    for line in ledger.read_text(encoding="utf-8").splitlines():
-        if line.strip() and json.loads(line).get("model_version") == model_version:
-            return True
-    return False
-
-
 def command_eval(arguments) -> int:
     if arguments.split == "test" and not arguments.final:
         raise SystemExit("the test split is locked; pass --final for the single recorded final evaluation")
     adapter = make_adapter(arguments)
     if arguments.split == "test":
-        if adapter.mode == "fixture" or already_scored(arguments.ledger, adapter.model_version):
+        if adapter.mode == "fixture" or ledger_contains(arguments.ledger, adapter.model_id, adapter.model_version):
             raise SystemExit("test split refused: fixture mode or this model version was already scored")
     splits = load_verified_splits(arguments.gold)
     result = score_items(splits[arguments.split], adapter, arguments.depth, arguments.perturb)
@@ -140,7 +133,7 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--depth", type=int, help="truncate entity types to this many levels")
     evaluate.add_argument("--perturb", action="store_true", help="inject known errors to test the scorer")
     evaluate.add_argument("--final", action="store_true", help="required for the one-time test split run")
-    evaluate.add_argument("--ledger", type=Path, default=DEFAULT_LEDGER)
+    evaluate.add_argument("--ledger", type=Path, default=TEST_LEDGER)
     add_adapter_arguments(evaluate)
     evaluate.set_defaults(handler=command_eval)
     return parser

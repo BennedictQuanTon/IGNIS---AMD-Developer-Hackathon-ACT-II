@@ -1,7 +1,10 @@
 """Exact-match micro precision, recall and F1 for entities and relations."""
 
+from collections import Counter
+
 from ignis_wo.extraction.adapters import ExtractionAdapter, gold_item_to_output
 from ignis_wo.extraction.validate import validate_output
+from ignis_wo.hosted.transport import ProviderError
 
 
 def truncate_type(type_path: str, depth: int | None) -> str:
@@ -61,14 +64,22 @@ def score_items(
     gold_entities, predicted_entities = [], []
     gold_relations, predicted_relations = [], []
     invalid = 0
+    provider_failures = Counter()
     for index, item in enumerate(items):
         text_norm, gold = gold_item_to_output(item)
-        raw_prediction = adapter.extract(text_norm)
+        prediction, failed = None, False
+        try:
+            raw_prediction = adapter.extract(text_norm)
+        except ProviderError as error:
+            if not error.record_level:
+                raise
+            provider_failures[error.kind] += 1
+            raw_prediction, failed = None, True
         if perturbed and raw_prediction:
             raw_prediction = perturb(raw_prediction, index)
-        prediction, errors = validate_output(raw_prediction, text_norm)
-        if errors:
-            invalid += 1
+        if not failed:
+            prediction, errors = validate_output(raw_prediction, text_norm)
+            invalid += bool(errors)
         predicted = prediction.model_dump() if prediction else None
         gold_entities.append(entity_set(gold, depth))
         predicted_entities.append(entity_set(predicted, depth))
@@ -77,6 +88,7 @@ def score_items(
     return {
         "items": len(items),
         "schema_invalid": invalid,
+        "provider_failures": dict(sorted(provider_failures.items())),
         "entity_type_depth": depth,
         "entities": micro_scores(gold_entities, predicted_entities),
         "relations": micro_scores(gold_relations, predicted_relations),

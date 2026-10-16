@@ -2,6 +2,7 @@
 
 import csv
 import json
+import tempfile
 from pathlib import Path
 
 from ignis_wo.contracts import ComponentCriticality, Snapshot
@@ -24,12 +25,18 @@ def sample_adapter() -> FixtureAdapter:
     return FixtureAdapter(sample_items(), model_version="sample")
 
 
-def sample_snapshot(directory: Path, criticalities: list[ComponentCriticality] | None = None) -> Snapshot:
-    csv_path = write_sample_csv(directory / "export.csv")
-    source_file, rows = parse_file(csv_path)
+def build_sample_records(directory: Path | None = None) -> list:
+    with tempfile.TemporaryDirectory() as temporary:
+        csv_path = write_sample_csv(Path(directory or temporary) / "export.csv")
+        source_file, rows = parse_file(csv_path)
     proposal = propose_mapping(COLUMNS)
     revision = confirm_mapping(proposal, "tester", "test")
     records, _ = build_records(source_file, rows, revision)
+    return records
+
+
+def sample_snapshot(directory: Path, criticalities: list[ComponentCriticality] | None = None) -> Snapshot:
+    records = build_sample_records(directory)
     suggestions = suggest_all(records, sample_adapter())
     annotations = accept_all(suggestions, "tester", "test")
     versions = {"severity": "severity-v1", "triage": "triage-v1"}
