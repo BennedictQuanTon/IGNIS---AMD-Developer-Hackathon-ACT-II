@@ -101,6 +101,23 @@ class ExplanationProviderTests(unittest.TestCase):
             with self.assertRaises(ReplayMiss):
                 replay({**self.pack, "pack_id": "EP-changed"})
 
+    def test_new_prompt_avoids_identifiers_and_legacy_recordings_keep_their_identity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "legacy.jsonl"
+            client = ScriptedClient(reduced())
+            legacy = HostedExplanationProvider(client, "m", prompt_version="v1", record_path=path)
+            original = legacy(self.pack)
+            replay = HostedExplanationProvider(None, "m", replay_path=path)
+            current = HostedExplanationProvider(ScriptedClient(reduced()), "m")
+            self.assertEqual(replay(self.pack), original)
+            self.assertEqual(replay.prompt_id, legacy.prompt_id)
+            self.assertNotEqual(current.replay_key(self.pack, 0), legacy.replay_key(self.pack, 0))
+            self.assertIn("never 'PX-100'", current.prompt.system)
+            invalid = assemble_draft(self.pack, reduced("The PX-100 pump has seal leakage."))
+            self.assertIn("numbers in prose must be rendered from typed fact slots", validate_draft(self.pack, invalid))
+            with self.assertRaisesRegex(ValueError, "cannot be relabelled"):
+                HostedExplanationProvider(None, "m", replay_path=path, prompt_version="v2")
+
 
 class WorkflowIntegrationTests(unittest.TestCase):
     def run_to_context(self, provider):
@@ -127,7 +144,7 @@ class WorkflowIntegrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "pending_expert_review", result["errors"])
         self.assertEqual(result["model_id"], "GLM-5.3-Flash")
         self.assertEqual(result["explanation_mode"], "hosted_live")
-        self.assertTrue(result["prompt_id"].startswith("explanation-draft-v1-"))
+        self.assertTrue(result["prompt_id"].startswith("explanation-draft-v2-"))
 
     def test_provider_outage_is_recorded_as_an_invalid_draft(self):
         provider = HostedExplanationProvider(ScriptedClient(error=ProviderError("unavailable", "down")), "m")

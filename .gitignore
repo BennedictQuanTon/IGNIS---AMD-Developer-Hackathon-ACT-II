@@ -38,3 +38,5 @@ node_modules/
 .idea/
 .DS_Store
 Thumbs.db
+frontend/test-results/
+frontend/playwright-report/

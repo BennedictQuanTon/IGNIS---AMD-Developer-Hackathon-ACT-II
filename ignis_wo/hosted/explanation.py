@@ -83,7 +83,7 @@ def replayed_result(row: dict) -> ChatResult:
 class HostedExplanationProvider:
     def __init__(self, client, model_id: str, output_mode: str = "json_object", reasoning_effort: str | None = "low",
                  max_tokens: int | None = 4096, repair_attempts: int = 1, record_path: Path | None = None,
-                 replay_path: Path | None = None, budget_fallback: bool = False):
+                 replay_path: Path | None = None, budget_fallback: bool = False, prompt_version: str | None = None):
         self.client = client
         self.model_id = model_id
         self.output_mode = output_mode
@@ -92,9 +92,17 @@ class HostedExplanationProvider:
         self.budget_fallback = budget_fallback
         self.repair_attempts = repair_attempts
         self.record_path = record_path
-        self.prompt = ExplanationPrompt()
-        self.prompt_id = self.prompt.prompt_id
         self.responses = load_responses(replay_path) if replay_path else None
+        if self.responses is not None:
+            identities = {row["prompt_id"] for row in self.responses.values()}
+            candidates = [ExplanationPrompt(version) for version in ([prompt_version] if prompt_version else ["v1", "v2"])]
+            matching = [prompt for prompt in candidates if identities == {prompt.prompt_id}]
+            if not matching:
+                raise ValueError("replay prompt identity is unknown or mixed; recordings cannot be relabelled")
+            self.prompt = matching[0]
+        else:
+            self.prompt = ExplanationPrompt(prompt_version or "v2")
+        self.prompt_id = self.prompt.prompt_id
         self.explanation_mode = "hosted_replay" if replay_path else "hosted_live"
         self.lock = threading.Lock()
 

@@ -47,7 +47,8 @@ def main() -> int:
     arguments.data.mkdir(parents=True, exist_ok=True)
     workflow = Workflow(arguments.db, arguments.data, extraction_provider=extraction_provider,
                         explanation_provider=explanation_provider, corpus_sources=corpus_sources)
-    serve(workflow, arguments.host, arguments.port)
+    demo_input = arguments.replay_dir / "demo_input.csv" if arguments.replay_dir else None
+    serve(workflow, arguments.host, arguments.port, demo_input=demo_input)
     return 0
 
 

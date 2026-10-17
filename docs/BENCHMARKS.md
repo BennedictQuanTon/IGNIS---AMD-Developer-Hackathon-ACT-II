@@ -1,5 +1,7 @@
 # Hosted model benchmarks for #23
 
+**Local runtime update:** new live explanations use an unbenchmarked v2 prompt that avoids identifiers in prose while retaining numeric validation. The results below remain historical v1 measurements; the committed replay package also retains v1 identity. The [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md) records schema and interpretation limits without changing the frozen labels or results.
+
 Measured on 2026-10-16 with the event's AMD API and its one shared key (20 requests per minute, $1 per day). Each run happened once, on small sets, so treat every number as preliminary. The explanation scenarios are synthetic: Yoshio drafted them, and they are pending Tuong's review. Every number below is in [results.json](benchmarks/results.json). The inputs and settings are frozen in [manifest.json](benchmarks/manifest.json).
 
 ## Summary

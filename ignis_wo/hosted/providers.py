@@ -40,6 +40,7 @@ def extraction_provider_for(adapter: LiveAdapter, max_records: int):
         return suggest_all(records, adapter)
 
     extraction_provider.model_id = adapter.model_id
+    extraction_provider.extraction_mode = "hosted_replay" if isinstance(adapter, ReplayAdapter) else "hosted_live"
     extraction_provider.model_version = adapter.model_version
     extraction_provider.scored_configuration = getattr(adapter, "scored_configuration", None)
     return extraction_provider

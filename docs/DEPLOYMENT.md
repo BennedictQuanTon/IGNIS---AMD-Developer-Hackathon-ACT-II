@@ -1,32 +1,41 @@
 # Deployment preparation
 
-There is no deployable application in this repository yet. This document is a target checklist, not evidence of a configured cloud account, GPU quota, running service, or cost estimate.
+The current application has a React/Vite frontend, a Python HTTP workflow API, SQLite state, file-backed reports and document artifacts, and AMD-hosted inference. The connected workspace is under active, uncommitted development. Local replay verification does not establish public deployment or live-provider readiness.
 
-## Candidate topology
+The older GPU, sensor-monitoring and scheduler proposals are future work, not prerequisites for the historical-work-order demo. See the [API contract](API_CONTRACT.md), [local run guide](LOCAL_RUN.md) and [benchmark limitations](BENCHMARKS.md).
 
-- Browser client talks to an authenticated application API over HTTPS.
-- API, ingestion, deterministic analytics, review state, and report generation run in an application service.
-- A private inference endpoint runs the selected open model on a confirmed AMD ROCm-capable host when available.
-- A persistent database and protected object storage are selected before real maintenance exports are accepted.
+## Proposed first deployment
 
-The October 13 scope revision adds a proposed seeded sensor simulator with historical and simulated-live modes, timestamped observation storage, windowed condition rules, a versioned logical knowledge graph, and graph-constrained document/history retrieval. These can start in the same small demo application process; dedicated time-series and graph services are alternatives to evaluate rather than configured infrastructure. No factory endpoint, sensor hardware, broker, simulator or graph service exists yet. See [the revised architecture](ARCHITECTURE.md#sensor-informed-rag-and-knowledge-graph-revision---october-13-2026).
+Use one persistent host for a private, single-operator demo. This is a recommendation; no provider, account, paid plan or public URL has been selected.
 
-The combined topology also includes checkpointed log readers and a watched/polled CSV/XLSX source location. Route telemetry, events and maintenance records separately, process only stable source versions, incrementally refresh graph/index revisions, and expose source freshness/index lag. Keep review/approval and issued-report evidence immutable across subsequent imports. The first demo uses simulated logs and local exports; no persistent reader, polling job or factory connector has been started by these design edits.
+| Part | Proposed arrangement | Reason |
+| --- | --- | --- |
+| HTTPS entry point | Reverse proxy serving the production frontend and forwarding `/api/*` to the loopback API, removing `/api` | Matches the local browser contract without cross-origin configuration |
+| Frontend | Static files produced by `npm ci` and `npm run build` in `frontend` | Vite development and preview servers are local tools |
+| Backend | One supervised Python process on loopback behind the proxy | The current API deliberately refuses public bind addresses and is intended for one operator |
+| Storage | SQLite, uploaded files, corpus snapshots, PDFs and recordings on a protected persistent volume | Restarts must preserve state and the files referenced by that state |
+| Model mode | Replay by default; live inference for an operator-controlled session | Preserves the shared API budget and repeatability |
+| Access | Authentication at the HTTPS entry point covering static content, API and reports | The application has no built-in authentication or role enforcement |
 
-A demo may use one application process and SQLite if concurrency and persistence limits are clearly stated. Keep provider keys and database credentials server-side. Do not expose the inference endpoint directly to an unauthenticated browser.
+A host requiring a public bind address cannot use the current server unchanged. Choose the same-host proxy arrangement above or implement and test a deliberate adaptation. Ephemeral/serverless storage does not suit the current SQLite-and-files design. Multi-user production operation requires a separate concurrency, identity and authorization design.
 
-## Readiness gates
+## Preparation order and acceptance
 
-The confirmed hourly loop requires a durable application scheduler, completed-hour/baseline comparison jobs, persisted alert cases, an authenticated expert-review path and an idempotent case/graph/index publisher. Select the scheduler/worker technology before implementation; this is not a Codex chat automation. Verify hour/timezone alignment, catch-up/checkpoint behavior, prior-only comparable baselines, inadequate-data notices and duplicate-alert handling. A model outage must not suppress deterministic deviation notices. Knowledge publication must require an accepted attributed review and keep graph/index versions consistent; baseline/rule updates need their own approval. No hourly scheduler, external alert channel, expert service or knowledge-publish job is currently deployed.
+1. **Freeze the verified version.** Review existing changes and preserve the npm lockfile. Reproduce Python dependencies from `requirements-dev.txt` and frontend dependencies with `npm ci`. Commit/push require separate explicit authorization.
+2. **Complete local acceptance.** Run the full Python suite, repository checks, production frontend build, browser tests and HTTP replay using the local guide. Stop/start with the same data directory and verify the issued PDF hash is unchanged. Inspect every PDF page. Count replay, injected browser failures and live results separately.
+3. **Choose the host, access policy and owner.** Confirm persistent storage, HTTPS, supervision, backups, restore procedure and long-request support. The browser currently allows 300 seconds; align proxy timeouts with OCR/model requests and test a long response. Keep the backend port private.
+4. **Stage replay privately.** Build with `VITE_API_BASE=/api`. Start `scripts/serve_hosted.py` with `--replay-dir docs/benchmarks/replay`, explicit `--db` and `--data` paths on the persistent volume, and the selected loopback port. Use repository-relative or absolute paths on that host. Add `--corpus` only when the walkthrough has matching reviewed evidence/recordings. The PowerShell launcher is for this Windows machine, not a cloud startup command.
+5. **Verify staged URLs.** Check authenticated access, `/api/health`, upload/mapping, record decisions, facts, reference inspection, expert review and PDF download. Restart and verify saved state/PDFs; rehearse a backup restore. Confirm mode labels and server-side credentials. Test unauthenticated denial on API and PDF URLs too.
+6. **Run a bounded live smoke separately.** Coordinate quota with UniverseScripts. Live extraction needs MaintIE to rebuild frozen few-shot examples. Keep the AMD key server-side. Record extraction, explanation and OCR results with exact configuration, latency, status and failures. The edited live explanation prompt is unbenchmarked. Review scenarios, missed abstentions and blind semantic ratings before quality claims.
+7. **Publish after acceptance and authorization.** Deployment, public access, submission and final video are distinct actions. Local preparation does not create a cloud service or publish the project.
 
-1. Reproduce environment setup from a clean checkout and lock runtime/dependency versions.
-2. Confirm selected ROCm image, driver/runtime, model license, model revision, adapter behavior, structured-output support, memory use, and cold/warm latency on the actual host.
-3. Exercise ingestion, review, deterministic snapshot, claim validation, PDF rendering, restart recovery, and per-record retry behavior with synthetic fixtures.
-4. Choose identity, role permissions, retention/deletion, backup, logging, and operational-data handling before real exports are used.
-5. Add a health endpoint that distinguishes API readiness from model readiness; bound inference timeouts and return actionable errors.
-6. Record measured resource use and deployment costs from the chosen provider before estimating ongoing spend.
-7. Test an end-to-end demo and provide a public demo URL only after the product and required repository visibility decision are approved.
+## Open gates
 
-For the sensor extension, additionally reproduce seeded historical/live-style condition facts, validate units/time/coverage and sensor mounting, handle stale/duplicate/late readings, enforce asset/document/profile applicability in graph-constrained retrieval, and pin sensor-window and knowledge versions into report evidence. Distinguish signal freshness and knowledge-index readiness from model availability. Keep synthetic-data and model live/replay/fixture indicators visible. These are future readiness checks, not achieved deployment states.
+- Built-in authentication, roles and multi-user operation are absent. Restrict the first hosted demo at the proxy and use synthetic input until real-data controls are agreed.
+- The stdlib HTTP server is a bounded local/demo implementation. Production needs an appropriate server lifecycle, request handling and capacity checks.
+- Document ingestion/review/publishing use CLI tools; the browser accepts structured work-order exports.
+- Replay is exact-input playback. Changed annotations, reviewer identity, query, criticality or corpus can miss recordings. Never substitute live inference silently.
+- Scenario expected answers and blind ratings need human review. Structural validation does not prove semantic support or confirmed causation.
+- Provider cost, deployment resource use, GPU throughput, real-factory accuracy and production savings have not been measured by local validation.
 
-No deployment workflow is included until there is an implemented application and selected target. The current GitHub action runs repository-integrity checks only.
+The GitHub workflow runs the Python unittest suite, repository checks and frontend typecheck/build. Browser E2E is a separate local check; a green GitHub badge alone does not establish browser acceptance.

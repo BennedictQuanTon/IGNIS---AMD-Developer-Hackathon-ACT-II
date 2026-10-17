@@ -49,6 +49,15 @@ class WorkflowApiTests(unittest.TestCase):
         self.assertLess(status, 400, value)
         return value
 
+    def test_health_reports_capability_without_credentials_and_demo_input_is_explicit(self):
+        status, health = self.call("GET", "/health")
+        self.assertEqual(status, 200)
+        self.assertEqual(health["extraction_mode"], "unavailable")
+        self.assertEqual(health["explanation_mode"], "unavailable")
+        self.assertFalse(health["demo_input_available"])
+        self.assertNotIn("api_key", json.dumps(health).lower())
+        self.assertEqual(self.call("GET", "/demo-input")[0], 404)
+
     def test_complete_reviewed_workflow_survives_restart_and_downloads_report(self):
         base = self.post("/runs", {"name": "pump demo", "operator": "local-reviewer", "synthetic": True, "adapter_mode": "fixture"})
         rid, rev = base["run_id"], base["revision"]
@@ -65,6 +74,7 @@ class WorkflowApiTests(unittest.TestCase):
         reviewed = self.post(f"/runs/{rid}/records/{record_id}", {"expected_revision": run["revision"], "status": "accepted", "reason": "reviewed against source"})
         reviewed = self.post(f"/runs/{rid}/records/{record_id}", {"expected_revision": reviewed["revision"], "status": "accepted", "reason": "separate reviewer attribution", "reviewer": "line-engineer"})
         analyzed = self.post(f"/runs/{rid}/analyze", {"expected_revision": reviewed["revision"], "criticalities": [{"component": "seal", "value": 3, "reason": "demo critical component", "set_by": "supervisor"}]})
+        self.assertEqual(analyzed["stage_status"]["review"], "succeeded")
         self.assertEqual(analyzed["snapshot"]["entries"][0]["annotation_id"], self.workflow.get(rid)["snapshot"]["entries"][0]["annotation_id"])
         from ignis_wo.contracts import CanonicalRecord, ExtractionSuggestion
         from ignis_wo.review import apply_decisions
@@ -88,6 +98,7 @@ class WorkflowApiTests(unittest.TestCase):
         # Continue from latest committed revision after wrong-asset request.
         reviewed_draft = self.post(f"/runs/{rid}/context/draft", {"expected_revision": context["revision"], "draft": draft})
         accepted = self.post(f"/runs/{rid}/expert-review", {"expected_revision": reviewed_draft["revision"], "decision": "accepted", "reviewer": "engineer", "reason": "references checked"})
+        self.assertEqual(accepted["stage_status"]["context"], "accepted")
         issued = self.post(f"/runs/{rid}/reports/issue", {"expected_revision": accepted["revision"]})
         prior_report_id = issued["latest_report"]["report_id"]
         prior_pdf_path = Path(issued["latest_report"]["path"])
@@ -171,6 +182,7 @@ class WorkflowApiTests(unittest.TestCase):
         model_unavailable = workflow.generate_context_draft(rid, no_context["revision"])
         self.assertEqual(model_unavailable["draft_result"]["status"], "unavailable")
         approved = workflow.expert_review(rid, model_unavailable["revision"], "facts_only_approved", "engineer", "explanation provider unavailable; facts reviewed")
+        self.assertEqual(approved["stage_status"]["context"], "facts_only_approved")
         issued = workflow.issue_report(rid, approved["revision"])
         self.assertEqual(issued["latest_report"]["status"], "issued")
         self.assertEqual(workflow.get(rid)["draft_result"]["explanation_mode"], "unavailable")

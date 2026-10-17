@@ -1,6 +1,14 @@
 # Local workflow API
 
-The service is a local, single-operator demonstration backend. It binds only to `127.0.0.1`; this does not provide production authentication or multi-user controls. SQLite stores run state and history. Source uploads accept CSV, TSV, JSON, JSONL, and XLSX (`content_base64` for binary XLSX). The default extraction and explanation providers are unavailable. Fixture extraction and manually supplied cited drafts are explicit alternatives; hosted inference is not configured.
+The service is a local, single-operator demonstration backend. It binds only to `127.0.0.1`; this does not provide production authentication or multi-user controls. SQLite stores run state and history. Source uploads accept CSV, TSV, JSON, JSONL, and XLSX (`content_base64` for binary XLSX). Providers are unavailable in the default bare host; `scripts/serve_hosted.py` injects explicit live or recorded providers. See the [connected local workspace guide](LOCAL_RUN.md) for replay startup without a key.
+
+## Browser state contract
+
+The frontend sends the latest returned `revision` as `expected_revision` for every mutation, preserves a returned failed-stage run, and refreshes after 409 without automatically repeating the mutation. No automatic POST retries are made. `GET /health` reports extraction/explanation mode, model, explanation prompt identity, corpus mode and whether the explicit recorded sample is available; it returns no credentials. `GET /demo-input` exists only when the hosted replay launcher supplies a sample and returns its synthetic flag, name, operator, filename and CSV text.
+
+UI stages map to backend fields: Source = upload; Mapping = mapping; Review = extraction plus review; Facts = facts plus alerts; Evidence = context including expert decisions; Report = report. `review` becomes `succeeded` only when every canonical record has a decision; analysis may still use a reviewed subset while review remains pending. Expert review changes context status to `accepted`, `corrected`, `rejected`, `inconclusive` or `facts_only_approved`. A new expert decision clears the current report pointer while immutable historical reports remain downloadable. Rejected/inconclusive decisions cannot issue a report.
+
+Live explanation uses prompt v2, which avoids identifiers in prose and retains strict typed numeric bindings. Existing v1 recordings replay with their original prompt identity, not as v2 measurements. See the [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md).
 
 ## Start and seed (Windows PowerShell, repository root)
 

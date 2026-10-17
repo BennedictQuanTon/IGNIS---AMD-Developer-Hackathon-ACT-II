@@ -1,6 +1,6 @@
 # IGNIS design system and workspace UI
 
-**Status:** design for the frontend mission in [issue #19](https://github.com/khanhtuongnakitomo/IGNIS/issues/19). A landing page and a mock-data workspace preview exist in [frontend/](../../frontend/README.md); nothing is connected to the backend yet. The landing page has its own spec: [LANDING_PAGE.md](LANDING_PAGE.md).
+**Status:** design for the frontend mission in [issue #19](https://github.com/khanhtuongnakitomo/IGNIS/issues/19). The local `#/app` workspace uses the workflow API, while the landing-page embedded preview retains labelled mocks. See the [local integration and test guide](../LOCAL_RUN.md); browser E2E acceptance is still a separate step. The landing page has its own spec: [LANDING_PAGE.md](LANDING_PAGE.md).
 
 **Reference:** the visual language follows [linear.app](https://linear.app): dark, quiet, dense, precise. IGNIS takes the structure, not the brand. It uses no Linear assets, logos or copy.
 

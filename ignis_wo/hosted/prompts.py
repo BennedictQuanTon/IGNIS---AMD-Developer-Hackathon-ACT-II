@@ -143,9 +143,17 @@ def pack_for_prompt(pack: dict) -> dict:
 
 
 class ExplanationPrompt:
-    def __init__(self):
+    def __init__(self, version="v2"):
+        if version not in {"v1", "v2"}:
+            raise ValueError("unknown explanation prompt version")
         self.system = EXPLANATION_RULES
-        self.prompt_id = f"explanation-draft-v1-{content_hash(self.system)[:8]}"
+        if version == "v2":
+            self.system += (
+                "\nIdentifier rule: do not copy asset IDs, model names, document IDs or fact IDs into prose. "
+                "For example, write 'the pump' or 'the applicable manual', never 'PX-100'. "
+                "Keep exact identifiers only in citations and fact_ids. This applies to uncertainty as well as claims."
+            )
+        self.prompt_id = f"explanation-draft-{version}-{content_hash(self.system)[:8]}"
 
     def messages(self, pack: dict) -> list[dict]:
         evidence = json.dumps(pack_for_prompt(pack), sort_keys=True)

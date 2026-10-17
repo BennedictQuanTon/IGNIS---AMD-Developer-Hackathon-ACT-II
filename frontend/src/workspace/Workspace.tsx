@@ -15,6 +15,7 @@ import {
   type Selection,
 } from "./screens";
 import { Inspector } from "./Inspector";
+import { ConnectedWorkspace } from "./connected/ConnectedWorkspace";
 
 
 type StageStatus = "done" | "active" | "blocked" | "todo";
@@ -24,6 +25,10 @@ const STAGES = ["Source", "Mapping", "Review", "Facts", "Evidence", "Report"] as
 export type Decision = { state: RecordState; reason: string; revision: number };
 
 export function Workspace({ embedded = false }: { embedded?: boolean }) {
+  return embedded ? <DesignPreview embedded /> : <ConnectedWorkspace />;
+}
+
+function DesignPreview({ embedded = false }: { embedded?: boolean }) {
   const [stage, setStage] = useState(0);
   const [direction, setDirection] = useState(1);
   const [mappingConfirmed, setMappingConfirmed] = useState(false);

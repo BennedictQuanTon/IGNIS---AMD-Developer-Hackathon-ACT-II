@@ -8,7 +8,7 @@ from ignis_wo.workflow.service import WorkflowStageError
 from ignis_wo.workflow.store import Conflict, NotFound
 
 
-def handler_for(workflow):
+def handler_for(workflow, demo_input: Path | None = None):
     class Handler(BaseHTTPRequestHandler):
         server_version = "IGNISLocal/1"
 
@@ -30,7 +30,18 @@ def handler_for(workflow):
             bits = [unquote(x) for x in self.path.split("?")[0].split("/") if x]
             try:
                 if bits == ["health"]:
-                    return self.respond(200, {"status": "ready", "storage": "sqlite", "scope": "single local operator"})
+                    extraction, explanation = workflow.extraction_provider, workflow.explanation_provider
+                    return self.respond(200, {"status": "ready", "storage": "sqlite", "scope": "single local operator",
+                        "extraction_mode": getattr(extraction, "extraction_mode", "injected" if extraction else "unavailable"),
+                        "extraction_model": getattr(extraction, "model_id", "unavailable"),
+                        "explanation_mode": getattr(explanation, "explanation_mode", "injected" if explanation else "unavailable"),
+                        "explanation_model": getattr(explanation, "model_id", "unavailable"),
+                        "explanation_prompt": getattr(explanation, "prompt_id", "unavailable"),
+                        "corpus_mode": "reviewed_snapshot" if workflow.corpus_sources else "synthetic_fixture",
+                        "demo_input_available": bool(demo_input and demo_input.is_file())})
+                if bits == ["demo-input"] and demo_input and demo_input.is_file():
+                    return self.respond(200, {"filename": "synthetic-pump.csv", "csv_text": demo_input.read_text(encoding="utf-8"),
+                        "synthetic": True, "name": "Synthetic pump replay package", "operator": "synthetic-demo-operator"})
                 if bits == ["runs"]:
                     return self.respond(200, {"runs": workflow.store.list()})
                 if len(bits) >= 2 and bits[0] == "runs":
@@ -107,10 +118,10 @@ def handler_for(workflow):
     return Handler
 
 
-def serve(workflow, host="127.0.0.1", port=8765):
+def serve(workflow, host="127.0.0.1", port=8765, demo_input: Path | None = None):
     if host not in {"127.0.0.1", "localhost"}:
         raise ValueError("local workflow API must bind to loopback")
-    server = ThreadingHTTPServer((host, port), handler_for(workflow))
+    server = ThreadingHTTPServer((host, port), handler_for(workflow, demo_input))
     print(f"IGNIS backend ready at http://{host}:{server.server_port}")
     try:
         server.serve_forever()

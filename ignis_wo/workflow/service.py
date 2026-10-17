@@ -235,11 +235,13 @@ class Workflow:
             alerts = run["alerts"]
         explanations = build_explanations(snapshot, facts, run["adapter_mode"], run["synthetic"])
         changed_snapshot = not prior_snapshot or prior_snapshot.snapshot_id != snapshot.snapshot_id
+        review_status = "succeeded" if all(r.record_id in decisions for r in records) else "pending"
+        stages = {**run["stage_status"], "review": review_status, "facts": "succeeded", "alerts": "succeeded"}
         downstream = {"context": None, "draft_result": None, "expert_reviews": [], "latest_report": None,
-                      "stage_status": {**run["stage_status"], "facts": "succeeded", "alerts": "succeeded", "context": "pending", "report": "pending"}} if changed_snapshot else {}
+                      "stage_status": {**stages, "context": "pending", "report": "pending"}} if changed_snapshot else {}
         return self.store.mutate(run_id, revision, "analysis_completed", {"last_snapshot": snapshot.model_dump(mode="json"), "last_facts": [f.model_dump(mode="json") for f in facts], "snapshot": snapshot.model_dump(mode="json"),
             "facts": [f.model_dump(mode="json") for f in facts], "alerts": alerts,
-            "explanations": [e.model_dump(mode="json") for e in explanations], "stage_status": {**run["stage_status"], "review": "succeeded", "facts": "succeeded", "alerts": "succeeded"},
+            "explanations": [e.model_dump(mode="json") for e in explanations], "stage_status": stages,
             "criticalities": [c.model_dump(mode="json") for c in [ComponentCriticality.model_validate(x) for x in (criticalities or [])]], **downstream}, "analyzed")
 
     def build_context(self, run_id, revision, asset_id, component, query):
@@ -314,8 +316,8 @@ class Workflow:
             if errors:
                 raise ValueError("expert correction is invalid: " + "; ".join(errors))
             review["corrected_hash"] = content_hash(corrected)
-        return self.store.mutate(run_id, revision, "expert_reviewed", {"expert_reviews": run["expert_reviews"] + [review],
-            "stage_status": {**run["stage_status"], "report": "pending"}}, "expert_reviewed")
+        return self.store.mutate(run_id, revision, "expert_reviewed", {"expert_reviews": run["expert_reviews"] + [review], "latest_report": None,
+            "stage_status": {**run["stage_status"], "context": decision, "report": "pending"}}, "expert_reviewed")
 
     def issue_report(self, run_id, revision):
         run = self.get(run_id)
