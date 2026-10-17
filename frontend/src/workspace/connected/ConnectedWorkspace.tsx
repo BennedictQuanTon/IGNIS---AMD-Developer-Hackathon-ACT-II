@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Badge, cx, Wordmark } from "../../components/ui/primitives";
+import { cx, Wordmark } from "../../components/ui/primitives";
+import { Icon } from "../../components/ui/icons";
 import { SourceStage, MappingStage } from "./SourceMapping";
 import { ReviewStage } from "./ReviewStage";
 import { FactsStage, EvidenceStage, ReportStage } from "./Investigation";
@@ -34,11 +35,13 @@ export function ConnectedWorkspace() {
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-elevated px-4 py-3">
       <a href="#/" aria-label="Back to landing page"><Wordmark height={18} /></a>
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <Badge t="info">Workflow API workspace</Badge>
-        {w.health && <><Badge t={w.health.extraction_mode === "hosted_live" ? "warn" : "plain"}>Server: {w.health.extraction_mode}</Badge><Badge t="synthetic">Evidence: {w.health.corpus_mode}</Badge></>}
-        {w.run && <Badge t={w.run.synthetic ? "synthetic" : "plain"}>{w.run.synthetic ? "Synthetic input" : "User supplied input"}</Badge>}
-        {w.run?.suggestions.length ? <Badge>Saved extraction: {[...new Set(w.run.suggestions.map(s => s.adapter_mode))].join(", ")}</Badge> : null}
-        {(w.health?.extraction_mode === "hosted_live" || w.health?.explanation_mode === "hosted_live") && <label className="flex items-center gap-2 text-warn"><input type="checkbox" checked={allowLive} onChange={event => setAllowLive(event.target.checked)} />Enable live calls (shared quota)</label>}
+        {w.health && <span className="inline-flex items-center gap-1.5 text-fg-3"
+          title={`Models: ${w.health.extraction_mode} · evidence: ${w.health.corpus_mode}${w.run?.suggestions.length ? ` · saved extraction: ${[...new Set(w.run.suggestions.map(s => s.adapter_mode))].join(", ")}` : ""}`}>
+          <Icon name={w.health?.extraction_mode === "hosted_live" || w.health?.explanation_mode === "hosted_live" ? "live" : "replay"} size={14} />
+          {w.health?.extraction_mode === "hosted_live" || w.health?.explanation_mode === "hosted_live" ? "Live" : "Replay"}
+        </span>}
+        {w.run?.synthetic && <span className="inline-flex text-fg-4" title="Synthetic input" aria-label="Synthetic input" role="img"><Icon name="flask" size={14} /></span>}
+        {(w.health?.extraction_mode === "hosted_live" || w.health?.explanation_mode === "hosted_live") && <label className="flex items-center gap-2 text-fg-2"><input type="checkbox" checked={allowLive} onChange={event => setAllowLive(event.target.checked)} />Enable live calls (shared quota)</label>}
         <Button disabled={disabled} onClick={() => void w.refresh()}>Refresh saved state</Button>
       </div>
     </header>
