@@ -4,6 +4,7 @@ MODEL_API_KEY           shared event key (secret, never logged)
 MODEL_BASE_URL          defaults to the AMD Token Factory URL
 MODEL_NAME              extraction model; extraction stays unavailable when unset
 EXPLANATION_MODEL_NAME  explanation model; explanation stays unavailable when unset
+DOCUMENT_OCR_MODEL      document reader for scripts/ingest_document.py --reader mineru (e.g. MinerU2.5-Pro)
 
 Load them with `uv run --env-file .env ...`.
 Extraction uses the frozen configuration in extraction_config.json, so it needs the MaintIE train

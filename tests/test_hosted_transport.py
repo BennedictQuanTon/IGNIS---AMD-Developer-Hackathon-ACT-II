@@ -195,6 +195,16 @@ class BudgetTests(unittest.TestCase):
         self.assertEqual(caught.exception.kind, "bad_request")
         self.assertEqual(server.requests, [])
 
+    def test_per_call_limits_override_the_gateway_defaults(self):
+        body = {"text": "x" * 200}
+        with ScriptedServer([reply({}), reply({}, delay=1.0)]) as server:
+            gateway = Gateway(server.base_url, KEY, max_body_bytes=100, max_attempts=1)
+            gateway.send("POST", "/ocr", body, max_body_bytes=10_000)
+            with self.assertRaises(ProviderError) as caught:
+                gateway.send("POST", "/ocr", {}, timeout_seconds=0.2)
+        self.assertEqual(len(server.requests), 2)
+        self.assertEqual(caught.exception.kind, "timeout")
+
 
 class PacerTests(unittest.TestCase):
     def test_a_pause_imposed_while_a_caller_sleeps_is_rechecked(self):

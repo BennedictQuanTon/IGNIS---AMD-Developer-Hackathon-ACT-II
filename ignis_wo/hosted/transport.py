@@ -168,13 +168,16 @@ class Gateway:
         self.clock = clock
         self.max_body_bytes = max_body_bytes
 
-    def send(self, method: str, path: str, body: dict | None = None):
+    def send(self, method: str, path: str, body: dict | None = None, timeout_seconds: float | None = None,
+             max_body_bytes: int | None = None):
+        """Per-call limits override the gateway defaults, e.g. for long OCR requests with large bodies."""
+        limits = (timeout_seconds or self.timeout_seconds, max_body_bytes or self.max_body_bytes)
         started = self.clock()
         attempt = 0
         while True:
             attempt += 1
             try:
-                reply, headers, latency = self.request_once(method, path, body)
+                reply, headers, latency = self.request_once(method, path, body, limits)
                 return reply, headers, latency, attempt
             except ProviderError as error:
                 wait = self.retry_wait(error, attempt)
@@ -188,19 +191,20 @@ class Gateway:
         base = error.retry_after if error.retry_after is not None else 2.0 ** attempt
         return base + random.uniform(0, 0.25 * max(base, 1.0))
 
-    def request_once(self, method: str, path: str, body: dict | None):
+    def request_once(self, method: str, path: str, body: dict | None, limits: tuple[float, int]):
+        timeout_seconds, max_body_bytes = limits
         data = json.dumps(body).encode("utf-8") if body is not None else None
-        if data is not None and len(data) > self.max_body_bytes:
-            raise ProviderError("bad_request", f"request body is {len(data)} bytes, over the {self.max_body_bytes} limit")
+        if data is not None and len(data) > max_body_bytes:
+            raise ProviderError("bad_request", f"request body is {len(data)} bytes, over the {max_body_bytes} limit")
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         request = urllib.request.Request(self.base_url + path, data=data, headers=headers, method=method)
         if self.pacer is None:
-            return self.timed_open(request)
+            return self.timed_open(request, timeout_seconds)
         with self.pacer.slot():
             try:
-                reply, response_headers, latency = self.timed_open(request)
+                reply, response_headers, latency = self.timed_open(request, timeout_seconds)
             except ProviderError as error:
                 if error.kind == "rate_limited":
                     self.pacer.pause(error.retry_after or 60.0)
@@ -208,15 +212,15 @@ class Gateway:
         self.pacer.observe(response_headers)
         return reply, response_headers, latency
 
-    def timed_open(self, request):
+    def timed_open(self, request, timeout_seconds: float):
         """Times only the successful request itself, not pacing waits or earlier failed attempts."""
         began = self.clock()
-        reply, headers = self.open(request)
+        reply, headers = self.open(request, timeout_seconds)
         return reply, headers, self.clock() - began
 
-    def open(self, request):
+    def open(self, request, timeout_seconds: float):
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+            with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
                 raw = response.read()
                 headers = rate_headers(response.headers)
         except urllib.error.HTTPError as error:
@@ -224,10 +228,10 @@ class Gateway:
             kind = classify(error.code, message, code)
             raise ProviderError(kind, message, error.code, code, retry_after_seconds(error.headers)) from None
         except TimeoutError:
-            raise ProviderError("timeout", f"no reply within {self.timeout_seconds}s") from None
+            raise ProviderError("timeout", f"no reply within {timeout_seconds}s") from None
         except urllib.error.URLError as error:
             if isinstance(error.reason, TimeoutError):
-                raise ProviderError("timeout", f"no reply within {self.timeout_seconds}s") from None
+                raise ProviderError("timeout", f"no reply within {timeout_seconds}s") from None
             raise ProviderError("unavailable", f"connection failed ({error.reason})") from None
         except (http.client.HTTPException, ConnectionError) as error:
             raise ProviderError("unavailable", f"connection dropped ({type(error).__name__})") from None
