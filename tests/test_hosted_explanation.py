@@ -82,6 +82,42 @@ class ExplanationProviderTests(unittest.TestCase):
         self.assertEqual(client.calls, [])
         self.assertEqual(validate_draft(empty_pack, draft), [])
 
+    def test_v3_computed_facts_without_passages_abstain_without_inference(self):
+        pack = {**self.pack, "passages": []}
+        client = ScriptedClient(reduced())
+        draft, attempts = HostedExplanationProvider(client, "m", prompt_version="v3").draft_with_attempts(pack)
+        self.assertTrue(draft["abstain"])
+        self.assertEqual(draft["hypotheses"], [])
+        self.assertEqual(draft["alternatives"], [])
+        self.assertIsNone(draft["inspection"])
+        self.assertEqual(client.calls, [])
+        self.assertEqual(attempts, [])
+        self.assertEqual(validate_draft(pack, draft), [])
+
+    def test_v3_repairs_the_observed_number_word_failure_without_weakening_validation(self):
+        client = ScriptedClient(reduced("There is at least one failed-state record."), reduced())
+        provider = HostedExplanationProvider(client, "m", prompt_version="v3")
+        draft = provider(self.pack)
+        self.assertEqual(validate_draft(self.pack, draft), [])
+        self.assertEqual(len(client.calls), 2)
+        self.assertIn("at least one", client.calls[1][-1]["content"])
+        self.assertIn("fact_ids", client.calls[1][-1]["content"])
+        invalid = assemble_draft(self.pack, reduced("There is at least one failed-state record."))
+        self.assertIn("numbers in prose must be rendered from typed fact slots", validate_draft(self.pack, invalid))
+
+    def test_all_prompt_versions_replay_under_their_original_identity(self):
+        from ignis_wo.hosted.prompts import ExplanationPrompt
+        self.assertEqual(ExplanationPrompt("v1").prompt_id, "explanation-draft-v1-555c9aee")
+        self.assertEqual(ExplanationPrompt("v2").prompt_id, "explanation-draft-v2-f80d1254")
+        for version in ("v1", "v2", "v3"):
+            with self.subTest(version=version), tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / "reply.jsonl"
+                provider = HostedExplanationProvider(ScriptedClient(reduced()), "m", prompt_version=version, record_path=path)
+                expected = provider(self.pack)
+                replay = HostedExplanationProvider(None, "m", replay_path=path)
+                self.assertEqual(replay(self.pack), expected)
+                self.assertEqual(replay.prompt_id, provider.prompt_id)
+
     def test_the_replay_key_changes_with_the_budget_and_reasoning(self):
         key = HostedExplanationProvider(None, "m").replay_key(self.pack, 0)
         variants = [HostedExplanationProvider(None, "m", max_tokens=None),
@@ -154,6 +190,13 @@ class WorkflowIntegrationTests(unittest.TestCase):
 
 
 class EnvironmentTests(unittest.TestCase):
+    def test_v3_is_opt_in_and_the_existing_live_default_stays_v2(self):
+        environment = {"MODEL_API_KEY": "test-key", "EXPLANATION_MODEL_NAME": "m"}
+        _, default = providers_from_environment(environment)
+        self.assertEqual(default.prompt.version, "v2")
+        _, candidate = providers_from_environment({**environment, "EXPLANATION_PROMPT_VERSION": "v3"})
+        self.assertEqual(candidate.prompt.version, "v3")
+
     def test_no_model_names_means_no_providers(self):
         self.assertEqual(providers_from_environment({}), (None, None))
 

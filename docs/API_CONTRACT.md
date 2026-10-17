@@ -8,7 +8,7 @@ The frontend sends the latest returned `revision` as `expected_revision` for eve
 
 UI stages map to backend fields: Source = upload; Mapping = mapping; Review = extraction plus review; Facts = facts plus alerts; Evidence = context including expert decisions; Report = report. `review` becomes `succeeded` only when every canonical record has a decision; analysis may still use a reviewed subset while review remains pending. Expert review changes context status to `accepted`, `corrected`, `rejected`, `inconclusive` or `facts_only_approved`. A new expert decision clears the current report pointer while immutable historical reports remain downloadable. Rejected/inconclusive decisions cannot issue a report.
 
-Live explanation uses prompt v2, which avoids identifiers in prose and retains strict typed numeric bindings. Existing v1 recordings replay with their original prompt identity, not as v2 measurements. See the [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md).
+Live explanation defaults to prompt v2, which avoids identifiers in prose and retains strict typed numeric bindings. V3 is opt-in with `EXPLANATION_PROMPT_VERSION=v3`; it adds repair examples and abstains without inference when the pack has no applicable passages. Existing recordings replay with their original v1/v2/v3 identity, never relabelled as another version. The [dev comparison](BENCHMARKS.md#guarded-v3-evaluation-opt-in) explains why v3 is not promoted. See also the [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md).
 
 ## Start and seed (Windows PowerShell, repository root)
 

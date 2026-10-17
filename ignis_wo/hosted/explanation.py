@@ -95,7 +95,7 @@ class HostedExplanationProvider:
         self.responses = load_responses(replay_path) if replay_path else None
         if self.responses is not None:
             identities = {row["prompt_id"] for row in self.responses.values()}
-            candidates = [ExplanationPrompt(version) for version in ([prompt_version] if prompt_version else ["v1", "v2"])]
+            candidates = [ExplanationPrompt(version) for version in ([prompt_version] if prompt_version else ["v1", "v2", "v3"])]
             matching = [prompt for prompt in candidates if identities == {prompt.prompt_id}]
             if not matching:
                 raise ValueError("replay prompt identity is unknown or mixed; recordings cannot be relabelled")
@@ -116,6 +116,8 @@ class HostedExplanationProvider:
         on the raised ProviderError as `attempts`."""
         if not bindable_facts(pack) and not pack["passages"]:
             return abstain_draft(pack), []
+        if self.prompt.version == "v3" and not pack["passages"]:
+            return {**abstain_draft(pack), "uncertainty": "No applicable passages support an explanation. Computed facts remain available."}, []
         messages = self.prompt.messages(pack)
         attempts = []
         for attempt in range(self.repair_attempts + 1):

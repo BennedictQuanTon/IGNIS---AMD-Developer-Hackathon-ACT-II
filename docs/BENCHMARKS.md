@@ -1,6 +1,6 @@
 # Hosted model benchmarks for #23
 
-**Local runtime update:** new live explanations use an unbenchmarked v2 prompt that avoids identifiers in prose while retaining numeric validation. The results below remain historical v1 measurements; the committed replay package also retains v1 identity. The [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md) records schema and interpretation limits without changing the frozen labels or results.
+**Prompt evaluations (2026-10-17):** live explanations default to v2. See [Prompt v2 on dev](#prompt-v2-on-dev) and the separate [opt-in v3 evaluation](#guarded-v3-evaluation-opt-in); all original stage results remain v1. The replay package is still v1, because the v2 demo draft failed validation. The [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md) records schema and interpretation limits without changing the frozen labels or results.
 
 Measured on 2026-10-16 with the event's AMD API and its one shared key (20 requests per minute, $1 per day). Each run happened once, on small sets, so treat every number as preliminary. The explanation scenarios are synthetic: Yoshio drafted them, and they are pending Tuong's review. Every number below is in [results.json](benchmarks/results.json). The inputs and settings are frozen in [manifest.json](benchmarks/manifest.json).
 
@@ -87,6 +87,44 @@ Both models used the same packs, `json_object`, reasoning `low`, a 4096-token bu
 
 **Error-attribution test** (4 pilot pages, gold text against raw MinerU text, DeepSeek): OCR text matched gold almost exactly on these pages. The decision changed on only one page pair (F1: abstain on gold, support on OCR), which points to run-to-run model variation rather than OCR error.
 
+## Prompt v2 on dev
+
+Run on 2026-10-17 with DeepSeek-V4-Flash on the same 12 dev packs and settings as v1. The prompt IDs are `explanation-draft-v2-f80d1254` and `explanation-draft-v1-555c9aee`. The held-out set was not re-run, because its cases were inspected after the v1 run.
+
+| Prompt | First-pass valid | Valid after repair | Invalid only for identifier digits | Support or abstain right | Cites an expected passage | Model time p50 / p95 | Calls |
+|---|---|---|---|---|---|---|---|
+| v1 (2026-10-16) | 5/12 | 5/12 | 7 | 10/12 | 8/8 | 18.1 / 140.8 s | 19 |
+| v2 (2026-10-17) | 3/12 | 8/12 | 3 | 7/12 | 6/8 | 20.2 / 60.3 s | 21 |
+
+- **More valid drafts, worse decisions.** After one repair, v2 drafts were valid more often, but the support or abstain decision was right less often:
+  - It abstained where support was expected on S02 (alternatives) and S03 (negation).
+  - It did not abstain on S05, S06 (wrong-model manual, where the pack was empty) or S12. v1 missed only S05 and S12.
+- **Identifiers still appear.** 3 of the 4 invalid drafts failed only on identifier digits, such as the asset model PX-300.
+- **Number words count as numbers.** The validator rejects words such as "one" and "first" in prose (`NUMBER_WORDS` in `workflow/context.py`). The shared v1/v2 rules already explicitly prohibit these words; the failure is instruction compliance, not a missing rule.
+- **One run only.** v1's DeepSeek decision was the same in all 15 repeat runs, but v2 has no repeat yet, so part of the drop may be run-to-run variation. This is evidence for the #17 prompt decision; it does not change the model selection.
+
+## Guarded v3 evaluation (opt-in)
+
+V3 adds explicit examples, targeted repair instructions and evidence/abstention guidance. It also abstains in code when no applicable passages exist, while leaving computed facts available. Numerical validation is unchanged. V1/v2 prompt identities and the working v1 demo recordings are preserved. Live defaults remain v2: use `EXPLANATION_PROMPT_VERSION=v3` only to opt in, or `--prompt-version v3` with the benchmark and demo recorder.
+
+One capped DeepSeek-V4-Flash run on the same 12 synthetic dev scenarios produced the following preliminary results. The [summary](benchmarks/v3-dev/summary.json), [per-scenario rows](benchmarks/v3-dev/rows.jsonl) and [sanitized response recordings](benchmarks/v3-dev/explanation-replay.jsonl) are committed so the metrics can be reproduced offline by the benchmark-protocol tests. These are synthetic expected labels pending human review, not semantic-support ratings or an untouched held-out evaluation.
+
+| Measure | v2 | v3 |
+| --- | --- | --- |
+| First model response valid | 3/12 | 6/10 |
+| Final valid output, including deterministic abstentions | 8/12 | 10/12 |
+| Support/abstention decision matches expected label, including invalid drafts | 7/12 | 8/12 |
+| Cites an expected passage in support cases | 6/8 | 4/8 |
+| Deterministic no-inference abstentions | 0 | 2 |
+| Model time p50 / p95, including repairs | 20.187 / 60.328 s (n=12) | 10.030 / 19.828 s (n=10) |
+| HTTP attempts | 21 | 14 |
+
+S06 and S09 had no applicable passages and were handled without model calls. They are excluded from the first-model-response and model-latency denominators. Final validity includes them; a valid abstention is not a repaired model response. The outcome score includes structurally invalid answers and must not be read as an accepted-output success rate. V3 abstained in all required abstention cases, but also abstained on S03, S04, S07 and S11 where the frozen labels expected support. S05 and S11 remained invalid under the unchanged number rule.
+
+**Decision:** keep v3 opt-in. Increased structural validity and conservative abstention do not outweigh the drop in expected-passage support sufficiently to promote it on a single dev run. No demo re-recording or held-out run was made. The original v1/v2 published results and rating sheet remain unchanged. The new reporting logic separates deterministic abstentions and labels latency sample counts correctly.
+
+The job used 14 of its 24 allowed attempts in 109.8 seconds (600-second cap, 25% allowance reserve). Successful-response allowance headers changed from $0.99721570 to $0.99630134 remaining; shared-key headers can include other callers. This is not an end-to-end browser latency measurement.
+
 ## Stage 3: runtime on the shared key
 
 ![Valid outputs per minute](benchmarks/charts/throughput.svg)
@@ -105,6 +143,7 @@ Both models used the same packs, `json_object`, reasoning `low`, a 4096-token bu
 ## Budget and incidents
 
 - **Allowance:** the shared key went from $0.909 left (Stage 0) to $0.859 left after the last job. Those snapshots include any teammate calls made at the same time. Per-response usage is in the raw rows under `outputs/benchmarks/23/`.
+- **2026-10-17 (v2):** the dev job made 21 calls, from $1.000 to $0.998 left on a new day. The refused demo re-recording made 2 more calls; that recording is kept outside the package.
 - **No job passed its caps** (40 attempts, 30 minutes, 25% allowance reserve). Qwen's repeat job hit the 30-minute cap and skipped 4 tasks.
 - **Spent and discarded:**
   - One OCR call was spent before its recording folder existed. Fixed, then re-run.
@@ -114,6 +153,8 @@ Both models used the same packs, `json_object`, reasoning `low`, a 4096-token bu
 ## Replay package and rehearsal (for #17 and #19)
 
 [`docs/benchmarks/replay/`](benchmarks/replay/summary.json) holds one synthetic pump run recorded live: frozen extraction on 6 work orders, then a DeepSeek explanation that reached `pending_expert_review`. It also holds the pilot OCR replies. Replaying it offline gave identical extraction labels and an identical draft.
+
+The package still replays the v1 prompt. A v2 re-recording on 2026-10-17 was refused: the live draft wrote "at least one failed-state record", which the validator rejects as a number word. Live mode uses v2, so replay and live currently run different prompts. Once the prompt is settled, `record_demo_replay.py --extraction-replay <recording>` re-records only the explanation and keeps the same 6 extraction suggestions.
 
 | Mode | Command |
 |---|---|
@@ -132,7 +173,8 @@ uv run --env-file .env --no-project --with-requirements requirements-dev.txt pyt
 uv run --no-project --with-requirements requirements-dev.txt python scripts/benchmark_documents.py generate
 uv run --env-file .env ... python scripts/benchmark_documents.py read --reader mineru      (and --reader native)
 uv run --env-file .env ... python scripts/benchmark_explanations.py dev --models DeepSeek-V4-Flash   (one model per job)
-uv run --env-file .env ... python scripts/benchmark_explanations.py heldout|repeat|ablation|runtime --models ...
+uv run --env-file .env ... python scripts/benchmark_explanations.py heldout|repeat|ablation|runtime --models ... --prompt-version v1
+uv run --env-file .env ... python scripts/benchmark_explanations.py dev --models DeepSeek-V4-Flash   (v2 is the default; held-out stays v1)
 uv run --env-file .env ... python scripts/run_benchmark.py --split dev --limit 20 --model DeepSeek-V4-Flash-Vision-Exp --prompt fewshot --reasoning-effort default --concurrency 1|2
 uv run --env-file .env ... python scripts/record_demo_replay.py --explanation-model DeepSeek-V4-Flash
 uv run --no-project --with-requirements requirements-dev.txt python scripts/report_benchmarks.py --extraction-runs <run> <run>

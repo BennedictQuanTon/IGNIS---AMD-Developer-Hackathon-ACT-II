@@ -144,14 +144,29 @@ def pack_for_prompt(pack: dict) -> dict:
 
 class ExplanationPrompt:
     def __init__(self, version="v2"):
-        if version not in {"v1", "v2"}:
+        if version not in {"v1", "v2", "v3"}:
             raise ValueError("unknown explanation prompt version")
+        self.version = version
         self.system = EXPLANATION_RULES
-        if version == "v2":
+        if version in {"v2", "v3"}:
             self.system += (
                 "\nIdentifier rule: do not copy asset IDs, model names, document IDs or fact IDs into prose. "
                 "For example, write 'the pump' or 'the applicable manual', never 'PX-100'. "
                 "Keep exact identifiers only in citations and fact_ids. This applies to uncertainty as well as claims."
+            )
+        if version == "v3":
+            self.system += (
+                "\nEvidence decision before drafting: identify what the applicable passages actually support. "
+                "A cautious observation or competing explanations can be supported without establishing causation. "
+                "Keep alternatives when passages describe different possibilities, and respect explicit negations. "
+                "Lexical overlap, a generic heading, an asset name or a computed priority alone is not explanatory support. "
+                "If passages are absent, unrelated, or only say the cause was not investigated, abstain from an explanation; "
+                "you may describe a directly supported observation but never invent its cause. "
+                "When abstaining, leave hypotheses and alternatives empty, set inspection to null, and explain the evidence gap."
+                "\nProse examples: invalid 'at least one failed-state record'; valid 'Failed-state observations are recorded.' "
+                "Invalid 'the first cause' or 'the PX-100 pump'; valid 'a possible explanation' or 'the pump'. "
+                "Never replace a digit with a number word. Put the supporting fact identifier in fact_ids instead of "
+                "expressing any count, ranking, measurement or score in text. This also applies to uncertainty and inspection."
             )
         self.prompt_id = f"explanation-draft-{version}-{content_hash(self.system)[:8]}"
 
@@ -159,9 +174,16 @@ class ExplanationPrompt:
         evidence = json.dumps(pack_for_prompt(pack), sort_keys=True)
         return [{"role": "system", "content": self.system}, {"role": "user", "content": f"Evidence pack:\n{evidence}"}]
 
-    @staticmethod
-    def repair_messages(previous: dict, errors: list[str]) -> list[dict]:
+    def repair_messages(self, previous: dict, errors: list[str]) -> list[dict]:
         problems = "\n".join(f"- {error}" for error in errors)
         request = (f"The draft was rejected:\n{problems}\nReturn a corrected JSON object that follows every rule. "
                    'Every claim, including inspection, must be an object {"text", "citations", "fact_ids"}.')
+        if self.version == "v3":
+            request += (
+                " Recheck support and abstention against the original pack; validation is not proof of support. "
+                "Remove every digit and number word from ALL prose, including uncertainty. "
+                "For example replace 'at least one failed-state record' with 'Failed-state observations are recorded.' "
+                "Do not retain an implied count: use fact_ids for quantities. Keep identifiers only in citations/fact_ids. "
+                "If evidence does not support an explanation, abstain with empty hypotheses/alternatives and null inspection."
+            )
         return [{"role": "assistant", "content": json.dumps(previous)}, {"role": "user", "content": request}]

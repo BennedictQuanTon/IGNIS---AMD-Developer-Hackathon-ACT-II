@@ -4,7 +4,8 @@ Run with: uv run --env-file .env --no-project --with-requirements requirements-d
 Stages: dev, heldout (runs once), repeat (5 dev cases x 3), runtime (20 dev tasks at --concurrency),
 ablation (gold text vs OCR text on 4 reader-pilot pages; needs the mineru reader run first).
 Each job stops at 40 HTTP attempts or 30 minutes, and while 25% of the daily allowance remains, so run
-one model per job when repairs could push a stage past 40 attempts. The blind rating sheet is built by
+one model per job when repairs could push a stage past 40 attempts. --prompt-version picks the explanation prompt
+(default v2); v2 jobs get a -v2 suffix, and the held-out stage stays v1 because its cases were inspected after that run. The blind rating sheet is built by
 scripts/report_benchmarks.py from all dev and held-out rows, so model names are mixed across jobs.
 """
 
@@ -44,7 +45,8 @@ def providers(arguments, job: JobBudget, directory: Path) -> list[HostedExplanat
     client = client_from_environment(pacer=pacer)
     client.gateway.budget = job
     return [HostedExplanationProvider(client, model, reasoning_effort="low", max_tokens=4096, budget_fallback=True,
-                                      record_path=directory / f"{model}-replay.jsonl") for model in arguments.models]
+                                      record_path=directory / f"{model}-replay.jsonl",
+                                      prompt_version=arguments.prompt_version) for model in arguments.models]
 
 
 def ablation_families() -> list[dict]:
@@ -126,7 +128,8 @@ def rescore(arguments, directory: Path, families: list[dict]) -> int:
     rows = []
     for model in arguments.models:
         provider = HostedExplanationProvider(None, model, reasoning_effort="low", max_tokens=4096, budget_fallback=True,
-                                             replay_path=directory / f"{model}-replay.jsonl")
+                                             replay_path=directory / f"{model}-replay.jsonl",
+                                             prompt_version=arguments.prompt_version)
         for index, family in enumerate(families):
             case_id = f"{family['family_id']}:{model}:{index}"
             rows.append(rescored_row(family, provider, case_id, live_rows.get(case_id, {})))
@@ -142,11 +145,22 @@ def rescore(arguments, directory: Path, families: list[dict]) -> int:
     return 0
 
 
-def main() -> int:
-    arguments = parse_arguments()
+def job_name(arguments) -> str:
+    """v1 jobs keep their original names; other prompt versions get a suffix so they never share recordings."""
     name = f"{arguments.stage}-{'+'.join(arguments.models)}"
     if arguments.stage == "runtime":
         name += f"-c{arguments.concurrency}"
+    if arguments.prompt_version != "v1":
+        name += f"-{arguments.prompt_version}"
+    return name
+
+
+def main() -> int:
+    arguments = parse_arguments()
+    if arguments.stage == "heldout" and arguments.prompt_version != "v1":
+        raise SystemExit("the held-out scenarios were inspected after the v1 run "
+                         "(docs/benchmarks/scenarios/TECHNICAL_REVIEW.md); evaluate new prompts on dev")
+    name = job_name(arguments)
     directory = RESULTS / name
     if arguments.rescore and arguments.stage in ("repeat", "runtime"):
         raise SystemExit("--rescore cannot separate repeated runs of one scenario; their live rows are the record")
@@ -157,8 +171,9 @@ def main() -> int:
     directory.mkdir(parents=True, exist_ok=True)
     job = JobBudget(f"stage2-{name}", arguments.max_attempts, arguments.max_seconds)
     families = stage_families(arguments.stage)
+    explanation_providers = providers(arguments, job, directory)
     cases = [{"case_id": f"{family['family_id']}:{provider.model_id}:{index}", "family": family, "provider": provider}
-             for provider in providers(arguments, job, directory) for index, family in enumerate(families)]
+             for provider in explanation_providers for index, family in enumerate(families)]
     started = time.monotonic()
     rows, wall_seconds = run_cases(cases, lambda case: run_family(case["family"], case["provider"]),
                                    arguments.concurrency, arguments.max_seconds)
@@ -167,6 +182,7 @@ def main() -> int:
     by_model = {model: summarize_model([row for row in rows if row.get("model_id") == model])
                 for model in arguments.models}
     summary = {"stage": arguments.stage, "concurrency": arguments.concurrency, "models": by_model,
+               "prompt_ids": {provider.model_id: provider.prompt_id for provider in explanation_providers},
                "runtime": runtime_summary(rows, wall_seconds), "job": job.write(directory / "job"),
                "statuses": sorted({row.get("status", "ok") for row in rows}),
                "elapsed_seconds": round(time.monotonic() - started, 1)}
@@ -183,6 +199,7 @@ def parse_arguments():
     parser.add_argument("--max-attempts", type=int, default=40)
     parser.add_argument("--max-seconds", type=float, default=1800)
     parser.add_argument("--allowance-reserve", type=float, default=0.25)
+    parser.add_argument("--prompt-version", choices=["v1", "v2", "v3"], default="v2")
     parser.add_argument("--rescore", action="store_true", help="re-score a finished job from its recordings, no calls")
     return parser.parse_args()
 

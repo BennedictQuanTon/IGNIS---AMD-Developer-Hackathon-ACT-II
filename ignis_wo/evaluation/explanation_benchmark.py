@@ -84,6 +84,9 @@ def scored_row(family: dict, model_id: str, retrieved: dict, draft: dict | None,
            "budget_fallback": any("budget_fallback" in attempt["request_parameters"] for attempt in attempts)}
     if draft is None:
         return {**row, "valid": False}
+    if not attempts:
+        row["first_pass_valid"] = None
+    row["deterministic_abstention"] = not attempts and draft["abstain"]
     hypotheses = claim_citations(draft, ("hypotheses",))
     cited = claim_citations(draft, ("hypotheses", "alternatives", "inspection"))
     abstain_expected = expected["outcome"] == "abstain"
@@ -122,6 +125,7 @@ def summarize_model(rows: list[dict]) -> dict:
     valid = [row for row in rows if row["valid"]]
     tokens = sum(row["completion_tokens"] + row["prompt_tokens"] for row in rows)
     return {"families": len(rows), "errors": sum("error" in row for row in rows),
+            "deterministic_abstentions": sum(bool(row.get("deterministic_abstention")) for row in rows),
             "first_pass_valid": rate(rows, "first_pass_valid"), "valid_after_repair": rate(rows, "valid"),
             "outcome_correct": rate(rows, "outcome_correct"), "support_hit": rate(rows, "support_hit"),
             "distractor_cited": rate(rows, "distractor_cited"),

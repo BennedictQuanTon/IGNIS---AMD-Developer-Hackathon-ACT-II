@@ -1,7 +1,7 @@
 {
   "issue": "#23",
-  "built_at": "2026-10-16T15:14:16.086125+00:00",
-  "client_commit": "d2b66b34e353d665929db38cc3ae6a8bce3197be",
+  "built_at": "2026-10-17T13:42:22.369266+00:00",
+  "client_commit": "36b771a490e1d48f13d043eb18ff90d76bdcef86",
   "reader_pilot": {
     "files": [
       {
@@ -144,6 +144,35 @@
     "prompt_id": "extraction-fewshot-v2-3dc4cc73",
     "max_tokens": 4096
   },
+  "explanation_prompts": {
+    "ablation-DeepSeek-V4-Flash": {
+      "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+    },
+    "dev-DeepSeek-V4-Flash": {
+      "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+    },
+    "dev-DeepSeek-V4-Flash-v2": {
+      "DeepSeek-V4-Flash": "explanation-draft-v2-f80d1254"
+    },
+    "dev-Qwen3.8-27B": {
+      "Qwen3.8-27B": "explanation-draft-v1-555c9aee"
+    },
+    "heldout-DeepSeek-V4-Flash": {
+      "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+    },
+    "heldout-Qwen3.8-27B": {
+      "Qwen3.8-27B": "explanation-draft-v1-555c9aee"
+    },
+    "repeat-DeepSeek-V4-Flash": {
+      "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+    },
+    "repeat-Qwen3.8-27B": {
+      "Qwen3.8-27B": "explanation-draft-v1-555c9aee"
+    },
+    "runtime-DeepSeek-V4-Flash-c2": {
+      "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+    }
+  },
   "explanation_settings": {
     "reasoning_effort": "low",
     "max_tokens": 4096,
@@ -231,6 +260,28 @@
           "x-ratelimit-used-user-daily-usd": "0.11003000",
           "x-ratelimit-remaining-user-daily-usd": "0.88997000",
           "x-ratelimit-remaining-user-rpm": "18"
+        }
+      },
+      "dev-DeepSeek-V4-Flash-v2": {
+        "job": "stage2-dev-DeepSeek-V4-Flash-v2",
+        "attempts": 21,
+        "max_attempts": 40,
+        "elapsed_seconds": 354.5,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 21
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.00000000",
+          "x-ratelimit-remaining-user-daily-usd": "1.00000000",
+          "x-ratelimit-remaining-user-rpm": "19"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.00231060",
+          "x-ratelimit-remaining-user-daily-usd": "0.99768940",
+          "x-ratelimit-remaining-user-rpm": "13"
         }
       },
       "dev-Qwen3.8-27B": {

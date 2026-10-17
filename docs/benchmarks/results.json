@@ -58,6 +58,9 @@
           "wrong_model_in_pack": 0
         }
       },
+      "prompt_ids": {
+        "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+      },
       "runtime": {
         "calls": 14,
         "calls_per_minute": 4.85,
@@ -132,6 +135,9 @@
           "wrong_model_in_pack": 0
         }
       },
+      "prompt_ids": {
+        "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+      },
       "runtime": {
         "calls": 19,
         "calls_per_minute": 1.86,
@@ -143,6 +149,81 @@
         "tasks": 12,
         "valid_per_minute": 0.49,
         "wall_seconds": 612.7
+      },
+      "stage": "dev"
+    },
+    "dev-DeepSeek-V4-Flash-v2": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 21,
+        "elapsed_seconds": 354.5,
+        "job": "stage2-dev-DeepSeek-V4-Flash-v2",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 21
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "1.00000000",
+          "x-ratelimit-remaining-user-rpm": "19",
+          "x-ratelimit-used-user-daily-usd": "0.00000000"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.99768940",
+          "x-ratelimit-remaining-user-rpm": "13",
+          "x-ratelimit-used-user-daily-usd": "0.00231060"
+        }
+      },
+      "models": {
+        "DeepSeek-V4-Flash": {
+          "budget_fallback_used": 0,
+          "calls": 21,
+          "distractor_cited": {
+            "n": 1,
+            "true": 0
+          },
+          "errors": 0,
+          "families": 12,
+          "first_pass_valid": {
+            "n": 12,
+            "true": 3
+          },
+          "invalid_only_for_identifier_digits": 3,
+          "latency_n": 12,
+          "model_seconds_p50": 20.187,
+          "model_seconds_p95": 60.328,
+          "outcome_correct": {
+            "n": 12,
+            "true": 7
+          },
+          "support_hit": {
+            "n": 8,
+            "true": 6
+          },
+          "tokens_per_valid_output": 2043.4,
+          "valid_after_repair": {
+            "n": 12,
+            "true": 8
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "prompt_ids": {
+        "DeepSeek-V4-Flash": "explanation-draft-v2-f80d1254"
+      },
+      "runtime": {
+        "calls": 21,
+        "calls_per_minute": 3.55,
+        "finished": 12,
+        "full_path_p50": 20.187,
+        "full_path_p95": 60.328,
+        "n": 12,
+        "queue_and_pacing_p50": 0.0,
+        "tasks": 12,
+        "valid_per_minute": 1.35,
+        "wall_seconds": 354.5
       },
       "stage": "dev"
     },
@@ -204,6 +285,9 @@
           },
           "wrong_model_in_pack": 0
         }
+      },
+      "prompt_ids": {
+        "Qwen3.8-27B": "explanation-draft-v1-555c9aee"
       },
       "runtime": {
         "calls": 11,
@@ -278,6 +362,9 @@
           "wrong_model_in_pack": 0
         }
       },
+      "prompt_ids": {
+        "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
+      },
       "runtime": {
         "calls": 15,
         "calls_per_minute": 3.69,
@@ -351,6 +438,9 @@
           "wrong_model_in_pack": 0
         }
       },
+      "prompt_ids": {
+        "Qwen3.8-27B": "explanation-draft-v1-555c9aee"
+      },
       "runtime": {
         "calls": 4,
         "calls_per_minute": 0.22,
@@ -422,6 +512,9 @@
           },
           "wrong_model_in_pack": 0
         }
+      },
+      "prompt_ids": {
+        "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
       },
       "runtime": {
         "calls": 30,
@@ -497,6 +590,9 @@
           "wrong_model_in_pack": 0
         }
       },
+      "prompt_ids": {
+        "Qwen3.8-27B": "explanation-draft-v1-555c9aee"
+      },
       "runtime": {
         "calls": 5,
         "calls_per_minute": 0.16,
@@ -569,6 +665,9 @@
           },
           "wrong_model_in_pack": 0
         }
+      },
+      "prompt_ids": {
+        "DeepSeek-V4-Flash": "explanation-draft-v1-555c9aee"
       },
       "runtime": {
         "calls": 36,

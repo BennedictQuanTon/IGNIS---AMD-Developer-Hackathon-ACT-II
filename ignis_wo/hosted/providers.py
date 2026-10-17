@@ -4,6 +4,7 @@ MODEL_API_KEY           shared event key (secret, never logged)
 MODEL_BASE_URL          defaults to the AMD Token Factory URL
 MODEL_NAME              extraction model; extraction stays unavailable when unset
 EXPLANATION_MODEL_NAME  explanation model; explanation stays unavailable when unset
+EXPLANATION_PROMPT_VERSION  v2 by default; v3 is an opt-in evaluation candidate
 DOCUMENT_OCR_MODEL      document reader for scripts/ingest_document.py --reader mineru (e.g. MinerU2.5-Pro)
 
 Load them with `uv run --env-file .env ...`.
@@ -67,7 +68,8 @@ def providers_from_environment(environment=None, record_directory: Path | None =
     if explanation_model:
         record_path = record_directory / "explanation-replay.jsonl" if record_directory else None
         explanation_provider = HostedExplanationProvider(client, explanation_model, record_path=record_path,
-                                                         budget_fallback=True)
+                                                         budget_fallback=True,
+                                                         prompt_version=environment.get("EXPLANATION_PROMPT_VERSION") or "v2")
     return extraction_provider, explanation_provider
 
 

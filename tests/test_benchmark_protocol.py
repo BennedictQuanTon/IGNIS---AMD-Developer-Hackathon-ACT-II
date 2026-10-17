@@ -1,8 +1,10 @@
+import importlib.util
 import json
 import subprocess
 import sys
 import tempfile
 import unittest
+from argparse import Namespace
 from xml.etree import ElementTree
 from pathlib import Path
 
@@ -25,6 +27,13 @@ from ignis_wo.hosted.transport import ChatClient, ChatResult, Gateway, ProviderE
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def load_script(name: str):
+    specification = importlib.util.spec_from_file_location(name.removesuffix(".py"), ROOT / "scripts" / name)
+    module = importlib.util.module_from_spec(specification)
+    specification.loader.exec_module(module)
+    return module
 
 
 class FakeClock:
@@ -197,6 +206,75 @@ class CommandGuardTests(unittest.TestCase):
 
     def test_rescoring_repeated_runs_is_refused(self):
         self.assertIn("cannot separate repeated runs", self.run_script("benchmark_explanations.py", "repeat", "--rescore").stderr)
+
+    def test_new_prompts_never_run_on_the_inspected_held_out_set(self):
+        result = self.run_script("benchmark_explanations.py", "heldout", "--models", "m")
+        self.assertIn("inspected after the v1 run", result.stderr)
+
+
+class PromptVersionTests(unittest.TestCase):
+    def test_published_v3_dev_metrics_reproduce_from_recordings_without_a_key(self):
+        directory = ROOT / "docs" / "benchmarks" / "v3-dev"
+        summary = json.loads((directory / "summary.json").read_text(encoding="utf-8"))
+        provider = HostedExplanationProvider(None, "DeepSeek-V4-Flash", replay_path=directory / "explanation-replay.jsonl",
+                                             budget_fallback=True, prompt_version="v3")
+        rows = [run_family(family, provider) for family in load_scenarios("dev")]
+        self.assertEqual(summarize_model(rows), summary["models"]["DeepSeek-V4-Flash"])
+        self.assertEqual(provider.client, None)
+
+    def test_guarded_abstentions_are_not_failed_model_responses_or_model_latencies(self):
+        family = next(family for family in load_scenarios("dev") if family["family_id"] == "S06")
+        provider = HostedExplanationProvider(ScriptedClient(), "m", prompt_version="v3")
+        row = run_family(family, provider)
+        self.assertTrue(row["valid"])
+        self.assertTrue(row["outcome_correct"])
+        self.assertTrue(row["deterministic_abstention"])
+        summary = summarize_model([row])
+        self.assertEqual(summary["first_pass_valid"], {"true": 0, "n": 0})
+        self.assertEqual(summary["deterministic_abstentions"], 1)
+        self.assertEqual(summary["latency_n"], 0)
+
+    def test_v2_jobs_get_their_own_names_and_v1_names_are_unchanged(self):
+        job_name = load_script("benchmark_explanations.py").job_name
+        arguments = {"stage": "dev", "models": ["m"], "concurrency": 1}
+        self.assertEqual(job_name(Namespace(**arguments, prompt_version="v1")), "dev-m")
+        self.assertEqual(job_name(Namespace(**arguments, prompt_version="v2")), "dev-m-v2")
+        self.assertEqual(job_name(Namespace(**arguments, prompt_version="v3")), "dev-m-v3")
+        self.assertEqual(job_name(Namespace(**{**arguments, "stage": "runtime", "concurrency": 2}, prompt_version="v2")),
+                         "runtime-m-c2-v2")
+
+    def test_v2_runs_are_charted_apart_and_kept_out_of_the_v1_blind_sheet(self):
+        report = load_script("report_benchmarks.py")
+        self.assertEqual(report.series_label("dev-m-v2", "m"), "m (v2)")
+        self.assertEqual(report.series_label("dev-m-v3", "m"), "m (v3)")
+        self.assertEqual(report.series_label("dev-m", "m"), "m")
+        self.assertTrue(report.rated_run("heldout-m"))
+        self.assertFalse(report.rated_run("dev-m-v2"))
+        self.assertFalse(report.rated_run("dev-m-v3"))
+        self.assertFalse(report.rated_run("repeat-m"))
+
+
+class OutageClient:
+    def __init__(self):
+        self.models = []
+
+    def complete(self, model, messages, output_mode, schema, reasoning_effort, max_tokens, budget_fallback=False):
+        self.models.append(model)
+        raise ProviderError("unavailable", "down")
+
+
+class DemoRecordingTests(unittest.TestCase):
+    def test_a_reused_extraction_sends_only_the_explanation_and_an_unusable_draft_is_refused(self):
+        recorder = load_script("record_demo_replay.py")
+        client = OutageClient()
+        with tempfile.TemporaryDirectory() as directory:
+            arguments = Namespace(out=Path(directory), explanation_model="m", prompt_version="v3",
+                                  extraction_replay=ROOT / "docs" / "benchmarks" / "replay" / "extraction-replay.jsonl")
+            with self.assertRaisesRegex(SystemExit, "not pending_expert_review"):
+                recorder.record(arguments, client)
+            self.assertTrue((Path(directory) / "ocr-replay.jsonl").exists())
+        self.assertTrue(client.models)
+        self.assertEqual(set(client.models), {"m"})
 
 
 class ChartTests(unittest.TestCase):
