@@ -68,6 +68,7 @@ def cover(snapshot: Snapshot, run_info: dict) -> list:
         ["Field", "Value"],
         ["Snapshot", snapshot.snapshot_id],
         ["Adapter", f"{run_info['adapter_mode']}: {run_info['model_id']}@{run_info['model_version']}"],
+        ["Extraction configuration", run_info.get("extraction_configuration", "not recorded")],
         ["Source file", f"{run_info['source_name']} (sha256 {run_info['source_sha256'][:16]})"],
         ["Mapping revision", run_info["mapping_revision"]],
         ["Reviewer", run_info["reviewer"]],
@@ -202,6 +203,10 @@ def build_pdf(
         story.append(paragraph(f"Snapshot: {context_review.get('snapshot_id', snapshot.snapshot_id)}; evidence pack: {context_review.get('pack_id') or 'none'}."))
         story.append(paragraph(f"Explanation mode: {context_review.get('explanation_mode', 'unavailable')}; prompt identity: {context_review.get('prompt_id', 'none configured')}."))
         story.append(paragraph(f"Explanation model identity: {context_review.get('model_id', 'unavailable')}."))
+        story.append(paragraph(f"Corpus: {context_review.get('corpus_mode') or 'not recorded'}; version {context_review.get('corpus_version') or 'none'}."))
+        for source in context_review.get("sources", []):
+            story.append(paragraph(f"Evidence source {source['passage_id']}: {source['document_id']} version {source['version']}, {source['location']}, "
+                                   f"file sha256 {source['source_sha256'] or 'n/a'}, reader {source['reader']}."))
         story.append(paragraph("Contextual output is an expert-reviewed hypothesis and does not establish causation or authorize maintenance action."))
         draft = context_review.get("approved_draft")
         if draft:

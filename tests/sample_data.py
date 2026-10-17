@@ -1,9 +1,12 @@
 """Shared synthetic inputs for the pipeline tests (no network, no MaintIE download)."""
 
 import csv
+import io
 import json
 import tempfile
 from pathlib import Path
+
+from reportlab.pdfgen import canvas
 
 from ignis_wo.contracts import ComponentCriticality, Snapshot
 from ignis_wo.extraction.adapters import FixtureAdapter
@@ -16,6 +19,17 @@ from ignis_wo.snapshot import build_snapshot
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "maintie_sample.json"
 COLUMNS = ["WO #", "Equipment ID", "Reported Date", "Work Order Description", "Downtime (h)"]
+
+
+def pdf_bytes(page_texts: list[str]) -> bytes:
+    buffer = io.BytesIO()
+    drawing = canvas.Canvas(buffer)
+    for text in page_texts:
+        if text:
+            drawing.drawString(72, 720, text)
+        drawing.showPage()
+    drawing.save()
+    return buffer.getvalue()
 
 
 def sample_items() -> list[dict]:

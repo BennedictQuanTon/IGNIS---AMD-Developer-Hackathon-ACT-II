@@ -19,6 +19,17 @@ Every mutation requires `expected_revision` from the latest run response. A succ
 
 Adapters are injected by the local Python host when constructing `Workflow`; no HTTP route accepts arbitrary provider code or credentials. `extraction_provider(records: list[CanonicalRecord]) -> list[ExtractionSuggestion]` receives canonical source rows and must return typed extraction suggestions. `explanation_provider(pack: dict) -> dict` receives the immutable evidence pack and returns the typed cited-draft contract described below. Explanation adapters may expose string attributes `model_id`, `prompt_id`, and `explanation_mode`; these are persisted as provenance. Extraction metadata remains separate from explanation metadata. Adapter exceptions are recorded at their stage. `scripts/serve_hosted.py` injects hosted AMD providers: extraction uses the frozen configuration in `ignis_wo/hosted/extraction_config.json` (its few-shot examples need `scripts/fetch_maintie.py`), and explanation retries once without `max_tokens` when a model rejects the 4096-token budget. Both roles share one request pacer per process.
 
+## Reviewed document corpus
+
+`Workflow(..., corpus_sources=(corpus, graph))` retrieves from a reviewed corpus snapshot. Without it, retrieval uses the synthetic fixture corpus, and `context.corpus_mode` reports `synthetic_fixture` or `reviewed_snapshot`. Eligibility is still filtered in code by reviewed status, asset model and component before the top three passages are ranked. Steps:
+
+1. Read a document into unreviewed chunks: `python scripts/ingest_document.py manual.pdf --document-id MAN-1 --revision 1 --reader native`. Use `--reader mineru` for scans or images, which needs `DOCUMENT_OCR_MODEL`.
+2. Approve the chunks for one asset model and component: `python scripts/review_document.py approve <artifact dir> --reviewer ... --reason ... --asset-model PX-100 --component seal`. Corrections are stored beside the raw text, which is never rewritten. Partial artifacts are refused.
+3. Publish an immutable snapshot: `python scripts/review_document.py publish <artifact dirs> --asset PUMP-SYN-01=PX-100 --out outputs/corpus/pump-v1.json`.
+4. Serve it: `python scripts/serve_hosted.py --corpus outputs/corpus/pump-v1.json`.
+
+Reports record the extraction model that produced the suggestions (`extraction_identity`: model id, version and whether it is the scored configuration). Under context review they also list each evidence passage with its document version, page and chunk, source file hash and reader. Rebuilding context gives a new evidence pack and clears the draft and signoff. Issued PDFs stay in history.
+
 ## Routes
 
 | Method and path | Purpose |

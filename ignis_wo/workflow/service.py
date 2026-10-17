@@ -33,7 +33,9 @@ class WorkflowStageError(RuntimeError):
 
 
 class Workflow:
-    def __init__(self, db_path: Path, data_dir: Path, fixture_items=None, extraction_provider=None, explanation_provider=None):
+    def __init__(self, db_path: Path, data_dir: Path, fixture_items=None, extraction_provider=None, explanation_provider=None,
+                 corpus_sources=None):
+        """`corpus_sources` is a reviewed (corpus, graph) snapshot; None keeps the synthetic fixture corpus."""
         self.store = Store(db_path)
         self.data_dir = data_dir
         self.uploads = data_dir / "uploads"
@@ -43,6 +45,25 @@ class Workflow:
         self.fixture_items = fixture_items
         self.extraction_provider = extraction_provider
         self.explanation_provider = explanation_provider
+        self.corpus_sources = corpus_sources
+
+    def report_extraction_identity(self, run: dict) -> dict:
+        """Runs saved before extraction_identity was recorded fall back to what their adapter mode implies."""
+        if run.get("extraction_identity"):
+            return run["extraction_identity"]
+        if run["adapter_mode"] == "fixture":
+            return self.extraction_identity("fixture")
+        return {"model_id": "unavailable", "model_version": "none", "configuration": "not applicable"}
+
+    def extraction_identity(self, adapter_mode: str) -> dict:
+        """Recorded when extraction runs, so the report names the model that actually produced the suggestions."""
+        if adapter_mode == "fixture":
+            return {"model_id": "fixture-gold", "model_version": "maintie-gold-demo", "configuration": "not applicable"}
+        provider = self.extraction_provider
+        scored = getattr(provider, "scored_configuration", None)
+        configuration = {True: "scored", False: "not the scored configuration"}.get(scored, "unknown")
+        return {"model_id": getattr(provider, "model_id", "injected"),
+                "model_version": getattr(provider, "model_version", "unversioned"), "configuration": configuration}
 
     def create_run(self, name: str, operator: str, synthetic: bool, adapter_mode: str = "unavailable"):
         if not name.strip() or not operator.strip():
@@ -143,6 +164,7 @@ class Workflow:
         except Exception as error:
             return self.store.mutate(run_id, revision, "extraction_failed", {"stage_status": {**run["stage_status"], "extraction": "failed"}, "stage_errors": [f"{type(error).__name__}: {error}"]}, "degraded")
         return self.store.mutate(run_id, revision, "suggestions_saved", {"suggestions": [s.model_dump(mode="json") for s in suggestions],
+            "extraction_identity": self.extraction_identity(run["adapter_mode"]),
             "stage_status": {**run["stage_status"], "extraction": "succeeded", "review": "pending"}, "stage_errors": []}, "review_pending")
 
     def review(self, run_id, revision, record_id, status, reason, correction=None, reviewer=None, demo_auto_review=False):
@@ -229,7 +251,7 @@ class Workflow:
         if not asset_id or snapshot_assets != {asset_id}:
             result = {"status": "insufficient_applicability", "reason": "requested asset identity must exactly match the single approved snapshot asset", "trace": {"eligible_ids": [], "excluded": [], "paths": []}, "pack": None}
         else:
-            result = retrieve(asset_id, component, query, run["facts"], run["snapshot"]["snapshot_id"])
+            result = retrieve(asset_id, component, query, run["facts"], run["snapshot"]["snapshot_id"], self.corpus_sources)
         def persist_pack(db, _revision):
             if result["pack"]:
                 db.execute("INSERT OR IGNORE INTO packs VALUES (?,?,?)", (result["pack"]["pack_id"], run_id, json.dumps(result["pack"])))
@@ -319,13 +341,19 @@ class Workflow:
         out_dir.mkdir(parents=True, exist_ok=True)
         path = out_dir / f"{report_id}.pdf"
         from ignis_wo.hashing import sha256_bytes
+        extraction = self.report_extraction_identity(run)
+        context = run.get("context") or {}
+        sources = [{"passage_id": passage["passage_id"], "document_id": passage["document_id"], "version": passage["version"],
+                    "location": passage["location"], "source_sha256": passage.get("source_sha256", "")[:16], "reader": (passage.get("reader") or {}).get("reader", "fixture")}
+                   for passage in (context.get("pack") or {}).get("passages", [])]
         payload = {"report_id": report_id, "status": "issued", "path": str(path), "sha256": None, "snapshot_id": snapshot.snapshot_id,
-            "run_id": run_id, "expert_review": review, "pack_id": review.get("pack_id"), "synthetic": run["synthetic"], "adapter_mode": run["adapter_mode"], "prompt_id": (run.get("draft_result") or {}).get("prompt_id", "N/A: no hosted explanation provider configured")}
+            "run_id": run_id, "expert_review": review, "pack_id": review.get("pack_id"), "synthetic": run["synthetic"], "adapter_mode": run["adapter_mode"], "prompt_id": (run.get("draft_result") or {}).get("prompt_id", "N/A: no hosted explanation provider configured"),
+            "extraction_identity": extraction, "corpus_mode": context.get("corpus_mode")}
         def record_report(db, _next_revision):
             try:
                 build_pdf(path, snapshot, facts, explanations, claims, {"data_label": ("SYNTHETIC DATA" if run["synthetic"] else "SOURCE DATA") + (" / SIMULATED SIGNOFF" if simulated_signoff else " / EXPERT REVIEWED"),
-                "adapter_mode": run["adapter_mode"], "explanation_mode": (run.get("draft_result") or {}).get("explanation_mode", "unavailable"), "model_id": "fixture-gold" if run["adapter_mode"] == "fixture" else "unavailable",
-                "model_version": "maintie-gold-demo" if run["adapter_mode"] == "fixture" else "none", "source_name": run.get("filename", "unknown"),
+                "adapter_mode": run["adapter_mode"], "explanation_mode": (run.get("draft_result") or {}).get("explanation_mode", "unavailable"), "model_id": extraction["model_id"],
+                "model_version": extraction["model_version"], "extraction_configuration": extraction["configuration"], "source_name": run.get("filename", "unknown"),
                 "source_sha256": run.get("source_sha256", "unknown"), "mapping_revision": run["mapping"]["revision_id"], "reviewer": run["operator"],
                 "data_basis": [f"Approved snapshot {snapshot.snapshot_id}; {len(snapshot.entries)} records.", "Synthetic pump fields and corpus are labeled synthetic.",
                     "AUTOMATIC SYNTHETIC FIXTURE DECISIONS are not human review." if any("AUTOMATIC SYNTHETIC FIXTURE DEMO" in d.get("reviewer", "") for d in run["decisions"].values()) else "Record decisions are attributed in the persisted review history." ]},
@@ -333,6 +361,7 @@ class Workflow:
                     "review_status": review["decision"] + (" (simulated; not a real expert decision)" if simulated_signoff else ""),
                     "explanation_mode": (run.get("draft_result") or {}).get("explanation_mode", "unavailable"), "prompt_id": (run.get("draft_result") or {}).get("prompt_id", "N/A: hosted explanation provider unavailable in this delivery"),
                     "model_id": (run.get("draft_result") or {}).get("model_id", "unavailable"),
+                    "corpus_mode": context.get("corpus_mode"), "corpus_version": (context.get("pack") or {}).get("corpus_version"), "sources": sources,
                     "approved_draft": review.get("corrected") if review["decision"] == "corrected" else ((run.get("draft_result") or {}).get("draft") if review["decision"] == "accepted" else None),
                     "draft_hash": review.get("corrected_hash", review.get("draft_hash")), "reviewer": review["reviewer"], "reviewed_at": review["reviewed_at"], "revision": review["revision"], "reason": review["reason"]})
             except Exception as error:

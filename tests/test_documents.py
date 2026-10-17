@@ -7,8 +7,8 @@ import unittest
 from pathlib import Path
 
 from mock_chat_server import ScriptedServer, reply
+from sample_data import pdf_bytes
 from PIL import Image
-from reportlab.pdfgen import canvas
 
 from ignis_wo.documents.cache import ParseCache, artifact_key
 from ignis_wo.documents.chunks import chunk_artifact
@@ -21,17 +21,6 @@ from ignis_wo.hosted.transport import Gateway, ProviderError
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = "MinerU2.5-Pro"
-
-
-def pdf_bytes(page_texts: list[str]) -> bytes:
-    buffer = io.BytesIO()
-    drawing = canvas.Canvas(buffer)
-    for text in page_texts:
-        if text:
-            drawing.drawString(72, 720, text)
-        drawing.showPage()
-    drawing.save()
-    return buffer.getvalue()
 
 
 def png_bytes() -> bytes:

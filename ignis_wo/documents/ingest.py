@@ -34,12 +34,19 @@ def fresh_artifact(artifact_id, source, data, pages, reader, identity, ocr_clien
 
 
 def write_outputs(directory: Path, data: bytes, artifact: DocumentArtifact, chunks) -> None:
+    """A reviewed directory is never given different text: the review would then approve text nobody read."""
+    lines = [json.dumps(chunk.model_dump(mode="json"), sort_keys=True) for chunk in chunks]
+    content = "".join(line + "\n" for line in lines)
+    chunks_path = directory / "chunks.jsonl"
+    reviewed = (directory / "review.json").exists() and chunks_path.exists()
+    if reviewed and chunks_path.read_text(encoding="utf-8") != content:
+        raise ValueError(f"{directory} was reviewed and the new reading differs; "
+                         "ingest it as a new revision or review it again")
     directory.mkdir(parents=True, exist_ok=True)
     suffix = Path(artifact.source.file_name).suffix.lower()
     (directory / f"original{suffix}").write_bytes(data)
     (directory / "artifact.json").write_text(artifact.model_dump_json(indent=2), encoding="utf-8")
-    lines = [json.dumps(chunk.model_dump(mode="json"), sort_keys=True) for chunk in chunks]
-    (directory / "chunks.jsonl").write_text("".join(line + "\n" for line in lines), encoding="utf-8")
+    chunks_path.write_text(content, encoding="utf-8")
 
 
 def ingest_document(path: Path, document_id: str, revision: int, reader: str, output_root: Path,
