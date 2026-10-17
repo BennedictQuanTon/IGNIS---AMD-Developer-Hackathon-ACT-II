@@ -23,7 +23,7 @@ OUTPUT_MODES = ("json_object", "json_schema", "text")
 RETRYABLE_KINDS = frozenset({"rate_limited", "concurrency_limited", "unavailable"})
 TRANSIENT_KINDS = RETRYABLE_KINDS | {"timeout"}
 RECORD_LEVEL_KINDS = frozenset({"invalid_response", "empty_output", "truncated"})
-STOP_KINDS = frozenset({"auth", "credits", "budget_rejected"})
+STOP_KINDS = frozenset({"auth", "credits", "budget_rejected", "job_budget"})
 FENCED_JSON = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
 BUDGET_REJECTED = re.compile(r"max_tokens.*exceeds the maximum output tokens allowed", re.IGNORECASE)
 
@@ -167,6 +167,7 @@ class Gateway:
         self.sleep = sleep
         self.clock = clock
         self.max_body_bytes = max_body_bytes
+        self.budget = None
 
     def send(self, method: str, path: str, body: dict | None = None, timeout_seconds: float | None = None,
              max_body_bytes: int | None = None):
@@ -176,14 +177,20 @@ class Gateway:
         attempt = 0
         while True:
             attempt += 1
+            ticket = self.budget.spend(method, path) if self.budget is not None else None
             try:
                 reply, headers, latency = self.request_once(method, path, body, limits)
-                return reply, headers, latency, attempt
             except ProviderError as error:
+                if ticket is not None:
+                    self.budget.settle(ticket, error.kind)
                 wait = self.retry_wait(error, attempt)
                 if wait is None or self.clock() - started + wait > self.max_wait_seconds:
                     raise
                 self.sleep(wait)
+                continue
+            if ticket is not None:
+                self.budget.settle(ticket, "ok", headers)
+            return reply, headers, latency, attempt
 
     def retry_wait(self, error: ProviderError, attempt: int) -> float | None:
         if error.kind not in RETRYABLE_KINDS or attempt >= self.max_attempts:

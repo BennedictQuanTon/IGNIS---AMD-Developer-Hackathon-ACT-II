@@ -1,5 +1,7 @@
 # IGNIS proposed system: workflow, rationale and acceptance criteria
 
+> **Historical design (noted 16 October 2026, #23):** the LoRA fine-tuning, GPU and hourly-sensor parts of this document are earlier proposals and were not delivered. The current direction is hosted AMD API inference without fine-tuning (#16); measured results are in [the benchmark report](BENCHMARKS.md).
+
 **Direction confirmed:** 14 October 2026. **Implementation status:** proposed. The repository contains architecture documents and HTML illustrations; the operational services, adapters and evaluations described here are not implemented. All demonstration observations, limits, cases, resources and prices are synthetic.
 
 **Team tracking:** [proposal issue #12](https://github.com/khanhtuongnakitomo/IGNIS/issues/12), jointly assigned to all three available repository assignees; implementation-stream ownership is still open.

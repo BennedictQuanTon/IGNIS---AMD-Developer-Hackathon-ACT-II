@@ -1,0 +1,1042 @@
+{
+  "explanation": {
+    "ablation-DeepSeek-V4-Flash": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 14,
+        "elapsed_seconds": 173.4,
+        "job": "stage2-ablation-DeepSeek-V4-Flash",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 14
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88282662",
+          "x-ratelimit-remaining-user-rpm": "18",
+          "x-ratelimit-used-user-daily-usd": "0.11717338"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88054093",
+          "x-ratelimit-remaining-user-rpm": "14",
+          "x-ratelimit-used-user-daily-usd": "0.11945907"
+        }
+      },
+      "models": {
+        "DeepSeek-V4-Flash": {
+          "budget_fallback_used": 0,
+          "calls": 14,
+          "distractor_cited": {
+            "n": 0,
+            "true": 0
+          },
+          "errors": 0,
+          "families": 8,
+          "first_pass_valid": {
+            "n": 8,
+            "true": 2
+          },
+          "invalid_only_for_identifier_digits": 3,
+          "latency_n": 8,
+          "model_seconds_p50": 21.844,
+          "model_seconds_p95": 29.953,
+          "outcome_correct": {
+            "n": 8,
+            "true": 7
+          },
+          "support_hit": {
+            "n": 8,
+            "true": 6
+          },
+          "tokens_per_valid_output": 3895.7,
+          "valid_after_repair": {
+            "n": 8,
+            "true": 3
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 14,
+        "calls_per_minute": 4.85,
+        "finished": 8,
+        "full_path_p50": 21.844,
+        "full_path_p95": 29.953,
+        "n": 8,
+        "queue_and_pacing_p50": 0.0,
+        "tasks": 8,
+        "valid_per_minute": 1.04,
+        "wall_seconds": 173.3
+      },
+      "stage": "ablation"
+    },
+    "dev-DeepSeek-V4-Flash": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 22,
+        "elapsed_seconds": 612.7,
+        "job": "stage2-dev-DeepSeek-V4-Flash",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "concurrency_limited": 1,
+          "ok": 20,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.89542907",
+          "x-ratelimit-remaining-user-rpm": "19",
+          "x-ratelimit-used-user-daily-usd": "0.10457093"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88997000",
+          "x-ratelimit-remaining-user-rpm": "18",
+          "x-ratelimit-used-user-daily-usd": "0.11003000"
+        }
+      },
+      "models": {
+        "DeepSeek-V4-Flash": {
+          "budget_fallback_used": 0,
+          "calls": 19,
+          "distractor_cited": {
+            "n": 1,
+            "true": 1
+          },
+          "errors": 0,
+          "families": 12,
+          "first_pass_valid": {
+            "n": 12,
+            "true": 5
+          },
+          "invalid_only_for_identifier_digits": 7,
+          "latency_n": 12,
+          "model_seconds_p50": 18.125,
+          "model_seconds_p95": 140.781,
+          "outcome_correct": {
+            "n": 12,
+            "true": 10
+          },
+          "support_hit": {
+            "n": 8,
+            "true": 8
+          },
+          "tokens_per_valid_output": 3293.4,
+          "valid_after_repair": {
+            "n": 12,
+            "true": 5
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 19,
+        "calls_per_minute": 1.86,
+        "finished": 12,
+        "full_path_p50": 20.016,
+        "full_path_p95": 195.609,
+        "n": 12,
+        "queue_and_pacing_p50": 0.0,
+        "tasks": 12,
+        "valid_per_minute": 0.49,
+        "wall_seconds": 612.7
+      },
+      "stage": "dev"
+    },
+    "dev-Qwen3.8-27B": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 13,
+        "elapsed_seconds": 1687.8,
+        "job": "stage2-dev-Qwen3.8-27B",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 11,
+          "timeout": 2
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88975073",
+          "x-ratelimit-remaining-user-rpm": "19",
+          "x-ratelimit-used-user-daily-usd": "0.11024927"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88496990",
+          "x-ratelimit-remaining-user-rpm": "19",
+          "x-ratelimit-used-user-daily-usd": "0.11503010"
+        }
+      },
+      "models": {
+        "Qwen3.8-27B": {
+          "budget_fallback_used": 0,
+          "calls": 11,
+          "distractor_cited": {
+            "n": 1,
+            "true": 1
+          },
+          "errors": 2,
+          "families": 12,
+          "first_pass_valid": {
+            "n": 12,
+            "true": 9
+          },
+          "invalid_only_for_identifier_digits": 0,
+          "latency_n": 10,
+          "model_seconds_p50": 137.75,
+          "model_seconds_p95": 225.859,
+          "outcome_correct": {
+            "n": 10,
+            "true": 10
+          },
+          "support_hit": {
+            "n": 7,
+            "true": 7
+          },
+          "tokens_per_valid_output": 3510.7,
+          "valid_after_repair": {
+            "n": 12,
+            "true": 10
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 11,
+        "calls_per_minute": 0.39,
+        "finished": 12,
+        "full_path_p50": 140.953,
+        "full_path_p95": 225.875,
+        "n": 12,
+        "queue_and_pacing_p50": 0.0,
+        "tasks": 12,
+        "valid_per_minute": 0.36,
+        "wall_seconds": 1687.8
+      },
+      "stage": "dev"
+    },
+    "heldout-DeepSeek-V4-Flash": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 16,
+        "elapsed_seconds": 243.9,
+        "job": "stage2-heldout-DeepSeek-V4-Flash",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 15,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88477200",
+          "x-ratelimit-remaining-user-rpm": "18",
+          "x-ratelimit-used-user-daily-usd": "0.11522800"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88348542",
+          "x-ratelimit-remaining-user-rpm": "16",
+          "x-ratelimit-used-user-daily-usd": "0.11651458"
+        }
+      },
+      "models": {
+        "DeepSeek-V4-Flash": {
+          "budget_fallback_used": 0,
+          "calls": 15,
+          "distractor_cited": {
+            "n": 1,
+            "true": 1
+          },
+          "errors": 0,
+          "families": 8,
+          "first_pass_valid": {
+            "n": 8,
+            "true": 1
+          },
+          "invalid_only_for_identifier_digits": 5,
+          "latency_n": 8,
+          "model_seconds_p50": 20.062,
+          "model_seconds_p95": 57.609,
+          "outcome_correct": {
+            "n": 8,
+            "true": 7
+          },
+          "support_hit": {
+            "n": 6,
+            "true": 6
+          },
+          "tokens_per_valid_output": 3712.0,
+          "valid_after_repair": {
+            "n": 8,
+            "true": 3
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 15,
+        "calls_per_minute": 3.69,
+        "finished": 8,
+        "full_path_p50": 20.078,
+        "full_path_p95": 78.438,
+        "n": 8,
+        "queue_and_pacing_p50": 0.0,
+        "tasks": 8,
+        "valid_per_minute": 0.74,
+        "wall_seconds": 243.9
+      },
+      "stage": "heldout"
+    },
+    "heldout-Qwen3.8-27B": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 8,
+        "elapsed_seconds": 1104.2,
+        "job": "stage2-heldout-Qwen3.8-27B",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 4,
+          "timeout": 4
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88348542",
+          "x-ratelimit-remaining-user-rpm": "13",
+          "x-ratelimit-used-user-daily-usd": "0.11651458"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.87644725",
+          "x-ratelimit-remaining-user-rpm": "19",
+          "x-ratelimit-used-user-daily-usd": "0.12355275"
+        }
+      },
+      "models": {
+        "Qwen3.8-27B": {
+          "budget_fallback_used": 0,
+          "calls": 4,
+          "distractor_cited": {
+            "n": 0,
+            "true": 0
+          },
+          "errors": 4,
+          "families": 8,
+          "first_pass_valid": {
+            "n": 8,
+            "true": 4
+          },
+          "invalid_only_for_identifier_digits": 0,
+          "latency_n": 4,
+          "model_seconds_p50": 101.593,
+          "model_seconds_p95": 111.219,
+          "outcome_correct": {
+            "n": 4,
+            "true": 3
+          },
+          "support_hit": {
+            "n": 3,
+            "true": 2
+          },
+          "tokens_per_valid_output": 3352.2,
+          "valid_after_repair": {
+            "n": 8,
+            "true": 4
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 4,
+        "calls_per_minute": 0.22,
+        "finished": 8,
+        "full_path_p50": 111.219,
+        "full_path_p95": 180.516,
+        "n": 8,
+        "queue_and_pacing_p50": 0.015000000000000568,
+        "tasks": 8,
+        "valid_per_minute": 0.22,
+        "wall_seconds": 1104.2
+      },
+      "stage": "heldout"
+    },
+    "repeat-DeepSeek-V4-Flash": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 30,
+        "elapsed_seconds": 343.0,
+        "job": "stage2-repeat-DeepSeek-V4-Flash",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 30
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.88042862",
+          "x-ratelimit-remaining-user-rpm": "15",
+          "x-ratelimit-used-user-daily-usd": "0.11957138"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.87709983",
+          "x-ratelimit-remaining-user-rpm": "15",
+          "x-ratelimit-used-user-daily-usd": "0.12290017"
+        }
+      },
+      "models": {
+        "DeepSeek-V4-Flash": {
+          "budget_fallback_used": 0,
+          "calls": 30,
+          "distractor_cited": {
+            "n": 3,
+            "true": 3
+          },
+          "errors": 0,
+          "families": 15,
+          "first_pass_valid": {
+            "n": 15,
+            "true": 0
+          },
+          "invalid_only_for_identifier_digits": 12,
+          "latency_n": 15,
+          "model_seconds_p50": 21.203,
+          "model_seconds_p95": 50.594,
+          "outcome_correct": {
+            "n": 15,
+            "true": 15
+          },
+          "support_hit": {
+            "n": 15,
+            "true": 14
+          },
+          "tokens_per_valid_output": 23457.0,
+          "valid_after_repair": {
+            "n": 15,
+            "true": 1
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 30,
+        "calls_per_minute": 5.25,
+        "finished": 15,
+        "full_path_p50": 21.203,
+        "full_path_p95": 50.594,
+        "n": 15,
+        "queue_and_pacing_p50": 0.0,
+        "tasks": 15,
+        "valid_per_minute": 0.17,
+        "wall_seconds": 343.0
+      },
+      "stage": "repeat"
+    },
+    "repeat-Qwen3.8-27B": {
+      "concurrency": 1,
+      "job": {
+        "attempts": 13,
+        "elapsed_seconds": 1857.0,
+        "job": "stage2-repeat-Qwen3.8-27B",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 6,
+          "timeout": 6,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.86432709",
+          "x-ratelimit-remaining-user-rpm": "14",
+          "x-ratelimit-used-user-daily-usd": "0.13567291"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.85898739",
+          "x-ratelimit-remaining-user-rpm": "18",
+          "x-ratelimit-used-user-daily-usd": "0.14101261"
+        }
+      },
+      "models": {
+        "Qwen3.8-27B": {
+          "budget_fallback_used": 0,
+          "calls": 5,
+          "distractor_cited": {
+            "n": 0,
+            "true": 0
+          },
+          "errors": 6,
+          "families": 11,
+          "first_pass_valid": {
+            "n": 11,
+            "true": 5
+          },
+          "invalid_only_for_identifier_digits": 0,
+          "latency_n": 5,
+          "model_seconds_p50": 128.016,
+          "model_seconds_p95": 142.125,
+          "outcome_correct": {
+            "n": 5,
+            "true": 5
+          },
+          "support_hit": {
+            "n": 5,
+            "true": 5
+          },
+          "tokens_per_valid_output": 3548.8,
+          "valid_after_repair": {
+            "n": 11,
+            "true": 5
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 5,
+        "calls_per_minute": 0.16,
+        "finished": 11,
+        "full_path_p50": 180.454,
+        "full_path_p95": 273.625,
+        "n": 11,
+        "queue_and_pacing_p50": 180.344,
+        "tasks": 15,
+        "valid_per_minute": 0.16,
+        "wall_seconds": 1857.0
+      },
+      "stage": "repeat"
+    },
+    "runtime-DeepSeek-V4-Flash-c2": {
+      "concurrency": 2,
+      "job": {
+        "attempts": 37,
+        "elapsed_seconds": 484.8,
+        "job": "stage2-runtime-DeepSeek-V4-Flash-c2",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 36,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.87696149",
+          "x-ratelimit-remaining-user-rpm": "15",
+          "x-ratelimit-used-user-daily-usd": "0.12303851"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.87153941",
+          "x-ratelimit-remaining-user-rpm": "12",
+          "x-ratelimit-used-user-daily-usd": "0.12846059"
+        }
+      },
+      "models": {
+        "DeepSeek-V4-Flash": {
+          "budget_fallback_used": 0,
+          "calls": 36,
+          "distractor_cited": {
+            "n": 1,
+            "true": 1
+          },
+          "errors": 0,
+          "families": 20,
+          "first_pass_valid": {
+            "n": 20,
+            "true": 4
+          },
+          "invalid_only_for_identifier_digits": 12,
+          "latency_n": 20,
+          "model_seconds_p50": 23.141,
+          "model_seconds_p95": 149.047,
+          "outcome_correct": {
+            "n": 20,
+            "true": 15
+          },
+          "support_hit": {
+            "n": 14,
+            "true": 14
+          },
+          "tokens_per_valid_output": 7170.5,
+          "valid_after_repair": {
+            "n": 20,
+            "true": 4
+          },
+          "wrong_model_in_pack": 0
+        }
+      },
+      "runtime": {
+        "calls": 36,
+        "calls_per_minute": 4.46,
+        "finished": 20,
+        "full_path_p50": 27.609,
+        "full_path_p95": 152.281,
+        "n": 20,
+        "queue_and_pacing_p50": 0.015000000000000568,
+        "tasks": 20,
+        "valid_per_minute": 0.5,
+        "wall_seconds": 484.8
+      },
+      "stage": "runtime"
+    }
+  },
+  "extraction": {
+    "20261016T141139Z-dev-DeepSeek-V4-Flash-Vision-Exp": {
+      "attempted": 20,
+      "attempted_per_minute": 5.89,
+      "configuration": {
+        "allowance_reserve": 0.25,
+        "base_url": "https://developer.amd.com.cn/radeon/api/v1",
+        "budget_fallback": false,
+        "concurrency": 1,
+        "max_tokens": 4096,
+        "model_id": "DeepSeek-V4-Flash-Vision-Exp",
+        "model_version": "extraction-fewshot-v2-3dc4cc73+json_object+default+max4096",
+        "output_mode": "json_object",
+        "prompt_id": "extraction-fewshot-v2-3dc4cc73",
+        "reasoning_effort": null,
+        "requests_per_minute_cap": 20
+      },
+      "job": {
+        "attempts": 20,
+        "elapsed_seconds": 203.6,
+        "job": "20261016T141139Z-dev-DeepSeek-V4-Flash-Vision-Exp",
+        "max_attempts": 40,
+        "max_seconds": 1800.0,
+        "outcomes": {
+          "ok": 20
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.87131916",
+          "x-ratelimit-remaining-user-rpm": "12",
+          "x-ratelimit-used-user-daily-usd": "0.12868084"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.86825150",
+          "x-ratelimit-remaining-user-rpm": "14",
+          "x-ratelimit-used-user-daily-usd": "0.13174850"
+        }
+      },
+      "latency_p50_seconds": 9.719,
+      "latency_p95_seconds": 13.766,
+      "outcomes": {
+        "valid": 20
+      },
+      "scores": {
+        "entities": {
+          "correct": 34,
+          "f1": 0.5862,
+          "gold": 58,
+          "precision": 0.5862,
+          "predicted": 58,
+          "recall": 0.5862
+        },
+        "relations": {
+          "correct": 18,
+          "f1": 0.507,
+          "gold": 35,
+          "precision": 0.5,
+          "predicted": 36,
+          "recall": 0.5143
+        }
+      },
+      "valid": 20,
+      "valid_per_minute": 5.89,
+      "wall_seconds": 203.594
+    },
+    "20261016T141504Z-dev-DeepSeek-V4-Flash-Vision-Exp": {
+      "attempted": 20,
+      "attempted_per_minute": 10.81,
+      "configuration": {
+        "allowance_reserve": 0.25,
+        "base_url": "https://developer.amd.com.cn/radeon/api/v1",
+        "budget_fallback": false,
+        "concurrency": 2,
+        "max_tokens": 4096,
+        "model_id": "DeepSeek-V4-Flash-Vision-Exp",
+        "model_version": "extraction-fewshot-v2-3dc4cc73+json_object+default+max4096",
+        "output_mode": "json_object",
+        "prompt_id": "extraction-fewshot-v2-3dc4cc73",
+        "reasoning_effort": null,
+        "requests_per_minute_cap": 20
+      },
+      "job": {
+        "attempts": 20,
+        "elapsed_seconds": 111.0,
+        "job": "20261016T141504Z-dev-DeepSeek-V4-Flash-Vision-Exp",
+        "max_attempts": 40,
+        "max_seconds": 1800.0,
+        "outcomes": {
+          "ok": 20
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.86813746",
+          "x-ratelimit-remaining-user-rpm": "13",
+          "x-ratelimit-used-user-daily-usd": "0.13186254"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-remaining-user-daily-usd": "0.86499074",
+          "x-ratelimit-remaining-user-rpm": "9",
+          "x-ratelimit-used-user-daily-usd": "0.13500926"
+        }
+      },
+      "latency_p50_seconds": 10.187,
+      "latency_p95_seconds": 13.688,
+      "outcomes": {
+        "valid": 20
+      },
+      "scores": {
+        "entities": {
+          "correct": 33,
+          "f1": 0.5641,
+          "gold": 58,
+          "precision": 0.5593,
+          "predicted": 59,
+          "recall": 0.569
+        },
+        "relations": {
+          "correct": 20,
+          "f1": 0.5556,
+          "gold": 35,
+          "precision": 0.5405,
+          "predicted": 37,
+          "recall": 0.5714
+        }
+      },
+      "valid": 20,
+      "valid_per_minute": 10.81,
+      "wall_seconds": 111.0
+    }
+  },
+  "readers": {
+    "mineru": {
+      "families": {
+        "F1-manual": {
+          "cer_mean": 0.0,
+          "critical_found": 8,
+          "critical_total": 8,
+          "latency_seconds": [
+            7.672,
+            7.672
+          ],
+          "numbers_missing": [],
+          "pages": 2,
+          "split": "dev",
+          "table_rows": 0,
+          "table_rows_correct": 0,
+          "wer_mean": 0.0
+        },
+        "F2-table-pdf": {
+          "cer_mean": 0.0,
+          "critical_found": 8,
+          "critical_total": 8,
+          "latency_seconds": [
+            6.859,
+            6.859
+          ],
+          "numbers_missing": [],
+          "pages": 2,
+          "split": "dev",
+          "table_rows": 4,
+          "table_rows_correct": 4,
+          "wer_mean": 0.0
+        },
+        "F3-clean-scan": {
+          "cer_mean": 0.0,
+          "critical_found": 7,
+          "critical_total": 7,
+          "latency_seconds": [
+            7.579,
+            7.391
+          ],
+          "numbers_missing": [],
+          "pages": 2,
+          "split": "dev",
+          "table_rows": 0,
+          "table_rows_correct": 0,
+          "wer_mean": 0.0
+        },
+        "F4-noisy-scan": {
+          "cer_mean": 0.0028,
+          "critical_found": 8,
+          "critical_total": 8,
+          "latency_seconds": [
+            10.0,
+            6.938
+          ],
+          "numbers_missing": [],
+          "pages": 2,
+          "split": "dev",
+          "table_rows": 0,
+          "table_rows_correct": 0,
+          "wer_mean": 0.0185
+        },
+        "F5-table-image": {
+          "cer_mean": 0.0,
+          "critical_found": 6,
+          "critical_total": 6,
+          "latency_seconds": [
+            3.891,
+            7.515
+          ],
+          "numbers_missing": [],
+          "pages": 2,
+          "split": "heldout",
+          "table_rows": 4,
+          "table_rows_correct": 4,
+          "wer_mean": 0.0
+        },
+        "F6-diagram": {
+          "cer_mean": 0.6165,
+          "critical_found": 2,
+          "critical_total": 8,
+          "latency_seconds": [
+            6.75,
+            7.0
+          ],
+          "numbers_missing": [
+            "1.2",
+            "200"
+          ],
+          "pages": 2,
+          "split": "heldout",
+          "table_rows": 0,
+          "table_rows_correct": 0,
+          "wer_mean": 0.3655
+        }
+      },
+      "job": {
+        "attempts": 10,
+        "elapsed_seconds": 71.9,
+        "job": "stage1-mineru",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 10
+        },
+        "quota_first": null,
+        "quota_last": null
+      },
+      "repeat_modes": [
+        "cache"
+      ]
+    },
+    "native": {
+      "families": {
+        "F1-manual": {
+          "cer_mean": 0.0,
+          "critical_found": 8,
+          "critical_total": 8,
+          "latency_seconds": [
+            null,
+            null
+          ],
+          "numbers_missing": [],
+          "pages": 2,
+          "split": "dev",
+          "table_rows": 0,
+          "table_rows_correct": 0,
+          "wer_mean": 0.0
+        },
+        "F2-table-pdf": {
+          "cer_mean": 0.0,
+          "critical_found": 8,
+          "critical_total": 8,
+          "latency_seconds": [
+            null,
+            null
+          ],
+          "numbers_missing": [],
+          "pages": 2,
+          "split": "dev",
+          "table_rows": 4,
+          "table_rows_correct": 4,
+          "wer_mean": 0.0
+        }
+      },
+      "job": {
+        "attempts": 0,
+        "elapsed_seconds": 0.1,
+        "job": "stage1-native",
+        "max_attempts": 40,
+        "max_seconds": 1800,
+        "outcomes": {},
+        "quota_first": null,
+        "quota_last": null
+      },
+      "repeat_modes": [
+        "cache"
+      ]
+    }
+  },
+  "stage0": {
+    "job": {
+      "attempts": 4,
+      "elapsed_seconds": 19.8,
+      "job": "stage0",
+      "max_attempts": 12,
+      "max_seconds": 900,
+      "outcomes": {
+        "ok": 4
+      },
+      "quota_first": {
+        "x-ratelimit-limit-user-daily-usd": "1",
+        "x-ratelimit-remaining-user-daily-usd": "0.90949897",
+        "x-ratelimit-remaining-user-rpm": "19",
+        "x-ratelimit-used-user-daily-usd": "0.09050103"
+      },
+      "quota_last": {
+        "x-ratelimit-limit-user-daily-usd": "1",
+        "x-ratelimit-remaining-user-daily-usd": "0.90943681",
+        "x-ratelimit-remaining-user-rpm": "18",
+        "x-ratelimit-used-user-daily-usd": "0.09056319"
+      }
+    },
+    "probes": [
+      {
+        "models": [
+          "Clef",
+          "DeepSeek-V4-Flash",
+          "DeepSeek-V4-Flash-Vision-Exp",
+          "DeepSeek-V4.1-Flash",
+          "GLM-5.3-Flash",
+          "Gemma-4-31B-IT",
+          "MiMo-V2.6-Flash",
+          "MinerU2.5-Pro",
+          "MiniCPM-V-4.7-1B",
+          "MiniCPM-V-4.7-35B-A3B",
+          "MiniCPM5-2B",
+          "OmniVoice",
+          "Qwen3.8-27B",
+          "Qwen3.8-Flash-Next"
+        ],
+        "outcome": "ok",
+        "probe": "catalogue"
+      },
+      {
+        "characters": 206,
+        "latency_seconds": 7.469,
+        "outcome": "ok",
+        "pages": 1,
+        "probe": "ocr:MinerU2.5-Pro",
+        "usage": {
+          "doc_size_bytes": 13270,
+          "pages_processed": 1
+        }
+      },
+      {
+        "content": "{\"status\": \"ok\"}",
+        "finish_reason": "stop",
+        "latency_seconds": 5.25,
+        "outcome": "ok",
+        "probe": "chat:DeepSeek-V4-Flash",
+        "request_parameters": {
+          "effective_max_tokens": 4096,
+          "max_tokens": 4096,
+          "max_tokens_policy": "explicit_with_fallback",
+          "model": "DeepSeek-V4-Flash",
+          "reasoning_effort": "low",
+          "response_format": {
+            "type": "json_object"
+          },
+          "temperature": 0
+        },
+        "usage": {
+          "completion_tokens": 110,
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "reasoning_tokens": 103
+          },
+          "cost": 6.216e-05,
+          "cost_details": {
+            "audio_input_cost": null,
+            "cache_write_input_cost": 0,
+            "cached_input_cost": 0,
+            "image_input_cost": null,
+            "image_output_cost": null,
+            "input_cost": 2.52e-06,
+            "output_cost": 5.964e-05,
+            "request_cost": 0,
+            "total_cost": 6.216e-05,
+            "upstream_inference_completions_cost": 5.964e-05,
+            "upstream_inference_cost": 6.216e-05,
+            "upstream_inference_prompt_cost": 2.52e-06,
+            "web_search_cost": 0
+          },
+          "prompt_tokens": 18,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cache_write_tokens": 0,
+            "cached_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "reasoning_tokens": 103,
+          "total_tokens": 128
+        }
+      },
+      {
+        "content": "{\"status\": \"ok\"}",
+        "finish_reason": "stop",
+        "latency_seconds": 4.094,
+        "outcome": "ok",
+        "probe": "chat:Qwen3.8-27B",
+        "request_parameters": {
+          "effective_max_tokens": 4096,
+          "max_tokens": 4096,
+          "max_tokens_policy": "explicit_with_fallback",
+          "model": "Qwen3.8-27B",
+          "reasoning_effort": "low",
+          "response_format": {
+            "type": "json_object"
+          },
+          "temperature": 0
+        },
+        "usage": {
+          "completion_tokens": 42,
+          "completion_tokens_details": {
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "reasoning_tokens": 35
+          },
+          "cost": 7.735e-06,
+          "cost_details": {
+            "audio_input_cost": null,
+            "cache_write_input_cost": 0,
+            "cached_input_cost": 0,
+            "image_input_cost": null,
+            "image_output_cost": null,
+            "input_cost": 2.345e-06,
+            "output_cost": 5.39e-06,
+            "request_cost": 0,
+            "total_cost": 7.735e-06,
+            "upstream_inference_completions_cost": 5.39e-06,
+            "upstream_inference_cost": 7.735e-06,
+            "upstream_inference_prompt_cost": 2.345e-06,
+            "web_search_cost": 0
+          },
+          "prompt_tokens": 67,
+          "prompt_tokens_details": {
+            "audio_tokens": 0,
+            "cache_write_tokens": 0,
+            "cached_tokens": 0,
+            "image_tokens": 0,
+            "video_tokens": 0
+          },
+          "reasoning_tokens": 35,
+          "total_tokens": 109
+        }
+      }
+    ]
+  }
+}

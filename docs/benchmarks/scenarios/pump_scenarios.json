@@ -1,0 +1,1384 @@
+{
+  "description": "Synthetic pump explanation scenarios for #23 Stage 2. Drafted by Yoshio; expected outcomes are pending Tuong review. Expected fields never enter packs or prompts.",
+  "synthetic": true,
+  "families": [
+    {
+      "family_id": "S01",
+      "split": "dev",
+      "trap": "clear_support",
+      "asset_id": "PUMP-S01",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S01",
+      "facts": [
+        {
+          "fact_id": "F-S01-1",
+          "snapshot_id": "S-S01",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S01-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S01-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S01-MAN",
+            "passage_id": "S01-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S01-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For pump PX-100, seal leakage should prompt a check of the seal flush supply and the flush line for blockage. This guidance does not confirm a root cause."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S01-v1",
+        "assets": {
+          "PUMP-S01": {
+            "model": "PX-100",
+            "components": {
+              "seal": [
+                "S01-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S01-MAN"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S02",
+      "split": "dev",
+      "trap": "alternatives",
+      "asset_id": "PUMP-S02",
+      "component": "seal",
+      "query": "seal leakage flush wear",
+      "snapshot_id": "S-S02",
+      "facts": [
+        {
+          "fact_id": "F-S02-1",
+          "snapshot_id": "S-S02",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S02-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S02-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S02-MAN",
+            "passage_id": "S02-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S02-MAN",
+            "location": "synthetic scenario passage",
+            "text": "Seal leakage on PX-100 can follow a blocked flush line."
+          },
+          {
+            "document_id": "S02-CASE",
+            "passage_id": "S02-CASE",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S02-CASE",
+            "location": "synthetic scenario passage",
+            "text": "A reviewed case recorded seal leakage with worn seal faces and a normal flush flow, so face wear is an alternative explanation for leakage."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S02-v1",
+        "assets": {
+          "PUMP-S02": {
+            "model": "PX-100",
+            "components": {
+              "seal": [
+                "S02-MAN",
+                "S02-CASE"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S02-MAN",
+          "S02-CASE"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S03",
+      "split": "dev",
+      "trap": "negation",
+      "asset_id": "PUMP-S03",
+      "component": "seal",
+      "query": "seal leakage replacement",
+      "snapshot_id": "S-S03",
+      "facts": [
+        {
+          "fact_id": "F-S03-1",
+          "snapshot_id": "S-S03",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S03-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S03-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S03-LOG",
+            "passage_id": "S03-LOG",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S03-LOG",
+            "location": "synthetic scenario passage",
+            "text": "Seal leakage was observed on PX-100. No replacement was performed and the root cause is not confirmed."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S03-v1",
+        "assets": {
+          "PUMP-S03": {
+            "model": "PX-100",
+            "components": {
+              "seal": [
+                "S03-LOG"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S03-LOG"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S04",
+      "split": "dev",
+      "trap": "numeric_unit",
+      "asset_id": "PUMP-S04",
+      "component": "bearing",
+      "query": "bearing temperature vibration",
+      "snapshot_id": "S-S04",
+      "facts": [
+        {
+          "fact_id": "F-S04-1",
+          "snapshot_id": "S-S04",
+          "kind": "downtime_hours",
+          "scope": {
+            "component": "bearing"
+          },
+          "value": 3.5,
+          "unit": "hours",
+          "status": "computed",
+          "record_ids": [
+            "WO-S04-1"
+          ]
+        },
+        {
+          "fact_id": "F-S04-2",
+          "snapshot_id": "S-S04",
+          "kind": "recurrence",
+          "scope": {
+            "component": "bearing"
+          },
+          "value": 4,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S04-2"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S04-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S04-MAN",
+            "passage_id": "S04-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "bearing",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S04-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For PX-100, rising bearing temperature together with vibration should prompt a lubrication and alignment check."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S04-v1",
+        "assets": {
+          "PUMP-S04": {
+            "model": "PX-100",
+            "components": {
+              "bearing": [
+                "S04-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S04-MAN"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S05",
+      "split": "dev",
+      "trap": "irrelevant_evidence_only",
+      "asset_id": "PUMP-S05",
+      "component": "impeller",
+      "query": "impeller cavitation noise",
+      "snapshot_id": "S-S05",
+      "facts": [
+        {
+          "fact_id": "F-S05-1",
+          "snapshot_id": "S-S05",
+          "kind": "recurrence",
+          "scope": {
+            "component": "impeller"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S05-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S05-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S05-MAN",
+            "passage_id": "S05-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "impeller",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S05-MAN",
+            "location": "synthetic scenario passage",
+            "text": "Impeller coating inspection intervals are set by the paint supplier."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S05-v1",
+        "assets": {
+          "PUMP-S05": {
+            "model": "PX-100",
+            "components": {
+              "impeller": [
+                "S05-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "abstain",
+        "supporting_passages": [],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S06",
+      "split": "dev",
+      "trap": "wrong_model_manual",
+      "asset_id": "PUMP-S06",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S06",
+      "facts": [
+        {
+          "fact_id": "F-S06-1",
+          "snapshot_id": "S-S06",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S06-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S06-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S06-MAN-B",
+            "passage_id": "S06-MAN-B",
+            "version": "1",
+            "asset_model": "PX-200",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S06-MAN-B",
+            "location": "synthetic scenario passage",
+            "text": "For pump PX-200, seal leakage should prompt a check of the seal flush supply."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S06-v1",
+        "assets": {
+          "PUMP-S06": {
+            "model": "PX-100",
+            "components": {
+              "seal": []
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "abstain",
+        "supporting_passages": [],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S07",
+      "split": "dev",
+      "trap": "wrong_model_text_inside",
+      "asset_id": "PUMP-S07",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S07",
+      "facts": [
+        {
+          "fact_id": "F-S07-1",
+          "snapshot_id": "S-S07",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S07-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S07-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S07-MAN",
+            "passage_id": "S07-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S07-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For PX-100, seal leakage should prompt a check of the flush supply. The PX-200 procedure of replacing the seal cartridge does not apply to PX-100."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S07-v1",
+        "assets": {
+          "PUMP-S07": {
+            "model": "PX-100",
+            "components": {
+              "seal": [
+                "S07-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S07-MAN"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S08",
+      "split": "dev",
+      "trap": "conflicting",
+      "asset_id": "PUMP-S08",
+      "component": "seal",
+      "query": "seal leakage flush pressure",
+      "snapshot_id": "S-S08",
+      "facts": [
+        {
+          "fact_id": "F-S08-1",
+          "snapshot_id": "S-S08",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S08-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S08-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S08-MAN",
+            "passage_id": "S08-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S08-MAN",
+            "location": "synthetic scenario passage",
+            "text": "Low flush pressure is associated with seal leakage on PX-100."
+          },
+          {
+            "document_id": "S08-CASE",
+            "passage_id": "S08-CASE",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S08-CASE",
+            "location": "synthetic scenario passage",
+            "text": "A reviewed case found seal leakage on PX-100 while flush pressure was normal, so low flush pressure was not the explanation in that case."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S08-v1",
+        "assets": {
+          "PUMP-S08": {
+            "model": "PX-100",
+            "components": {
+              "seal": [
+                "S08-MAN",
+                "S08-CASE"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S08-MAN",
+          "S08-CASE"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S09",
+      "split": "dev",
+      "trap": "superseded_only",
+      "asset_id": "PUMP-S09",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S09",
+      "facts": [
+        {
+          "fact_id": "F-S09-1",
+          "snapshot_id": "S-S09",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S09-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S09-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S09-MAN-v0",
+            "passage_id": "S09-MAN-v0",
+            "version": "0",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "superseded",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S09-MAN-v0",
+            "location": "synthetic scenario passage",
+            "text": "Superseded: for PX-100 seal leakage, check the flush supply."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S09-v1",
+        "assets": {
+          "PUMP-S09": {
+            "model": "PX-100",
+            "components": {
+              "seal": [
+                "S09-MAN-v0"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "abstain",
+        "supporting_passages": [],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S10",
+      "split": "dev",
+      "trap": "distractor",
+      "asset_id": "PUMP-S10",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S10",
+      "facts": [
+        {
+          "fact_id": "F-S10-1",
+          "snapshot_id": "S-S10",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S10-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S10-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S10-MAN",
+            "passage_id": "S10-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S10-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For PX-100, seal leakage should prompt a check of the flush line and flush supply."
+          },
+          {
+            "document_id": "S10-LABEL",
+            "passage_id": "S10-LABEL",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S10-LABEL",
+            "location": "synthetic scenario passage",
+            "text": "Seal housing labels list the flush port colour and the leakage warning sticker position."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S10-v1",
+        "assets": {
+          "PUMP-S10": {
+            "model": "PX-100",
+            "components": {
+              "seal": [
+                "S10-MAN",
+                "S10-LABEL"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S10-MAN"
+        ],
+        "distractor_passages": [
+          "S10-LABEL"
+        ]
+      }
+    },
+    {
+      "family_id": "S11",
+      "split": "dev",
+      "trap": "clear_support",
+      "asset_id": "PUMP-S11",
+      "component": "bearing",
+      "query": "bearing noise lubrication",
+      "snapshot_id": "S-S11",
+      "facts": [
+        {
+          "fact_id": "F-S11-1",
+          "snapshot_id": "S-S11",
+          "kind": "recurrence",
+          "scope": {
+            "component": "bearing"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S11-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S11-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S11-MAN",
+            "passage_id": "S11-MAN",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "bearing",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S11-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For pump PX-300, bearing noise should prompt a check of lubrication level and grease condition."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S11-v1",
+        "assets": {
+          "PUMP-S11": {
+            "model": "PX-300",
+            "components": {
+              "bearing": [
+                "S11-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S11-MAN"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S12",
+      "split": "dev",
+      "trap": "irrelevant_evidence_only",
+      "asset_id": "PUMP-S12",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S12",
+      "facts": [
+        {
+          "fact_id": "F-S12-1",
+          "snapshot_id": "S-S12",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S12-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S12-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S12-MAN",
+            "passage_id": "S12-MAN",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S12-MAN",
+            "location": "synthetic scenario passage",
+            "text": "Seal part numbers for PX-300 are listed in the spare parts catalogue."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S12-v1",
+        "assets": {
+          "PUMP-S12": {
+            "model": "PX-300",
+            "components": {
+              "seal": [
+                "S12-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "abstain",
+        "supporting_passages": [],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S13",
+      "split": "heldout",
+      "trap": "clear_support",
+      "asset_id": "PUMP-S13",
+      "component": "impeller",
+      "query": "impeller vibration imbalance",
+      "snapshot_id": "S-S13",
+      "facts": [
+        {
+          "fact_id": "F-S13-1",
+          "snapshot_id": "S-S13",
+          "kind": "recurrence",
+          "scope": {
+            "component": "impeller"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S13-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S13-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S13-MAN",
+            "passage_id": "S13-MAN",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "impeller",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S13-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For PX-100, impeller vibration should prompt a check for imbalance, deposits and loose fasteners."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S13-v1",
+        "assets": {
+          "PUMP-S13": {
+            "model": "PX-100",
+            "components": {
+              "impeller": [
+                "S13-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S13-MAN"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S14",
+      "split": "heldout",
+      "trap": "alternatives",
+      "asset_id": "PUMP-S14",
+      "component": "bearing",
+      "query": "bearing temperature lubrication alignment",
+      "snapshot_id": "S-S14",
+      "facts": [
+        {
+          "fact_id": "F-S14-1",
+          "snapshot_id": "S-S14",
+          "kind": "recurrence",
+          "scope": {
+            "component": "bearing"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S14-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S14-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S14-MAN",
+            "passage_id": "S14-MAN",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "bearing",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S14-MAN",
+            "location": "synthetic scenario passage",
+            "text": "Bearing temperature on PX-300 can rise with poor lubrication."
+          },
+          {
+            "document_id": "S14-CASE",
+            "passage_id": "S14-CASE",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "bearing",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S14-CASE",
+            "location": "synthetic scenario passage",
+            "text": "A reviewed case linked high bearing temperature to shaft misalignment while lubrication was adequate."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S14-v1",
+        "assets": {
+          "PUMP-S14": {
+            "model": "PX-300",
+            "components": {
+              "bearing": [
+                "S14-MAN",
+                "S14-CASE"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S14-MAN",
+          "S14-CASE"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S15",
+      "split": "heldout",
+      "trap": "negation",
+      "asset_id": "PUMP-S15",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S15",
+      "facts": [
+        {
+          "fact_id": "F-S15-1",
+          "snapshot_id": "S-S15",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S15-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S15-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S15-LOG",
+            "passage_id": "S15-LOG",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S15-LOG",
+            "location": "synthetic scenario passage",
+            "text": "Seal leakage was reported on PX-300. The flush line was not inspected and no cause is confirmed."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S15-v1",
+        "assets": {
+          "PUMP-S15": {
+            "model": "PX-300",
+            "components": {
+              "seal": [
+                "S15-LOG"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S15-LOG"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S16",
+      "split": "heldout",
+      "trap": "numeric_unit",
+      "asset_id": "PUMP-S16",
+      "component": "impeller",
+      "query": "impeller wear flow",
+      "snapshot_id": "S-S16",
+      "facts": [
+        {
+          "fact_id": "F-S16-1",
+          "snapshot_id": "S-S16",
+          "kind": "downtime_hours",
+          "scope": {
+            "component": "impeller"
+          },
+          "value": 6.25,
+          "unit": "hours",
+          "status": "computed",
+          "record_ids": [
+            "WO-S16-1"
+          ]
+        },
+        {
+          "fact_id": "F-S16-2",
+          "snapshot_id": "S-S16",
+          "kind": "recurrence",
+          "scope": {
+            "component": "impeller"
+          },
+          "value": 2,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S16-2"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S16-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S16-MAN",
+            "passage_id": "S16-MAN",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "impeller",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S16-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For PX-300, reduced flow with impeller wear should prompt an impeller clearance check."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S16-v1",
+        "assets": {
+          "PUMP-S16": {
+            "model": "PX-300",
+            "components": {
+              "impeller": [
+                "S16-MAN"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S16-MAN"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S17",
+      "split": "heldout",
+      "trap": "wrong_model_manual",
+      "asset_id": "PUMP-S17",
+      "component": "bearing",
+      "query": "bearing noise lubrication",
+      "snapshot_id": "S-S17",
+      "facts": [
+        {
+          "fact_id": "F-S17-1",
+          "snapshot_id": "S-S17",
+          "kind": "recurrence",
+          "scope": {
+            "component": "bearing"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S17-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S17-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S17-MAN-A",
+            "passage_id": "S17-MAN-A",
+            "version": "1",
+            "asset_model": "PX-100",
+            "component": "bearing",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S17-MAN-A",
+            "location": "synthetic scenario passage",
+            "text": "For pump PX-100, bearing noise should prompt a lubrication check."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S17-v1",
+        "assets": {
+          "PUMP-S17": {
+            "model": "PX-300",
+            "components": {
+              "bearing": []
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "abstain",
+        "supporting_passages": [],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S18",
+      "split": "heldout",
+      "trap": "conflicting",
+      "asset_id": "PUMP-S18",
+      "component": "seal",
+      "query": "seal leakage flush",
+      "snapshot_id": "S-S18",
+      "facts": [
+        {
+          "fact_id": "F-S18-1",
+          "snapshot_id": "S-S18",
+          "kind": "recurrence",
+          "scope": {
+            "component": "seal"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S18-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S18-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S18-MAN",
+            "passage_id": "S18-MAN",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S18-MAN",
+            "location": "synthetic scenario passage",
+            "text": "A blocked flush line is a known contributor to seal leakage on PX-300."
+          },
+          {
+            "document_id": "S18-CASE",
+            "passage_id": "S18-CASE",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "seal",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S18-CASE",
+            "location": "synthetic scenario passage",
+            "text": "In a reviewed case the flush line was clear while seal leakage continued, so a blocked flush line did not explain that case."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S18-v1",
+        "assets": {
+          "PUMP-S18": {
+            "model": "PX-300",
+            "components": {
+              "seal": [
+                "S18-MAN",
+                "S18-CASE"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S18-MAN",
+          "S18-CASE"
+        ],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S19",
+      "split": "heldout",
+      "trap": "unreviewed_only",
+      "asset_id": "PUMP-S19",
+      "component": "impeller",
+      "query": "impeller vibration imbalance",
+      "snapshot_id": "S-S19",
+      "facts": [
+        {
+          "fact_id": "F-S19-1",
+          "snapshot_id": "S-S19",
+          "kind": "recurrence",
+          "scope": {
+            "component": "impeller"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S19-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S19-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S19-NOTE",
+            "passage_id": "S19-NOTE",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "impeller",
+            "status": "candidate",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S19-NOTE",
+            "location": "synthetic scenario passage",
+            "text": "Draft note: impeller vibration might come from imbalance."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S19-v1",
+        "assets": {
+          "PUMP-S19": {
+            "model": "PX-300",
+            "components": {
+              "impeller": [
+                "S19-NOTE"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "abstain",
+        "supporting_passages": [],
+        "distractor_passages": []
+      }
+    },
+    {
+      "family_id": "S20",
+      "split": "heldout",
+      "trap": "distractor",
+      "asset_id": "PUMP-S20",
+      "component": "bearing",
+      "query": "bearing noise lubrication",
+      "snapshot_id": "S-S20",
+      "facts": [
+        {
+          "fact_id": "F-S20-1",
+          "snapshot_id": "S-S20",
+          "kind": "recurrence",
+          "scope": {
+            "component": "bearing"
+          },
+          "value": 3,
+          "unit": "work_orders",
+          "status": "computed",
+          "record_ids": [
+            "WO-S20-1"
+          ]
+        }
+      ],
+      "corpus": {
+        "corpus_version": "scenario-S20-v1",
+        "synthetic": true,
+        "approval_status": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+        "documents": [
+          {
+            "document_id": "S20-MAN",
+            "passage_id": "S20-MAN",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "bearing",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S20-MAN",
+            "location": "synthetic scenario passage",
+            "text": "For PX-300, bearing noise should prompt a check of lubrication and grease condition."
+          },
+          {
+            "document_id": "S20-ORDER",
+            "passage_id": "S20-ORDER",
+            "version": "1",
+            "asset_model": "PX-300",
+            "component": "bearing",
+            "status": "approved",
+            "reviewer": "SYNTHETIC scenario review (drafted by Yoshio, pending Tuong review)",
+            "source_id": "SYN-S20-ORDER",
+            "location": "synthetic scenario passage",
+            "text": "Bearing grease is ordered from the lubrication supplier; noise protection is required in the store room."
+          }
+        ]
+      },
+      "graph": {
+        "graph_version": "scenario-graph-S20-v1",
+        "assets": {
+          "PUMP-S20": {
+            "model": "PX-300",
+            "components": {
+              "bearing": [
+                "S20-MAN",
+                "S20-ORDER"
+              ]
+            }
+          }
+        }
+      },
+      "expected": {
+        "outcome": "support",
+        "supporting_passages": [
+          "S20-MAN"
+        ],
+        "distractor_passages": [
+          "S20-ORDER"
+        ]
+      }
+    }
+  ]
+}

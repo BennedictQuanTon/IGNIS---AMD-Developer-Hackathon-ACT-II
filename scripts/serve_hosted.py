@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from ignis_wo.documents.corpus import load_corpus_snapshot  # noqa: E402
-from ignis_wo.hosted.providers import providers_from_environment  # noqa: E402
+from ignis_wo.hosted.providers import providers_from_environment, replay_providers  # noqa: E402
 from ignis_wo.workflow.api import serve  # noqa: E402
 from ignis_wo.workflow.service import Workflow  # noqa: E402
 
@@ -30,10 +30,15 @@ def main() -> int:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--corpus", type=Path, help="reviewed corpus snapshot (default: synthetic fixture corpus)")
+    parser.add_argument("--replay-dir", type=Path, help="serve recorded providers only (e.g. docs/benchmarks/replay); no key needed")
     arguments = parser.parse_args()
 
-    extraction_provider, explanation_provider = providers_from_environment(
-        record_directory=arguments.record_dir, max_records=arguments.max_records)
+    if arguments.replay_dir:
+        extraction_provider, explanation_provider = replay_providers(arguments.replay_dir, arguments.max_records)
+    else:
+        extraction_provider, explanation_provider = providers_from_environment(
+            record_directory=arguments.record_dir, max_records=arguments.max_records)
+    print(f"providers: {'replay from ' + str(arguments.replay_dir) if arguments.replay_dir else 'hosted live'}", flush=True)
     if extraction_provider is None and explanation_provider is None:
         raise SystemExit("set MODEL_NAME and/or EXPLANATION_MODEL_NAME in .env to enable hosted providers")
     corpus_sources = load_corpus_snapshot(arguments.corpus) if arguments.corpus else None

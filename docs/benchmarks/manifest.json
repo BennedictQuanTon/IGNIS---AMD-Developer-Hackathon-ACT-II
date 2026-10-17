@@ -1,0 +1,376 @@
+{
+  "issue": "#23",
+  "built_at": "2026-10-16T15:14:16.086125+00:00",
+  "client_commit": "d2b66b34e353d665929db38cc3ae6a8bce3197be",
+  "reader_pilot": {
+    "files": [
+      {
+        "family": "F1-manual",
+        "split": "dev",
+        "file": "F1-manual.pdf",
+        "sha256": "06364dadf9d74372cb93eef3d1f24fc9aab0fce2e951855cdcfbd5cb894e4ca6",
+        "gold_pages": [
+          0,
+          1
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F2-table-pdf",
+        "split": "dev",
+        "file": "F2-table-pdf.pdf",
+        "sha256": "9171b6c780b516692fd88d45d6b967285200affcf9d0c00be09d90199bc2db9b",
+        "gold_pages": [
+          0,
+          1
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F3-clean-scan",
+        "split": "dev",
+        "file": "F3-clean-scan-p0.png",
+        "sha256": "31faa8b07247cac7c49534b0c5adc30edd2dd149485693a3c4850576e20944b8",
+        "gold_pages": [
+          0
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F3-clean-scan",
+        "split": "dev",
+        "file": "F3-clean-scan-p1.png",
+        "sha256": "980c961c6971641b72dfbc2bdceb4d99a3dfbf0914797522c3be8131e86a63e3",
+        "gold_pages": [
+          1
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F4-noisy-scan",
+        "split": "dev",
+        "file": "F4-noisy-scan-p0.png",
+        "sha256": "695a573a0c32863459d5f03508c2dd154c5b96079d544f490170f04ccc5721a4",
+        "gold_pages": [
+          0
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F4-noisy-scan",
+        "split": "dev",
+        "file": "F4-noisy-scan-p1.png",
+        "sha256": "877f693d9ee4eb2a846a424777715989f35c44d13f8db7c8672c9bf86eec22ec",
+        "gold_pages": [
+          1
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F5-table-image",
+        "split": "heldout",
+        "file": "F5-table-image-p0.png",
+        "sha256": "25c320dc2ef4450a6d40f24d8c4e637251b1b9b9ad2b5d533e394ad78ff867fd",
+        "gold_pages": [
+          0
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F5-table-image",
+        "split": "heldout",
+        "file": "F5-table-image-p1.png",
+        "sha256": "1dffe343738446f567d4db4d684145a1784be2fcf5f522871d32798e28ecf2b0",
+        "gold_pages": [
+          1
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F6-diagram",
+        "split": "heldout",
+        "file": "F6-diagram-p0.png",
+        "sha256": "2a56075376cf8cba05d12fb4bf4a23e6e3ceec018728b72816d22dc2afda424a",
+        "gold_pages": [
+          0
+        ],
+        "rights": "generated synthetic"
+      },
+      {
+        "family": "F6-diagram",
+        "split": "heldout",
+        "file": "F6-diagram-p1.png",
+        "sha256": "19c905b88b6d538919139155bf54700368536f741dc12bac755863f7528e67c0",
+        "gold_pages": [
+          1
+        ],
+        "rights": "generated synthetic"
+      }
+    ],
+    "gold_hash": "791f6400c33c66dd688a70fee0184148203912b9d004a65abbcdbb2bdfe28b11",
+    "rights": "generated synthetic pages; no third-party documents"
+  },
+  "scenarios": {
+    "sha256": "f76934a95a530e0577ea4bebc82ceee2901814b41a7cba578dfbd456e1fbd3e4",
+    "dev": [
+      "S01",
+      "S02",
+      "S03",
+      "S04",
+      "S05",
+      "S06",
+      "S07",
+      "S08",
+      "S09",
+      "S10",
+      "S11",
+      "S12"
+    ],
+    "heldout": [
+      "S13",
+      "S14",
+      "S15",
+      "S16",
+      "S17",
+      "S18",
+      "S19",
+      "S20"
+    ],
+    "status": "drafted by Yoshio, pending Tuong review"
+  },
+  "extraction": {
+    "model_id": "DeepSeek-V4-Flash-Vision-Exp",
+    "model_version": "extraction-fewshot-v2-3dc4cc73+json_object+default+max4096",
+    "prompt_id": "extraction-fewshot-v2-3dc4cc73",
+    "max_tokens": 4096
+  },
+  "explanation_settings": {
+    "reasoning_effort": "low",
+    "max_tokens": 4096,
+    "budget_fallback": true,
+    "output_mode": "json_object",
+    "repair_attempts": 1
+  },
+  "reader": {
+    "model_id": "MinerU2.5-Pro",
+    "endpoint": "/ocr",
+    "parser_version": "document-parse-v1"
+  },
+  "limitations": [
+    "Provider model weights and serving versions are not exposed; identities are API names.",
+    "Single runs on small synthetic sets; p95 values from n <= 20 are preliminary.",
+    "Quota snapshots come from shared-key headers that may lag and include teammates."
+  ],
+  "jobs": {
+    "readers": {
+      "native": {
+        "job": "stage1-native",
+        "attempts": 0,
+        "max_attempts": 40,
+        "elapsed_seconds": 0.1,
+        "max_seconds": 1800,
+        "outcomes": {},
+        "quota_first": null,
+        "quota_last": null
+      },
+      "mineru": {
+        "job": "stage1-mineru",
+        "attempts": 10,
+        "max_attempts": 40,
+        "elapsed_seconds": 71.9,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 10
+        },
+        "quota_first": null,
+        "quota_last": null
+      }
+    },
+    "explanation": {
+      "ablation-DeepSeek-V4-Flash": {
+        "job": "stage2-ablation-DeepSeek-V4-Flash",
+        "attempts": 14,
+        "max_attempts": 40,
+        "elapsed_seconds": 173.4,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 14
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11717338",
+          "x-ratelimit-remaining-user-daily-usd": "0.88282662",
+          "x-ratelimit-remaining-user-rpm": "18"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11945907",
+          "x-ratelimit-remaining-user-daily-usd": "0.88054093",
+          "x-ratelimit-remaining-user-rpm": "14"
+        }
+      },
+      "dev-DeepSeek-V4-Flash": {
+        "job": "stage2-dev-DeepSeek-V4-Flash",
+        "attempts": 22,
+        "max_attempts": 40,
+        "elapsed_seconds": 612.7,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 20,
+          "concurrency_limited": 1,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.10457093",
+          "x-ratelimit-remaining-user-daily-usd": "0.89542907",
+          "x-ratelimit-remaining-user-rpm": "19"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11003000",
+          "x-ratelimit-remaining-user-daily-usd": "0.88997000",
+          "x-ratelimit-remaining-user-rpm": "18"
+        }
+      },
+      "dev-Qwen3.8-27B": {
+        "job": "stage2-dev-Qwen3.8-27B",
+        "attempts": 13,
+        "max_attempts": 40,
+        "elapsed_seconds": 1687.8,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 11,
+          "timeout": 2
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11024927",
+          "x-ratelimit-remaining-user-daily-usd": "0.88975073",
+          "x-ratelimit-remaining-user-rpm": "19"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11503010",
+          "x-ratelimit-remaining-user-daily-usd": "0.88496990",
+          "x-ratelimit-remaining-user-rpm": "19"
+        }
+      },
+      "heldout-DeepSeek-V4-Flash": {
+        "job": "stage2-heldout-DeepSeek-V4-Flash",
+        "attempts": 16,
+        "max_attempts": 40,
+        "elapsed_seconds": 243.9,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 15,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11522800",
+          "x-ratelimit-remaining-user-daily-usd": "0.88477200",
+          "x-ratelimit-remaining-user-rpm": "18"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11651458",
+          "x-ratelimit-remaining-user-daily-usd": "0.88348542",
+          "x-ratelimit-remaining-user-rpm": "16"
+        }
+      },
+      "heldout-Qwen3.8-27B": {
+        "job": "stage2-heldout-Qwen3.8-27B",
+        "attempts": 8,
+        "max_attempts": 40,
+        "elapsed_seconds": 1104.2,
+        "max_seconds": 1800,
+        "outcomes": {
+          "timeout": 4,
+          "ok": 4
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11651458",
+          "x-ratelimit-remaining-user-daily-usd": "0.88348542",
+          "x-ratelimit-remaining-user-rpm": "13"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.12355275",
+          "x-ratelimit-remaining-user-daily-usd": "0.87644725",
+          "x-ratelimit-remaining-user-rpm": "19"
+        }
+      },
+      "repeat-DeepSeek-V4-Flash": {
+        "job": "stage2-repeat-DeepSeek-V4-Flash",
+        "attempts": 30,
+        "max_attempts": 40,
+        "elapsed_seconds": 343.0,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 30
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.11957138",
+          "x-ratelimit-remaining-user-daily-usd": "0.88042862",
+          "x-ratelimit-remaining-user-rpm": "15"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.12290017",
+          "x-ratelimit-remaining-user-daily-usd": "0.87709983",
+          "x-ratelimit-remaining-user-rpm": "15"
+        }
+      },
+      "repeat-Qwen3.8-27B": {
+        "job": "stage2-repeat-Qwen3.8-27B",
+        "attempts": 13,
+        "max_attempts": 40,
+        "elapsed_seconds": 1857.0,
+        "max_seconds": 1800,
+        "outcomes": {
+          "timeout": 6,
+          "ok": 6,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.13567291",
+          "x-ratelimit-remaining-user-daily-usd": "0.86432709",
+          "x-ratelimit-remaining-user-rpm": "14"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.14101261",
+          "x-ratelimit-remaining-user-daily-usd": "0.85898739",
+          "x-ratelimit-remaining-user-rpm": "18"
+        }
+      },
+      "runtime-DeepSeek-V4-Flash-c2": {
+        "job": "stage2-runtime-DeepSeek-V4-Flash-c2",
+        "attempts": 37,
+        "max_attempts": 40,
+        "elapsed_seconds": 484.8,
+        "max_seconds": 1800,
+        "outcomes": {
+          "ok": 36,
+          "unavailable": 1
+        },
+        "quota_first": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.12303851",
+          "x-ratelimit-remaining-user-daily-usd": "0.87696149",
+          "x-ratelimit-remaining-user-rpm": "15"
+        },
+        "quota_last": {
+          "x-ratelimit-limit-user-daily-usd": "1",
+          "x-ratelimit-used-user-daily-usd": "0.12846059",
+          "x-ratelimit-remaining-user-daily-usd": "0.87153941",
+          "x-ratelimit-remaining-user-rpm": "12"
+        }
+      }
+    }
+  }
+}

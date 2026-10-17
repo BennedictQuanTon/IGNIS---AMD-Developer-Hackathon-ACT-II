@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 340" role="img" aria-label="Critical fields read exactly (% of IDs, values, negations)">
+<style>
+.surface{fill:#fcfcfb}.ink{fill:#0b0b0b}.muted{fill:#52514e}.grid{stroke:#e4e3df}
+.s1{fill:#2a78d6}.s2{fill:#eb6834}
+@media (prefers-color-scheme: dark){.surface{fill:#1a1a19}.ink{fill:#f0efec}.muted{fill:#c3c2b7}
+.grid{stroke:#3a3936}.s1{fill:#3987e5}.s2{fill:#d95926}}
+text{font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+</style>
+<rect class="surface" width="720" height="340"/>
+<text class="ink" x="56" y="24" font-size="15" font-weight="600">Critical fields read exactly (% of IDs, values, negations)</text>
+<line class="grid" x1="56" x2="704" y1="276.0" y2="276.0"/>
+<text class="muted" x="50" y="280.0" font-size="11" text-anchor="end">0%</text>
+<line class="grid" x1="56" x2="704" y1="223.0" y2="223.0"/>
+<text class="muted" x="50" y="227.0" font-size="11" text-anchor="end">25%</text>
+<line class="grid" x1="56" x2="704" y1="170.0" y2="170.0"/>
+<text class="muted" x="50" y="174.0" font-size="11" text-anchor="end">50%</text>
+<line class="grid" x1="56" x2="704" y1="117.0" y2="117.0"/>
+<text class="muted" x="50" y="121.0" font-size="11" text-anchor="end">75%</text>
+<line class="grid" x1="56" x2="704" y1="64.0" y2="64.0"/>
+<text class="muted" x="50" y="68.0" font-size="11" text-anchor="end">100%</text>
+<rect class="s1" x="56" y="36" width="12" height="12" rx="2"/>
+<text class="ink" x="74" y="46" font-size="12">Native (pypdf)</text>
+<rect class="s1" x="81.0" y="64.0" width="28.0" height="212.0" rx="3"><title>Native (pypdf), manual: 100%</title></rect>
+<text class="muted" x="95.0" y="60.0" font-size="10" text-anchor="middle">100%</text>
+<rect class="s1" x="189.0" y="64.0" width="28.0" height="212.0" rx="3"><title>Native (pypdf), table-pdf: 100%</title></rect>
+<text class="muted" x="203.0" y="60.0" font-size="10" text-anchor="middle">100%</text>
+<text class="muted" x="311.0" y="272.0" font-size="10" text-anchor="middle">n/a</text>
+<text class="muted" x="419.0" y="272.0" font-size="10" text-anchor="middle">n/a</text>
+<text class="muted" x="527.0" y="272.0" font-size="10" text-anchor="middle">n/a</text>
+<text class="muted" x="635.0" y="272.0" font-size="10" text-anchor="middle">n/a</text>
+<rect class="s2" x="196" y="36" width="12" height="12" rx="2"/>
+<text class="ink" x="214" y="46" font-size="12">MinerU2.5-Pro</text>
+<rect class="s2" x="111.0" y="64.0" width="28.0" height="212.0" rx="3"><title>MinerU2.5-Pro, manual: 100%</title></rect>
+<text class="muted" x="125.0" y="60.0" font-size="10" text-anchor="middle">100%</text>
+<rect class="s2" x="219.0" y="64.0" width="28.0" height="212.0" rx="3"><title>MinerU2.5-Pro, table-pdf: 100%</title></rect>
+<text class="muted" x="233.0" y="60.0" font-size="10" text-anchor="middle">100%</text>
+<rect class="s2" x="327.0" y="64.0" width="28.0" height="212.0" rx="3"><title>MinerU2.5-Pro, clean-scan: 100%</title></rect>
+<text class="muted" x="341.0" y="60.0" font-size="10" text-anchor="middle">100%</text>
+<rect class="s2" x="435.0" y="64.0" width="28.0" height="212.0" rx="3"><title>MinerU2.5-Pro, noisy-scan: 100%</title></rect>
+<text class="muted" x="449.0" y="60.0" font-size="10" text-anchor="middle">100%</text>
+<rect class="s2" x="543.0" y="64.0" width="28.0" height="212.0" rx="3"><title>MinerU2.5-Pro, table-image: 100%</title></rect>
+<text class="muted" x="557.0" y="60.0" font-size="10" text-anchor="middle">100%</text>
+<rect class="s2" x="651.0" y="223.0" width="28.0" height="53.0" rx="3"><title>MinerU2.5-Pro, diagram: 25%</title></rect>
+<text class="muted" x="665.0" y="219.0" font-size="10" text-anchor="middle">25%</text>
+<text class="ink" x="110.0" y="294" font-size="11" text-anchor="middle">manual</text>
+<text class="ink" x="218.0" y="294" font-size="11" text-anchor="middle">table-pdf</text>
+<text class="ink" x="326.0" y="294" font-size="11" text-anchor="middle">clean-scan</text>
+<text class="ink" x="434.0" y="294" font-size="11" text-anchor="middle">noisy-scan</text>
+<text class="ink" x="542.0" y="294" font-size="11" text-anchor="middle">table-image</text>
+<text class="ink" x="650.0" y="294" font-size="11" text-anchor="middle">diagram</text>
+<text class="muted" x="56" y="326" font-size="11">2 pages per family; synthetic pages</text>
+</svg>

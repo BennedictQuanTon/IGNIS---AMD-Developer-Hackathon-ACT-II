@@ -11,7 +11,12 @@ from pathlib import Path
 from ignis_wo.extraction.adapters import ReplayMiss
 from ignis_wo.hashing import sha256_text
 from ignis_wo.hosted.prompts import EXPLANATION_SCHEMA, ExplanationPrompt
-from ignis_wo.hosted.transport import budget_label, parse_json_content
+from ignis_wo.hosted.transport import (
+    ChatResult,
+    ProviderError,
+    budget_label,
+    parse_json_content,
+)
 from ignis_wo.workflow.context import validate_draft
 
 TASK = "ignis-explanation-v1"
@@ -65,8 +70,14 @@ def load_responses(replay_path: Path) -> dict[str, dict]:
     for line in replay_path.read_text(encoding="utf-8").splitlines():
         if line.strip():
             row = json.loads(line)
-            responses[row["key"]] = row["response"]
+            responses[row["key"]] = row
     return responses
+
+
+def replayed_result(row: dict) -> ChatResult:
+    """The recorded call's timing and usage, so replayed attempts report what the live call measured."""
+    return ChatResult("", None, row.get("finish_reason"), row.get("usage") or {}, {}, row.get("latency_seconds"), 0,
+                      row.get("request_parameters") or {})
 
 
 class HostedExplanationProvider:
@@ -88,17 +99,33 @@ class HostedExplanationProvider:
         self.lock = threading.Lock()
 
     def __call__(self, pack: dict) -> dict:
+        draft, _ = self.draft_with_attempts(pack)
+        return draft
+
+    def draft_with_attempts(self, pack: dict) -> tuple[dict, list[dict]]:
+        """Also returns each attempt's validation errors, latency and usage, so first-pass and
+        after-repair validity can be measured separately. A failed call keeps the earlier attempts
+        on the raised ProviderError as `attempts`."""
         if not bindable_facts(pack) and not pack["passages"]:
-            return abstain_draft(pack)
+            return abstain_draft(pack), []
         messages = self.prompt.messages(pack)
+        attempts = []
         for attempt in range(self.repair_attempts + 1):
-            reduced = self.reduced_draft(pack, messages, attempt)
+            try:
+                reduced, result = self.reduced_draft(pack, messages, attempt)
+            except ProviderError as error:
+                error.attempts = attempts
+                raise
             draft = assemble_draft(pack, reduced)
             errors = validate_draft(pack, draft)
+            attempts.append({"attempt": attempt, "errors": errors,
+                             "latency_seconds": result.latency_seconds if result else None,
+                             "usage": result.usage if result else {},
+                             "request_parameters": result.request_parameters if result else {}})
             if not errors:
-                return draft
+                return draft, attempts
             messages = messages + self.prompt.repair_messages(reduced, errors)
-        return draft
+        return draft, attempts
 
     def replay_key(self, pack: dict, attempt: int) -> str:
         budget = budget_label(self.max_tokens, self.budget_fallback)
@@ -106,24 +133,26 @@ class HostedExplanationProvider:
                  pack["pack_id"], str(attempt)]
         return sha256_text("|".join(parts))
 
-    def reduced_draft(self, pack: dict, messages: list[dict], attempt: int) -> dict:
+    def reduced_draft(self, pack: dict, messages: list[dict], attempt: int):
+        """Returns (reduced answer, ChatResult); a replayed result carries the recorded timing and usage."""
         key = self.replay_key(pack, attempt)
         if self.responses is not None:
             if key not in self.responses:
                 raise ReplayMiss(f"no recorded explanation for pack {pack['pack_id']} attempt {attempt}")
-            return self.responses[key]
+            return self.responses[key]["response"], replayed_result(self.responses[key])
         schema = EXPLANATION_SCHEMA if self.output_mode == "json_schema" else None
         result = self.client.complete(self.model_id, messages, self.output_mode, schema, self.reasoning_effort,
                                       self.max_tokens, budget_fallback=self.budget_fallback)
         reduced = parse_json_content(result.content)
         self.record(key, pack, attempt, reduced, result)
-        return reduced
+        return reduced, result
 
     def record(self, key: str, pack: dict, attempt: int, reduced: dict, result) -> None:
         if self.record_path is None:
             return
         row = {"key": key, "task": TASK, "model_id": self.model_id, "prompt_id": self.prompt_id,
-               "output_mode": self.output_mode, "pack_id": pack["pack_id"], "attempt": attempt, "response": reduced,
+               "output_mode": self.output_mode, "reasoning_effort": self.reasoning_effort, "max_tokens": self.max_tokens,
+               "budget_fallback": self.budget_fallback, "pack_id": pack["pack_id"], "attempt": attempt, "response": reduced,
                "finish_reason": result.finish_reason, "usage": result.usage, "latency_seconds": result.latency_seconds,
                "request_parameters": result.request_parameters}
         with self.lock, self.record_path.open("a", encoding="utf-8") as file:

@@ -1,0 +1,16 @@
+{
+  "description": "Document reader selection for #23 Stage 1. The reader is always chosen explicitly; there is no automatic switch.",
+  "native_pdf": {"reader": "native-pypdf", "use_for": "PDFs with a text layer", "pinned": "pypdf==6.19.0"},
+  "ocr": {"reader": "mineru", "model_id": "MinerU2.5-Pro", "endpoint": "/ocr", "use_for": "scans, images and PDFs without a text layer", "environment": "DOCUMENT_OCR_MODEL"},
+  "evidence": {
+    "pilot": "12 generated synthetic pages in 6 families (4 dev, 2 held out); see docs/BENCHMARKS.md",
+    "native_pypdf": "CER 0.000 and all critical fields on both PDF families",
+    "MinerU2.5-Pro": "CER at most 0.003 and all critical fields on text, table and scan families; 7.2 s median per call (n = 10 calls)",
+    "repeat_reads": "served from the parse cache with no OCR call"
+  },
+  "not_selected": "No vision-chat reader was compared in this pilot.",
+  "limitations": [
+    "Diagram labels were lost: MinerU returned an image placeholder for drawn diagrams (critical fields 2/8). Diagram text needs manual entry or another reader.",
+    "Synthetic renders only; accuracy on real factory scans is not measured."
+  ]
+}

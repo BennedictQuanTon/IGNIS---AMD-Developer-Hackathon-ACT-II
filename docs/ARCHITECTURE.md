@@ -1,5 +1,7 @@
 # Proposed system architecture
 
+> **Historical design (noted 16 October 2026, #23):** the LoRA fine-tuning, GPU and hourly-sensor parts of this document are earlier proposals and were not delivered. The current direction is hosted AMD API inference without fine-tuning (#16); measured results are in [the benchmark report](BENCHMARKS.md).
+
 This describes a target design. No application services or model are implemented in this repository yet.
 
 **New direction, 13 October 2026:** the requested expansion adds problem recognition, validated forecasting, technician/resource matching, loss-aware scheduling and verified maintenance outcomes. See the [detailed maintenance direction and implementation plan](MAINTENANCE_DIRECTION.md) for the proposed extension and revised interactive walkthrough. The sections below retain the evidence/hourly-monitoring foundation; earlier prediction exclusions describe the previous scope and continue to prohibit unsupported predictive claims.

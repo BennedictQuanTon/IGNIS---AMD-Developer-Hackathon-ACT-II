@@ -26,6 +26,7 @@ from ignis_wo.evaluation.benchmark import (  # noqa: E402
     summarize,
     write_results,
 )
+from ignis_wo.evaluation.jobs import JobBudget  # noqa: E402
 from ignis_wo.evaluation.maintie import load_verified_splits  # noqa: E402
 from ignis_wo.extraction.adapters import LiveAdapter  # noqa: E402
 from ignis_wo.hosted.pacing import RequestPacer  # noqa: E402
@@ -52,6 +53,7 @@ def parse_arguments():
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--requests-per-minute", type=float, default=20)
     parser.add_argument("--max-duration", type=float, default=600, help="seconds before remaining cases are skipped")
+    parser.add_argument("--max-attempts", type=int, default=40, help="HTTP attempts per job, retries included")
     parser.add_argument("--final", action="store_true", help="required for the single test-split run")
     parser.add_argument("--ledger", type=Path, default=ROOT / TEST_LEDGER)
     parser.add_argument("--out", type=Path, default=ROOT / "outputs" / "benchmarks")
@@ -64,6 +66,9 @@ def main() -> int:
         raise SystemExit("set MODEL_NAME in .env or pass --model")
     if arguments.split == "test" and not arguments.final:
         raise SystemExit("the test split is locked; pass --final only after the configuration is frozen on dev")
+    needed = arguments.limit + 10
+    if arguments.final and arguments.max_attempts < needed:
+        raise SystemExit(f"the single test run must not stop part way: pass --max-attempts {needed} or more")
     splits = load_verified_splits(arguments.gold)
     items = splits[arguments.split][arguments.offset:arguments.offset + arguments.limit]
     examples = select_examples(splits["train"], arguments.examples) if arguments.prompt == "fewshot" else []
@@ -75,6 +80,8 @@ def main() -> int:
 
     pacer = RequestPacer(arguments.requests_per_minute, arguments.concurrency, arguments.allowance_reserve)
     client = client_from_environment(pacer=pacer)
+    job = JobBudget(run_name, arguments.max_attempts, arguments.max_duration)
+    client.gateway.budget = job
     adapter = LiveAdapter(client, arguments.model, ExtractionPrompt(examples), arguments.output_mode, reasoning_effort,
                           max_tokens, run_directory / "replay.jsonl", budget_fallback=arguments.budget_fallback)
     if arguments.split == "test" and already_scored(arguments.ledger, adapter):
@@ -94,6 +101,7 @@ def main() -> int:
     }
     summary["data"] = {"split": arguments.split, "offset": arguments.offset, "items": len(items),
                        "source": "MaintIE gold_release.json, split verified against maintie_split_lock.json"}
+    summary["job"] = job.write(run_directory / "job")
     write_results(run_directory, rows, summary)
     if arguments.split == "test":
         arguments.ledger.parent.mkdir(parents=True, exist_ok=True)

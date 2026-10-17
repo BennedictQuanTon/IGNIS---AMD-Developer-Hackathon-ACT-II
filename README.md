@@ -1,6 +1,6 @@
 # AMD ACT III — Intelligent Industry
 
-Maintenance-intelligence prototype for AMD Developer Hackathon: ACT III, Track 1: Intelligent Industry. The repository now includes a local persistent work-order backend with explicit review, deterministic facts and alerts, scoped evidence packs and evidence-linked PDFs. See the [API guide and Windows startup commands](docs/API_CONTRACT.md). The seeded walkthrough uses synthetic fixtures and simulated signoff; hosted AMD inference, model benchmarks and deployment remain unverified.
+Maintenance-intelligence prototype for AMD Developer Hackathon: ACT III, Track 1: Intelligent Industry. The repository now includes a local persistent work-order backend with explicit review, deterministic facts and alerts, scoped evidence packs and evidence-linked PDFs. See the [API guide and Windows startup commands](docs/API_CONTRACT.md). The seeded walkthrough uses synthetic fixtures and simulated signoff. Hosted AMD inference is measured on MaintIE and synthetic sets in the [benchmark report](docs/BENCHMARKS.md); deployment remains unverified.
 
 ## Product direction
 

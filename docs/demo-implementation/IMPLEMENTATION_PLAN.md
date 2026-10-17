@@ -1,5 +1,7 @@
 # Implement the bounded demo on top of PR #14
 
+> **Historical design (noted 16 October 2026, #23):** the LoRA fine-tuning, GPU and hourly-sensor parts of this document are earlier proposals and were not delivered. The current direction is hosted AMD API inference without fine-tuning (#16); measured results are in [the benchmark report](../BENCHMARKS.md).
+
 **Outcome:** demonstrate one synthetic pump incident from trusted work-order history and a completed-hour check to applicable retrieved context, a cited hypothesis, explicit expert review and an evidence-linked report. Keep all numeric decisions deterministic.
 
 This is proposed implementation work, not code delivered by this pack. The user's latest direction explicitly retains bounded RAG and graph support. The broader [confirmed workflow](../PROPOSED_SYSTEM_WORKFLOW.md) remains authoritative. PR #14's historical-work-order scope is a base module; it does not replace the monitoring/response direction.

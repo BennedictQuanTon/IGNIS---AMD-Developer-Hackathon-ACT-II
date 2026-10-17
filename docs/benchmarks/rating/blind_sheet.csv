@@ -1,0 +1,128 @@
+rating_id,family_id,query,evidence,draft,semantic_support_0_2,unsupported_claims,useful_0_2,rater,notes
+R001,S06,seal leakage flush,,"Inspection: Check whether the seal shows wear, leakage, or damage that could explain recurring work orders. [F-S06-1]
+Uncertainty: The pack lacks passages describing seal condition, failure mode, operating context, or maintenance history, so the cause of the recurring work orders is not established.; abstain: True",,,,,
+R002,S15,seal leakage flush,S15-LOG: Seal leakage was reported on PX-300. The flush line was not inspected and no cause is confirmed.,"Hypothesis: Seal leakage on PX-300 may be related to the flush line, but the flush line was not inspected and no cause is confirmed. [S15-LOG]
+Alternative: The seal leakage on PX-300 could have a cause unrelated to the flush line, since the flush line was not inspected and no cause is confirmed. [S15-LOG]
+Inspection: Check whether the flush line on PX-300 shows signs of leakage or damage. [S15-LOG]
+Uncertainty: The evidence pack only states that seal leakage was reported and the flush line was not inspected, with no confirmed cause. Therefore, the relationship between the flush line and the leakage is unknown.; abstain: False",,,,,
+R003,S03,seal leakage replacement,S03-LOG: Seal leakage was observed on PX-100. No replacement was performed and the root cause is not confirmed.,"Hypothesis: The seal leakage on PX-100 may be due to an unconfirmed root cause, and the seal has not been replaced. [S03-LOG, F-S03-1]
+Alternative: The seal leakage might be a recurring issue, as indicated by the computed work order count. [S03-LOG, F-S03-1]
+Inspection: Check whether the seal leakage on PX-100 has been documented in previous work orders and whether any corrective action was taken. [S03-LOG, F-S03-1]
+Uncertainty: The root cause of the seal leakage is not confirmed, and the evidence does not specify the exact nature or frequency of the issue beyond the observed leakage and the work order count.; abstain: False",,,,,
+R004,S18,seal leakage flush,"S18-CASE: In a reviewed case the flush line was clear while seal leakage continued, so a blocked flush line did not explain that case.
+S18-MAN: A blocked flush line is a known contributor to seal leakage on PX-300.","Hypothesis: A blocked flush line is a known contributor to seal leakage on PX-300. [S18-MAN, F-S18-1]
+Alternative: In a reviewed case the flush line was clear while seal leakage continued, so a blocked flush line did not explain that case. [S18-CASE]
+Inspection: Check whether the flush line is clear in the current situation to determine if a blockage is present. [S18-CASE, S18-MAN]
+Uncertainty: The evidence pack does not specify whether the current situation matches the reviewed case or the general known contributor, so the applicability of a blocked flush line to the present seal leakage is uncertain.; abstain: False",,,,,
+R005,S08,seal leakage flush pressure,"S08-CASE: A reviewed case found seal leakage on PX-100 while flush pressure was normal, so low flush pressure was not the explanation in that case.
+S08-MAN: Low flush pressure is associated with seal leakage on PX-100.","Hypothesis: Low flush pressure may contribute to seal leakage, as the cited passage associates low flush pressure with seal leakage. [S08-MAN]
+Alternative: Seal leakage may arise from different causes, because the cited case found seal leakage while flush pressure was normal. [S08-CASE]
+Alternative: The seal work-order history indicates recurrence. [F-S08-1]
+Inspection: Check whether flush pressure is normal for this seal. [S08-MAN, S08-CASE]
+Uncertainty: The pack lacks the specific cause for the case where flush pressure was normal and lacks additional diagnostic data.; abstain: False",,,,,
+R006,S11,bearing noise lubrication,"S11-MAN: For pump PX-300, bearing noise should prompt a check of lubrication level and grease condition.","Hypothesis: Bearing noise in pump PX-300 may indicate a need to check lubrication level and grease condition. [S11-MAN, F-S11-1]
+Inspection: Check whether the bearing lubrication level and grease condition are within acceptable limits. [S11-MAN, F-S11-1]
+Uncertainty: The evidence pack provides only a general maintenance guideline linking bearing noise to lubrication checks, but does not specify the actual cause of the noise or confirm any lubrication deficiency.; abstain: False",,,,,
+R007,S20,bearing noise lubrication,"S20-MAN: For PX-300, bearing noise should prompt a check of lubrication and grease condition.
+S20-ORDER: Bearing grease is ordered from the lubrication supplier; noise protection is required in the store room.","Hypothesis: Bearing noise on PX-300 indicates a need to check lubrication and grease condition. [S20-MAN, F-S20-1]
+Alternative: Bearing noise may be related to grease ordering or storage conditions, but the evidence does not confirm a direct link. [S20-ORDER]
+Inspection: Check whether the bearing lubrication and grease condition are within the recommended parameters. [S20-MAN, F-S20-1]
+Uncertainty: The evidence pack does not specify the exact cause of bearing noise or the required action beyond checking lubrication and grease condition.; abstain: False",,,,,
+R008,S16,impeller wear flow,"S16-MAN: For PX-300, reduced flow with impeller wear should prompt an impeller clearance check.","Hypothesis: A recurring impeller condition may be contributing to the recorded downtime. [F-S16-1, F-S16-2]
+Alternative: Impeller clearance may be relevant if reduced flow and impeller wear are present, as indicated by the passage. [S16-MAN]
+Inspection: Check whether impeller clearance is consistent with the passage regarding reduced flow and impeller wear. [S16-MAN]
+Uncertainty: The pack lacks evidence of reduced flow, impeller wear, clearance measurement, and whether the passage applies to this asset.; abstain: False",,,,,
+R009,S19,impeller vibration imbalance,,"Hypothesis: The impeller has a history of maintenance activity indicated by its work order count. [F-S19-1]
+Alternative: The work order count may reflect multiple separate instances of a recurring impeller issue. [F-S19-1]
+Inspection: Check whether the work orders for the impeller share a common failure mode or corrective action. [F-S19-1]
+Uncertainty: The evidence pack only provides the count of work orders for the impeller, not the nature or outcome of those work orders, so the cause or severity of the issue is unknown.; abstain: False",,,,,
+R010,S12,seal leakage flush,S12-MAN: Seal part numbers for PX-300 are listed in the spare parts catalogue.,"Uncertainty: The pack does not include failure symptoms, operating conditions, or cause indicators for the seal; it only records recurrence and a catalogue reference.; abstain: True",,,,,
+R011,S17,bearing noise lubrication,,"Uncertainty: The evidence pack contains only a single fact about the bearing's recurrence count, with no passages or additional context to support any causal explanation.; abstain: True",,,,,
+R012,S13,impeller vibration imbalance,"S13-MAN: For PX-100, impeller vibration should prompt a check for imbalance, deposits and loose fasteners.","Hypothesis: The impeller may have imbalance, deposits, or loose fasteners causing vibration. [S13-MAN, F-S13-1]
+Alternative: The impeller may have wear or damage not covered by the manual's listed causes. [S13-MAN, F-S13-1]
+Inspection: Check whether the impeller shows signs of imbalance, deposits, or loose fasteners as per the manual. [S13-MAN, F-S13-1]
+Uncertainty: The evidence pack does not specify the current vibration level or the exact nature of the recurring issue, only that there have been multiple work orders for the impeller.; abstain: False",,,,,
+R013,S14,bearing temperature lubrication alignment,"S14-CASE: A reviewed case linked high bearing temperature to shaft misalignment while lubrication was adequate.
+S14-MAN: Bearing temperature on PX-300 can rise with poor lubrication.","Hypothesis: Shaft misalignment is a possible contributor to bearing temperature, which may relate to the bearing work orders. [S14-CASE, F-S14-1]
+Alternative: Poor lubrication is a possible contributor to bearing temperature for the referenced pump model. [S14-MAN]
+Inspection: Check whether shaft alignment and lubrication condition are consistent with the bearing work orders. [S14-CASE, S14-MAN, F-S14-1]
+Uncertainty: The pack does not state whether bearing temperature, shaft alignment, or lubrication condition was measured on this asset.; abstain: False",,,,,
+R014,S16,impeller wear flow,"S16-MAN: For PX-300, reduced flow with impeller wear should prompt an impeller clearance check.","Hypothesis: Reduced flow with impeller wear on PX-300 should prompt an impeller clearance check. [S16-MAN, F-S16-1, F-S16-2]
+Inspection: Check whether the impeller clearance is within specification for PX-300 given the reduced flow condition. [S16-MAN, F-S16-1, F-S16-2]
+Uncertainty: The evidence pack provides only a maintenance manual passage and computed facts about downtime and recurrence, but no direct causal evidence linking impeller wear to a specific failure mode beyond the clearance check suggestion.; abstain: False",,,,,
+R015,S15,seal leakage flush,S15-LOG: Seal leakage was reported on PX-300. The flush line was not inspected and no cause is confirmed.,"Hypothesis: The reported seal leakage may be associated with recurring seal work orders. [S15-LOG, F-S15-1]
+Alternative: An unexamined flush line may be an unconfirmed factor in the seal leakage. [S15-LOG]
+Inspection: Check whether the flush line condition is associated with the reported seal leakage. [S15-LOG]
+Uncertainty: No cause is confirmed, and the flush line was not inspected, so the relationship between the seal leakage and any specific component remains unverified.; abstain: False",,,,,
+R016,S04,bearing temperature vibration,"S04-MAN: For PX-100, rising bearing temperature together with vibration should prompt a lubrication and alignment check.","Hypothesis: The bearing has a recorded downtime and a recurrence of work orders, indicating a pattern of issues. [F-S04-1, F-S04-2]
+Hypothesis: Rising bearing temperature together with vibration would prompt a lubrication and alignment check. [S04-MAN]
+Alternative: The bearing may not currently exhibit rising temperature and vibration, so the lubrication and alignment check may not be applicable. [S04-MAN]
+Inspection: Check whether the bearing exhibits rising temperature and vibration. [S04-MAN]
+Uncertainty: It is uncertain whether the bearing currently has rising temperature and vibration, and whether the downtime and recurrence are related to lubrication and alignment.; abstain: False",,,,,
+R017,S10,seal leakage flush,"S10-MAN: For PX-100, seal leakage should prompt a check of the flush line and flush supply.
+S10-LABEL: Seal housing labels list the flush port colour and the leakage warning sticker position.","Hypothesis: A possible explanation is that repeated seal work orders are associated with a flush line or flush supply condition. [S10-MAN, F-S10-1]
+Alternative: An alternative possibility is that the seal housing label information is relevant to locating the flush port or leakage warning sticker. [S10-LABEL]
+Inspection: Check whether the flush line and flush supply are consistent with the seal leakage finding. [S10-MAN]
+Uncertainty: The pack does not state that the asset is the referenced model, nor does it describe the current seal leakage, flush line condition, flush supply condition, or label details.; abstain: False",,,,,
+R018,S11,bearing noise lubrication,"S11-MAN: For pump PX-300, bearing noise should prompt a check of lubrication level and grease condition.","Hypothesis: The bearing work-order recurrence may be related to lubrication level or grease condition if the cited pump-specific guidance applies to the asset. [F-S11-1, S11-MAN]
+Alternative: The bearing work-order recurrence may reflect separate bearing issues rather than lubrication condition. [F-S11-1]
+Inspection: Check whether the bearing lubrication level and grease condition are consistent with the cited guidance. [S11-MAN]
+Uncertainty: The pack does not state whether bearing noise, lubrication level, grease condition, or applicability of the cited pump-specific guidance to the asset was observed.; abstain: False",,,,,
+R019,S08,seal leakage flush pressure,"S08-CASE: A reviewed case found seal leakage on PX-100 while flush pressure was normal, so low flush pressure was not the explanation in that case.
+S08-MAN: Low flush pressure is associated with seal leakage on PX-100.","Hypothesis: Low flush pressure is associated with seal leakage on PX-100. [S08-MAN]
+Alternative: In a reviewed case, seal leakage on PX-100 occurred despite normal flush pressure, indicating other causes. [S08-CASE]
+Inspection: Check whether flush pressure is low in the current situation. [S08-MAN]
+Uncertainty: The evidence does not specify whether flush pressure is low in the current situation or whether other factors contributed.; abstain: False",,,,,
+R020,S01,seal leakage flush,"S01-MAN: For pump PX-100, seal leakage should prompt a check of the seal flush supply and the flush line for blockage. This guidance does not confirm a root cause.","Hypothesis: The seal has leaked on multiple occasions, which may indicate a recurring issue with the seal flush supply or a blocked flush line. [S01-MAN, F-S01-1]
+Alternative: The recurring seal leakage could stem from other causes not mentioned in the guidance, such as seal wear or improper installation. [S01-MAN, F-S01-1]
+Inspection: Check whether the seal flush supply is adequate and the flush line is free of blockage. [S01-MAN, F-S01-1]
+Uncertainty: The evidence pack does not provide details on the specific cause of the seal leakage, only that it has recurred and that the manual suggests checking flush supply and line blockage.; abstain: False",,,,,
+R021,S03,seal leakage replacement,S03-LOG: Seal leakage was observed on PX-100. No replacement was performed and the root cause is not confirmed.,"Hypothesis: The observed seal leakage may be associated with recorded work orders on the seal. [S03-LOG, F-S03-1]
+Alternative: The observed seal leakage may reflect an unconfirmed root cause rather than a confirmed seal condition. [S03-LOG]
+Inspection: Check whether the seal leakage observation is linked to the recorded seal work orders. [S03-LOG, F-S03-1]
+Uncertainty: The evidence does not confirm a root cause and lacks details about seal condition, operating parameters, or failure mechanism.; abstain: False",,,,,
+R022,S09,seal leakage flush,,Uncertainty: No evidence pack passages or facts were provided to support any claim.; abstain: True,,,,,
+R023,S07,seal leakage flush,"S07-MAN: For PX-100, seal leakage should prompt a check of the flush supply. The PX-200 procedure of replacing the seal cartridge does not apply to PX-100.","Hypothesis: Seal leakage on PX-100 should prompt a check of the flush supply, not a seal cartridge replacement. [S07-MAN, F-S07-1]
+Alternative: The PX-200 procedure of replacing the seal cartridge might be mistakenly applied to PX-100, but it does not apply. [S07-MAN, F-S07-1]
+Inspection: Check whether the flush supply is functioning properly for PX-100 when seal leakage is observed. [S07-MAN, F-S07-1]
+Uncertainty: The evidence does not specify the exact nature of the seal leakage or the flush supply check details.; abstain: False",,,,,
+R024,S14,bearing temperature lubrication alignment,"S14-CASE: A reviewed case linked high bearing temperature to shaft misalignment while lubrication was adequate.
+S14-MAN: Bearing temperature on PX-300 can rise with poor lubrication.","Hypothesis: High bearing temperature may be caused by shaft misalignment even when lubrication is adequate. [S14-CASE]
+Alternative: Poor lubrication can also cause bearing temperature to rise on PX-300. [S14-MAN]
+Inspection: Check whether shaft alignment is within specification and whether lubrication is adequate. [S14-CASE, S14-MAN]
+Uncertainty: The evidence does not specify the current lubrication condition or alignment status for this specific bearing, so the cause remains uncertain.; abstain: False",,,,,
+R025,S05,impeller cavitation noise,S05-MAN: Impeller coating inspection intervals are set by the paint supplier.,"Hypothesis: The impeller coating inspection interval is determined by the paint supplier. [S05-MAN]
+Uncertainty: The evidence does not specify the actual interval length or the supplier's identity.; abstain: False",,,,,
+R026,S12,seal leakage flush,S12-MAN: Seal part numbers for PX-300 are listed in the spare parts catalogue.,"Hypothesis: The maintenance finding may relate to a seal part number discrepancy for the PX-300, as the spare parts catalogue lists seal part numbers for this model. [S12-MAN]
+Alternative: The maintenance finding could be unrelated to seal part numbers, as it may concern other components or procedures not covered by the cited catalogue. [S12-MAN]
+Inspection: Check whether the maintenance finding involves a seal part number for the PX-300 by comparing the finding details with the spare parts catalogue. [S12-MAN]
+Uncertainty: The evidence pack contains only a single passage about seal part numbers for the PX-300, with no details about the specific maintenance finding or its context, so the relevance of this passage is uncertain.; abstain: False",,,,,
+R027,S07,seal leakage flush,"S07-MAN: For PX-100, seal leakage should prompt a check of the flush supply. The PX-200 procedure of replacing the seal cartridge does not apply to PX-100.","Hypothesis: The seal work-order recurrence may reflect flush supply issues if the asset follows the applicable model guidance and the work orders involved seal leakage. [S07-MAN, F-S07-1]
+Alternative: The seal work-order recurrence may reflect different seal-related conditions not covered by the applicable model guidance. [S07-MAN, F-S07-1]
+Inspection: Check whether the flush supply condition is consistent with the seal work-order recurrence. [S07-MAN, F-S07-1]
+Uncertainty: The pack does not state the asset model, whether the work orders involved seal leakage, or the flush supply condition.; abstain: False",,,,,
+R028,S01,seal leakage flush,"S01-MAN: For pump PX-100, seal leakage should prompt a check of the seal flush supply and the flush line for blockage. This guidance does not confirm a root cause.","Hypothesis: A seal flush supply or flush line blockage may be a possible contributor to the seal issue. [S01-MAN]
+Alternative: The recurrence of seal work orders may indicate a recurring seal issue without a confirmed root cause. [F-S01-1]
+Inspection: Check whether the seal flush supply and flush line are blocked, as suggested by the maintenance guidance. [S01-MAN]
+Uncertainty: The pack does not confirm a root cause for the asset, and the maintenance guidance references a different pump, so the possible flush supply or flush line blockage remains unverified.; abstain: False",,,,,
+R029,S02,seal leakage flush wear,"S02-CASE: A reviewed case recorded seal leakage with worn seal faces and a normal flush flow, so face wear is an alternative explanation for leakage.
+S02-MAN: Seal leakage on PX-100 can follow a blocked flush line.","Hypothesis: Blocked flush line may be contributor to seal leakage on the referenced pump model. [S02-MAN]
+Alternative: Worn seal faces may be alternative explanation for leakage. [S02-CASE]
+Inspection: Check whether the flush line is blocked. [S02-MAN]
+Uncertainty: The pack does not confirm whether the asset matches the pump model in the manual passage or whether the reviewed case applies to this seal, and it provides no direct observation of flush line condition or seal face condition.; abstain: False",,,,,
+R030,S10,seal leakage flush,"S10-MAN: For PX-100, seal leakage should prompt a check of the flush line and flush supply.
+S10-LABEL: Seal housing labels list the flush port colour and the leakage warning sticker position.","Hypothesis: Seal leakage on PX-100 indicates a need to check the flush line and flush supply. [S10-MAN, F-S10-1]
+Alternative: Seal leakage may be related to the flush port colour or the leakage warning sticker position on the seal housing label. [S10-LABEL]
+Inspection: Check whether the flush line and flush supply are functioning correctly for the PX-100 seal. [S10-MAN, F-S10-1]
+Uncertainty: The evidence does not specify which component is more likely to cause leakage, nor does it confirm that label details directly affect leakage.; abstain: False",,,,,
+R031,S19,impeller vibration imbalance,,"Hypothesis: The impeller may be experiencing a recurring condition that generates repeated work orders. [F-S19-1]
+Alternative: The recorded recurrence may reflect a work-order pattern rather than a physical impeller condition. [F-S19-1]
+Inspection: Check whether the impeller work-order recurrence is associated with a physical condition. [F-S19-1]
+Uncertainty: The pack lacks passages describing symptoms, measurements, or failure modes, so the cause remains uncertain.; abstain: False",,,,,
+R032,S02,seal leakage flush wear,"S02-CASE: A reviewed case recorded seal leakage with worn seal faces and a normal flush flow, so face wear is an alternative explanation for leakage.
+S02-MAN: Seal leakage on PX-100 can follow a blocked flush line.","Hypothesis: Seal leakage on PX-100 can follow a blocked flush line. [S02-MAN]
+Alternative: Seal leakage with worn seal faces and a normal flush flow is an alternative explanation. [S02-CASE]
+Inspection: Check whether the flush line is blocked and whether the seal faces show wear. [S02-MAN, S02-CASE]
+Uncertainty: The evidence does not specify the current flush flow status or seal face condition for this case, so both blocked flush and face wear remain possible.; abstain: False",,,,,
+R033,S06,seal leakage flush,,"Uncertainty: The evidence pack contains no passages or facts describing any maintenance finding or explanation. Only a single fact about a seal component with a computed status and a work order count is present, which does not support any hypothesis.; abstain: True",,,,,
+R034,S09,seal leakage flush,,"Uncertainty: The pack lacks passages describing symptoms, measurements, or failure mode, so the cause of the seal work-order recurrence is not established.; abstain: True",,,,,

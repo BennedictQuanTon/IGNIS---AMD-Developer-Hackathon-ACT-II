@@ -1,0 +1,23 @@
+{
+  "description": "Explanation model selection for #23, made on the 12 dev scenarios only and frozen before the held-out run.",
+  "selected": {
+    "model_id": "DeepSeek-V4-Flash",
+    "output_mode": "json_object",
+    "reasoning_effort": "low",
+    "max_tokens": 4096,
+    "budget_fallback": true,
+    "repair_attempts": 1
+  },
+  "baseline_kept": "DeepSeek-V4-Flash was already the explanation baseline (PR #22); the candidate Qwen3.8-27B did not justify replacing it for an interactive demo.",
+  "evidence_dev": {
+    "scenarios": "12 synthetic dev families, drafted by Yoshio, pending Tuong review",
+    "DeepSeek-V4-Flash": {"valid_after_repair": "5/12", "invalid_only_for_model_name_digits": 7, "support_abstain_correct": "10/12", "cites_expected_passage": "8/8", "model_seconds_p50": 18.1, "model_seconds_p95": 140.8},
+    "Qwen3.8-27B": {"valid_after_repair": "10/12", "timeouts_at_180s": 2, "support_abstain_correct": "10/10 completed", "cites_expected_passage": "7/7", "model_seconds_p50": 137.8, "model_seconds_p95": 225.9}
+  },
+  "reasons": [
+    "Qwen3.8-27B took a median 138 s per scenario and timed out twice at the 180 s client timeout, which is not usable while an engineer waits.",
+    "All 7 invalid DeepSeek drafts failed only the validator's no-digits rule by naming the asset model (e.g. PX-100); none wrote a quantity. That rule needs a #17 decision on identifiers, and it would affect any model.",
+    "DeepSeek missed both irrelevant-evidence abstentions (S05, S12); Qwen abstained on the one it completed. Expert review stays mandatory."
+  ],
+  "status": "preliminary: small synthetic set, single runs; revisit after Tuong reviews the scenarios and the identifier rule"
+}

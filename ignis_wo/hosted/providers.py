@@ -12,10 +12,11 @@ split from scripts/fetch_maintie.py. Explanation sends max_tokens=4096 and, when
 budget, retries once without it; both roles share one pacer per process.
 """
 
+import json
 import os
 from pathlib import Path
 
-from ignis_wo.extraction.adapters import LiveAdapter
+from ignis_wo.extraction.adapters import LiveAdapter, ReplayAdapter
 from ignis_wo.extraction.suggest import suggest_all
 from ignis_wo.hosted.explanation import HostedExplanationProvider
 from ignis_wo.hosted.frozen import frozen_extraction_adapter, load_train_items
@@ -40,7 +41,7 @@ def extraction_provider_for(adapter: LiveAdapter, max_records: int):
 
     extraction_provider.model_id = adapter.model_id
     extraction_provider.model_version = adapter.model_version
-    extraction_provider.scored_configuration = adapter.scored_configuration
+    extraction_provider.scored_configuration = getattr(adapter, "scored_configuration", None)
     return extraction_provider
 
 
@@ -66,4 +67,29 @@ def providers_from_environment(environment=None, record_directory: Path | None =
         record_path = record_directory / "explanation-replay.jsonl" if record_directory else None
         explanation_provider = HostedExplanationProvider(client, explanation_model, record_path=record_path,
                                                          budget_fallback=True)
+    return extraction_provider, explanation_provider
+
+
+def first_row(path: Path) -> dict:
+    with path.open(encoding="utf-8") as file:
+        return json.loads(file.readline())
+
+
+def replay_providers(directory: Path, max_records: int = 25):
+    """Providers that only serve recordings from `directory`; a missing recording fails, nothing goes live."""
+    extraction_path = directory / "extraction-replay.jsonl"
+    explanation_path = directory / "explanation-replay.jsonl"
+    if not extraction_path.exists() and not explanation_path.exists():
+        raise ValueError(f"{directory} has no extraction-replay.jsonl or explanation-replay.jsonl")
+    extraction_provider = explanation_provider = None
+    if extraction_path.exists():
+        row = first_row(extraction_path)
+        adapter = ReplayAdapter(extraction_path, row["model_id"], row["model_version"])
+        adapter.scored_configuration = row.get("scored_configuration")
+        extraction_provider = extraction_provider_for(adapter, max_records)
+    if explanation_path.exists():
+        row = first_row(explanation_path)
+        explanation_provider = HostedExplanationProvider(
+            None, row["model_id"], row["output_mode"], row.get("reasoning_effort"), row.get("max_tokens"),
+            replay_path=explanation_path, budget_fallback=row.get("budget_fallback", False))
     return extraction_provider, explanation_provider
