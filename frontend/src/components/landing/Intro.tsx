@@ -5,16 +5,13 @@ import { EASE, Reveal } from "../ui/motion";
 import { Container, cx } from "../ui/primitives";
 
 /* 02 — Problem: a two-tone statement over three sourced charts (layout of
-   Linear's FIG 0.x row). Figures come from issue #21 and were checked against
-   the cited reports; they describe the problem, not results measured with IGNIS. */
+   Linear's FIG 0.x row). Figures were checked against the cited primary sources
+   (MaintainX 2025, Woods et al. 2024, Siemens 2024); they describe the problem,
+   not results measured with IGNIS. */
 
 const grow = {
   hidden: { clipPath: "inset(0 100% 0 0)" },
   show: (i: number) => ({ clipPath: "inset(0 0% 0 0)", transition: { duration: 1.1, ease: EASE, delay: 0.15 + i * 0.12 } }),
-};
-const rise = {
-  hidden: { clipPath: "inset(100% 0 0 0)" },
-  show: (i: number) => ({ clipPath: "inset(0% 0 0 0)", transition: { duration: 1.1, ease: EASE, delay: 0.15 + i * 0.15 } }),
 };
 
 function ChartFrame({ children, label }: { children: ReactNode; label: string }) {
@@ -32,60 +29,63 @@ function ChartFrame({ children, label }: { children: ReactNode; label: string })
   );
 }
 
-/** FIG 2.1 — maintenance tracking tools, multiple answers allowed. */
-function ToolsChart() {
-  const rows = problem.tools.rows;
+/** FIG 2.1 — preventive intent vs. reactive reality (MaintainX 2025). */
+function ReactiveChart() {
+  const rows = problem.reactive.rows;
   return (
-    <ChartFrame label={rows.map((r) => `${r.label} ${r.value}%`).join(", ")}>
+    <ChartFrame label={rows.map((r) => `${r.label} ${r.display}`).join(", ")}>
       <ul className="space-y-5">
         {rows.map((r, i) => (
           <li key={r.label}>
-            <div className="mb-2 flex items-baseline justify-between text-[13px]">
+            <div className="mb-2 flex items-baseline justify-between gap-3 text-[13px]">
               <span className="text-fg-2">{r.label}</span>
-              <span className="font-mono text-fg tabular-nums">{r.value}%</span>
+              <span className="shrink-0 font-mono text-fg tabular-nums">{r.display}</span>
             </div>
             <div className="h-2 rounded-full bg-white/[0.06]">
               <motion.div
                 custom={i}
                 variants={grow}
-                className={cx("h-full rounded-full", r.manual ? "bg-accent" : "bg-fg-3")}
+                className={cx("h-full rounded-full", r.gap ? "bg-accent" : "bg-fg-3")}
                 style={{ width: `${r.value}%` }}
               />
             </div>
           </li>
         ))}
       </ul>
-      <p className="mt-4 font-mono text-[11px] text-fg-4">{problem.tools.note}</p>
+      <p className="mt-4 font-mono text-[11px] text-fg-4">{problem.reactive.note}</p>
     </ChartFrame>
   );
 }
 
-/** FIG 2.2 — HVAC work orders closed on Friday vs every other day. */
-function ClosingChart() {
-  const bars = problem.closing.bars;
-  const max = Math.max(...bars.map((b) => b.value));
+const cell = {
+  hidden: { opacity: 0, scale: 0.6 },
+  show: (i: number) => ({ opacity: 1, scale: 1, transition: { duration: 0.35, ease: EASE, delay: 0.1 + i * 0.008 } }),
+};
+
+/** FIG 2.2 — share of pump work orders with data-quality issues (Woods et al. 2024). */
+function QualityChart() {
+  const { issues, noVerb, note } = problem.quality;
   return (
-    <ChartFrame label={bars.map((b) => `${b.label} ${b.value.toLocaleString("en-US")}`).join(", ")}>
-      <div className="flex h-[176px] items-end gap-6 border-b border-line-strong px-2">
-        {bars.map((b, i) => (
-          <div key={b.label} className="flex h-full flex-1 flex-col justify-end">
-            <span className="mb-2 font-mono text-[13px] text-fg tabular-nums">{b.value.toLocaleString("en-US")}</span>
-            <motion.div
+    <ChartFrame label={`${issues}% of records with data-quality issues; ${noVerb}% with no activity verb`}>
+      <div className="flex items-end gap-5">
+        <div className="grid shrink-0 grid-cols-10 gap-[3px]" aria-hidden>
+          {Array.from({ length: 100 }, (_, i) => (
+            <motion.span
+              key={i}
               custom={i}
-              variants={rise}
-              className={cx("w-full rounded-t-[4px]", i === 0 ? "bg-accent" : "bg-fg-3")}
-              style={{ height: `${Math.max(2, (b.value / max) * 130)}px` }}
+              variants={cell}
+              className={cx("size-[9px] rounded-[2px]", i < issues ? "bg-accent" : "bg-white/[0.08]")}
             />
-          </div>
-        ))}
+          ))}
+        </div>
+        <div className="min-w-0 pb-0.5">
+          <div className="font-mono text-[28px] leading-none text-fg tabular-nums">{issues}%</div>
+          <div className="mt-1 text-[12px] leading-snug text-fg-3">of records with data-quality issues</div>
+          <div className="mt-4 font-mono text-[15px] leading-none text-fg tabular-nums">{noVerb}%</div>
+          <div className="mt-1 text-[12px] leading-snug text-fg-3">gave no verb for the work done</div>
+        </div>
       </div>
-      <div className="mt-2 flex gap-6 px-2 text-[12px] text-fg-3">
-        {bars.map((b) => (
-          <span key={b.label} className="flex-1">
-            {b.label}
-          </span>
-        ))}
-      </div>
+      <p className="mt-4 font-mono text-[11px] text-fg-4">{note}</p>
     </ChartFrame>
   );
 }
@@ -122,7 +122,7 @@ function DowntimeChart() {
   );
 }
 
-const CHARTS = [ToolsChart, ClosingChart, DowntimeChart];
+const CHARTS = [ReactiveChart, QualityChart, DowntimeChart];
 
 export function Problem() {
   return (

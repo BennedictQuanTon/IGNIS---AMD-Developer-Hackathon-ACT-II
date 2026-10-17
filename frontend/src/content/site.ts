@@ -28,20 +28,19 @@ export const hero = {
     Keep each scope note: multiple-answer survey, one HVAC case, sector context only. */
 export const problem = {
   lead: "Maintenance history is hard to trust.",
-  rest: "Records still live in spreadsheets and on paper, close dates drift from the work they describe, and every unplanned hour is expensive. IGNIS makes that history checkable.",
-  tools: {
+  rest: "Most teams spend over half their time firefighting, work-order text is often incomplete or inconsistent, and every unplanned hour is expensive. IGNIS makes that history checkable.",
+  reactive: {
     rows: [
-      { label: "CMMS software", value: 58, manual: false },
-      { label: "In-house spreadsheets", value: 45, manual: true },
-      { label: "Paper or clipboards", value: 39, manual: true },
+      { label: "Call preventive maintenance a core strategy", value: 71, display: "71%", gap: false },
+      { label: "Spend most of their time on it", value: 35, display: "under 35%", gap: true },
+      { label: "Spend over half their time on breakdowns", value: 58, display: "58%", gap: true },
     ],
-    note: "n = 198 · multiple answers allowed",
+    note: "n = 1,320 · US and Canada · vendor survey",
   },
-  closing: {
-    bars: [
-      { label: "Closed on Friday", value: 19597 },
-      { label: "All other days", value: 1510 },
-    ],
+  quality: {
+    issues: 55,
+    noVerb: 33,
+    note: "one centrifugal pump · 8 years of work orders",
   },
   downtime: {
     rows: [
@@ -53,20 +52,20 @@ export const problem = {
   figures: [
     {
       fig: "FIG 2.1",
-      title: "Paper and spreadsheets persist",
-      body: "In a 2019 survey of plant engineers, 45% tracked maintenance in in-house spreadsheets and 39% on paper, alongside 58% using a CMMS.",
+      title: "Teams still firefight",
+      body: "In a 2025 survey of 1,320 maintenance professionals, 71% called preventive maintenance a core strategy, yet under 35% spend most of their time on it and 58% spend over half reacting to breakdowns.",
       source: {
-        label: "Plant Engineering, 2019 Maintenance Report, p. 16",
-        href: "https://www.plantengineering.com/wp-content/uploads/sites/4/2019/02/Plant-Engineering-2019-Maintenance-Report.pdf#page=16",
+        label: "MaintainX, 2025 State of Industrial Maintenance",
+        href: "https://www.getmaintainx.com/newsroom/state-of-industrial-maintenance-report-2025",
       },
     },
     {
       fig: "FIG 2.2",
-      title: "Close dates drift from the work",
-      body: "In one HVAC case study, about 93% of 21,107 work orders were closed on a Friday, a sign of batch closing that can misdate when work actually finished.",
+      title: "Work-order text is unreliable",
+      body: "Analysing eight years of work orders for one centrifugal pump, researchers found data-quality issues in 55% of records, and 33% gave no verb for the work done.",
       source: {
-        label: "Conte et al., NIST / PHM Society 2021, Table 3",
-        href: "https://www.nist.gov/publications/impact-data-quality-maintenance-work-order-analysis-case-study-historical-hvac",
+        label: "Woods et al., Semantic Web 15(2), 2024",
+        href: "https://doi.org/10.3233/SW-233299",
       },
     },
     {
@@ -255,13 +254,13 @@ export const sources = [
   },
   {
     label: "Survey",
-    text: "Plant Engineering 2019 Maintenance Report",
-    href: "https://www.plantengineering.com/wp-content/uploads/sites/4/2019/02/Plant-Engineering-2019-Maintenance-Report.pdf#page=16",
+    text: "MaintainX, 2025 State of Industrial Maintenance",
+    href: "https://www.getmaintainx.com/newsroom/state-of-industrial-maintenance-report-2025",
   },
   {
-    label: "Case study",
-    text: "NIST, Impact of data quality on work order analysis",
-    href: "https://www.nist.gov/publications/impact-data-quality-maintenance-work-order-analysis-case-study-historical-hvac",
+    label: "Study",
+    text: "Woods et al., ontology for maintenance data quality (2024)",
+    href: "https://doi.org/10.3233/SW-233299",
   },
   {
     label: "Downtime",
