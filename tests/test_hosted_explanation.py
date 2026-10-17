@@ -180,7 +180,7 @@ class WorkflowIntegrationTests(unittest.TestCase):
         self.assertEqual(result["status"], "pending_expert_review", result["errors"])
         self.assertEqual(result["model_id"], "GLM-5.3-Flash")
         self.assertEqual(result["explanation_mode"], "hosted_live")
-        self.assertTrue(result["prompt_id"].startswith("explanation-draft-v2-"))
+        self.assertTrue(result["prompt_id"].startswith("explanation-draft-v3-"))
 
     def test_provider_outage_is_recorded_as_an_invalid_draft(self):
         provider = HostedExplanationProvider(ScriptedClient(error=ProviderError("unavailable", "down")), "m")
@@ -190,12 +190,12 @@ class WorkflowIntegrationTests(unittest.TestCase):
 
 
 class EnvironmentTests(unittest.TestCase):
-    def test_v3_is_opt_in_and_the_existing_live_default_stays_v2(self):
+    def test_v3_is_the_live_default_and_v2_stays_selectable(self):
         environment = {"MODEL_API_KEY": "test-key", "EXPLANATION_MODEL_NAME": "m"}
         _, default = providers_from_environment(environment)
-        self.assertEqual(default.prompt.version, "v2")
-        _, candidate = providers_from_environment({**environment, "EXPLANATION_PROMPT_VERSION": "v3"})
-        self.assertEqual(candidate.prompt.version, "v3")
+        self.assertEqual(default.prompt.version, "v3")
+        _, previous = providers_from_environment({**environment, "EXPLANATION_PROMPT_VERSION": "v2"})
+        self.assertEqual(previous.prompt.version, "v2")
 
     def test_no_model_names_means_no_providers(self):
         self.assertEqual(providers_from_environment({}), (None, None))

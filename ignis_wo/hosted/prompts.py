@@ -143,7 +143,7 @@ def pack_for_prompt(pack: dict) -> dict:
 
 
 class ExplanationPrompt:
-    def __init__(self, version="v2"):
+    def __init__(self, version="v3"):
         if version not in {"v1", "v2", "v3"}:
             raise ValueError("unknown explanation prompt version")
         self.version = version

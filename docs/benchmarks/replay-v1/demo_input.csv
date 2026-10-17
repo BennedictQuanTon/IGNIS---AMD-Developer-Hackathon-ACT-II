@@ -1,0 +1,7 @@
+WO #,Equipment ID,Reported Date,Work Order Description,Downtime (h),Data note
+WO-SYN-01,PUMP-SYN-01,2025-01-01,pump seal leaking,0.5,SYNTHETIC fields
+WO-SYN-02,PUMP-SYN-01,2025-01-02,mechanical seal leak at gland,1.0,SYNTHETIC fields
+WO-SYN-03,PUMP-SYN-01,2025-01-03,seal leaking again after restart,1.5,SYNTHETIC fields
+WO-SYN-04,PUMP-SYN-01,2025-01-04,flush line blocked and seal leaking,2.0,SYNTHETIC fields
+WO-SYN-05,PUMP-SYN-01,2025-01-05,pump seal leak observed on night shift,2.5,SYNTHETIC fields
+WO-SYN-06,PUMP-SYN-01,2025-01-06,seal weeping at pump,3.0,SYNTHETIC fields

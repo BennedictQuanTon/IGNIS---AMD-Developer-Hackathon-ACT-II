@@ -1,24 +1,24 @@
 {
   "job": {
     "job": "demo-replay",
-    "attempts": 7,
+    "attempts": 1,
     "max_attempts": 40,
-    "elapsed_seconds": 73.4,
+    "elapsed_seconds": 66.2,
     "max_seconds": 1800,
     "outcomes": {
-      "ok": 7
+      "ok": 1
     },
     "quota_first": {
       "x-ratelimit-limit-user-daily-usd": "1",
-      "x-ratelimit-used-user-daily-usd": "0.13708751",
-      "x-ratelimit-remaining-user-daily-usd": "0.86291249",
-      "x-ratelimit-remaining-user-rpm": "16"
+      "x-ratelimit-used-user-daily-usd": "0.01138447",
+      "x-ratelimit-remaining-user-daily-usd": "0.98861553",
+      "x-ratelimit-remaining-user-rpm": "19"
     },
     "quota_last": {
       "x-ratelimit-limit-user-daily-usd": "1",
-      "x-ratelimit-used-user-daily-usd": "0.13836995",
-      "x-ratelimit-remaining-user-daily-usd": "0.86163005",
-      "x-ratelimit-remaining-user-rpm": "13"
+      "x-ratelimit-used-user-daily-usd": "0.01138447",
+      "x-ratelimit-remaining-user-daily-usd": "0.98861553",
+      "x-ratelimit-remaining-user-rpm": "19"
     }
   },
   "live_draft_status": "pending_expert_review",
@@ -28,5 +28,7 @@
     "draft": true
   },
   "explanation_model": "DeepSeek-V4-Flash",
-  "extraction_model": "DeepSeek-V4-Flash-Vision-Exp"
+  "explanation_prompt_id": "explanation-draft-v3-69a4ee77",
+  "extraction_model": "DeepSeek-V4-Flash-Vision-Exp",
+  "extraction_source": "recording reused from docs/benchmarks/replay-v1/extraction-replay.jsonl"
 }

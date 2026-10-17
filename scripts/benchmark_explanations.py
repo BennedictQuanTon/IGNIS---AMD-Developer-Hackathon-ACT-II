@@ -5,7 +5,7 @@ Stages: dev, heldout (runs once), repeat (5 dev cases x 3), runtime (20 dev task
 ablation (gold text vs OCR text on 4 reader-pilot pages; needs the mineru reader run first).
 Each job stops at 40 HTTP attempts or 30 minutes, and while 25% of the daily allowance remains, so run
 one model per job when repairs could push a stage past 40 attempts. --prompt-version picks the explanation prompt
-(default v2); v2 jobs get a -v2 suffix, and the held-out stage stays v1 because its cases were inspected after that run. The blind rating sheet is built by
+(default v3); v2 and v3 jobs get a version suffix, and the held-out stage stays v1 because its cases were inspected after that run. The blind rating sheet is built by
 scripts/report_benchmarks.py from all dev and held-out rows, so model names are mixed across jobs.
 """
 
@@ -199,7 +199,7 @@ def parse_arguments():
     parser.add_argument("--max-attempts", type=int, default=40)
     parser.add_argument("--max-seconds", type=float, default=1800)
     parser.add_argument("--allowance-reserve", type=float, default=0.25)
-    parser.add_argument("--prompt-version", choices=["v1", "v2", "v3"], default="v2")
+    parser.add_argument("--prompt-version", choices=["v1", "v2", "v3"], default="v3")
     parser.add_argument("--rescore", action="store_true", help="re-score a finished job from its recordings, no calls")
     return parser.parse_args()
 

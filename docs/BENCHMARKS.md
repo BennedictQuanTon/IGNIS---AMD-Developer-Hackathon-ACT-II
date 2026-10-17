@@ -1,6 +1,6 @@
 # Hosted model benchmarks for #23
 
-**Prompt evaluations (2026-10-17):** live explanations default to v2. See [Prompt v2 on dev](#prompt-v2-on-dev) and the separate [opt-in v3 evaluation](#guarded-v3-evaluation-opt-in); all original stage results remain v1. The replay package is still v1, because the v2 demo draft failed validation. The [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md) records schema and interpretation limits without changing the frozen labels or results.
+**Prompt evaluations (2026-10-17):** live explanations default to v3, chosen after two dev runs of each prompt ([v2 against v3](#v2-against-v3-and-the-default)). See also [Prompt v2 on dev](#prompt-v2-on-dev) and the first [v3 evaluation](#guarded-v3-evaluation-opt-in); all original stage results remain v1. The replay package is v3; the earlier v1 package is kept in `benchmarks/replay-v1/`. The [scenario technical review](benchmarks/scenarios/TECHNICAL_REVIEW.md) records schema and interpretation limits without changing the frozen labels or results.
 
 Measured on 2026-10-16 with the event's AMD API and its one shared key (20 requests per minute, $1 per day). Each run happened once, on small sets, so treat every number as preliminary. The explanation scenarios are synthetic: Yoshio drafted them, and they are pending Tuong's review. Every number below is in [results.json](benchmarks/results.json). The inputs and settings are frozen in [manifest.json](benchmarks/manifest.json).
 
@@ -121,9 +121,29 @@ One capped DeepSeek-V4-Flash run on the same 12 synthetic dev scenarios produced
 
 S06 and S09 had no applicable passages and were handled without model calls. They are excluded from the first-model-response and model-latency denominators. Final validity includes them; a valid abstention is not a repaired model response. The outcome score includes structurally invalid answers and must not be read as an accepted-output success rate. V3 abstained in all required abstention cases, but also abstained on S03, S04, S07 and S11 where the frozen labels expected support. S05 and S11 remained invalid under the unchanged number rule.
 
-**Decision:** keep v3 opt-in. Increased structural validity and conservative abstention do not outweigh the drop in expected-passage support sufficiently to promote it on a single dev run. No demo re-recording or held-out run was made. The original v1/v2 published results and rating sheet remain unchanged. The new reporting logic separates deterministic abstentions and labels latency sample counts correctly.
+**Decision at the time (superseded below):** keep v3 opt-in. Increased structural validity and conservative abstention do not outweigh the drop in expected-passage support sufficiently to promote it on a single dev run. No demo re-recording or held-out run was made. The original v1/v2 published results and rating sheet remain unchanged. The new reporting logic separates deterministic abstentions and labels latency sample counts correctly.
 
 The job used 14 of its 24 allowed attempts in 109.8 seconds (600-second cap, 25% allowance reserve). Successful-response allowance headers changed from $0.99721570 to $0.99630134 remaining; shared-key headers can include other callers. This is not an end-to-end browser latency measurement.
+
+## v2 against v3 and the default
+
+Both prompts were run a second time on 2026-10-17 with DeepSeek-V4-Flash, the same 12 synthetic dev scenarios and the same settings, giving two runs of each. Rows and summaries are in [prompt-comparison](benchmarks/prompt-comparison/) (v2 runs 1 and 2, v3 run 2; v3 run 1 is [v3-dev](benchmarks/v3-dev/)). "Chance v3 is better" is P(v3's true rate is higher) under uniform Beta priors, by Monte Carlo; latency uses a bootstrap of the median.
+
+| Measure, both runs pooled | v2 | v3 | Chance v3 is better |
+|---|---|---|---|
+| Final valid output | 14/24 | 21/24 | 0.99 |
+| First model response valid | 7/24 | 13/20 | 0.99 |
+| Invalid only for identifier digits (lower is better) | 8/24 | 2/23 | 0.98 |
+| Support or abstain decision matches the expected label | 17/24 | 16/23 | 0.46 |
+| Cites an expected passage in support cases | 13/16 | 8/15 | 0.05 |
+| Model time p50 / p95 | 21.3 / 60.1 s (n=24) | 10.3 / 27.9 s (n=20) | 1.00 (median lower) |
+| Calls per valid output | 2.9 | 1.2 | |
+
+- **Decisions tie, with opposite errors.** v2 missed 5 of 8 required abstentions (S05, S06, S12). v3 missed none, but abstained in 7 of 16 support runs (S03, S04 and S07 twice, S11 once).
+- **Stability.** Each prompt made the same support or abstain decision in both runs on 9/12 (v2) and 10/12 (v3) scenarios.
+- **Run 2 cost and failures.** v2 made 20 calls, all OK. v3 made 14 calls; one S01 call timed out at 180 s, so S01 has no v3 run-2 decision.
+
+**Decision (team, 2026-10-17): v3 is the default.** It is valid far more often, so live drafts reach expert review; it never claims support it should abstain on; and it is about twice as fast. The team accepted its lower expected-passage citation and its over-abstention as the cautious side of an expert-review flow. v1 and v2 stay selectable with `EXPLANATION_PROMPT_VERSION`. These are synthetic dev runs with expected labels pending review, not a held-out or human-rated result.
 
 ## Stage 3: runtime on the shared key
 
@@ -154,7 +174,7 @@ The job used 14 of its 24 allowed attempts in 109.8 seconds (600-second cap, 25%
 
 [`docs/benchmarks/replay/`](benchmarks/replay/summary.json) holds one synthetic pump run recorded live: frozen extraction on 6 work orders, then a DeepSeek explanation that reached `pending_expert_review`. It also holds the pilot OCR replies. Replaying it offline gave identical extraction labels and an identical draft.
 
-The package still replays the v1 prompt. A v2 re-recording on 2026-10-17 was refused: the live draft wrote "at least one failed-state record", which the validator rejects as a number word. Live mode uses v2, so replay and live currently run different prompts. Once the prompt is settled, `record_demo_replay.py --extraction-replay <recording>` re-records only the explanation and keeps the same 6 extraction suggestions.
+The explanation was re-recorded with v3 on 2026-10-17 (`explanation-draft-v3-69a4ee77`, one call): the draft reached `pending_expert_review` with two cited hypotheses, one alternative and an inspection step, and replayed identically. The extraction recording, OCR replies and input are reused unchanged from the v1 package, which is kept in [`replay-v1/`](benchmarks/replay-v1/summary.json). An earlier v2 re-recording was refused because its draft wrote "at least one", which the validator rejects as a number word.
 
 | Mode | Command |
 |---|---|
@@ -182,7 +202,7 @@ uv run --no-project --with-requirements requirements-dev.txt python scripts/repo
 
 ## Limitations
 
-- **Synthetic inputs only.** Every reader page and explanation scenario is synthetic and small. Nothing here measures accuracy on real factory documents or real failures, and nothing claims a diagnosis.
+- **Synthetic inputs only.** Every reader page and explanation scenario is synthetic and small, and the demo uses synthetic data only, because power-plant maintenance data is confidential. Nothing here measures accuracy on real factory documents or real failures, and nothing claims a diagnosis.
 - **Pending review.** The scenarios and their expected outcomes are drafted by Yoshio and await Tuong's review. Semantic support awaits blind human rating.
 - **Single runs.** The API ignores `seed`, so repeats vary, and p95 values from n ≤ 20 are preliminary.
 - **Opaque provider.** Model weights and serving versions are not exposed, and the catalogue changes. These are API names on 2026-10-16.

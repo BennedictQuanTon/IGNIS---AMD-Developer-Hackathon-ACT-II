@@ -101,7 +101,7 @@ class HostedExplanationProvider:
                 raise ValueError("replay prompt identity is unknown or mixed; recordings cannot be relabelled")
             self.prompt = matching[0]
         else:
-            self.prompt = ExplanationPrompt(prompt_version or "v2")
+            self.prompt = ExplanationPrompt(prompt_version or "v3")
         self.prompt_id = self.prompt.prompt_id
         self.explanation_mode = "hosted_replay" if replay_path else "hosted_live"
         self.lock = threading.Lock()

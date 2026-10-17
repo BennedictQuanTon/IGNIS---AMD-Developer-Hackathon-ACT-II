@@ -1,0 +1,80 @@
+{
+  "stage": "dev",
+  "concurrency": 1,
+  "models": {
+    "DeepSeek-V4-Flash": {
+      "families": 12,
+      "errors": 0,
+      "deterministic_abstentions": 0,
+      "first_pass_valid": {
+        "true": 4,
+        "n": 12
+      },
+      "valid_after_repair": {
+        "true": 6,
+        "n": 12
+      },
+      "outcome_correct": {
+        "true": 10,
+        "n": 12
+      },
+      "support_hit": {
+        "true": 7,
+        "n": 8
+      },
+      "distractor_cited": {
+        "true": 0,
+        "n": 1
+      },
+      "invalid_only_for_identifier_digits": 5,
+      "wrong_model_in_pack": 0,
+      "budget_fallback_used": 0,
+      "model_seconds_p50": 19.953,
+      "model_seconds_p95": 43.312,
+      "latency_n": 12,
+      "calls": 20,
+      "tokens_per_valid_output": 2570.8
+    }
+  },
+  "prompt_ids": {
+    "DeepSeek-V4-Flash": "explanation-draft-v2-f80d1254"
+  },
+  "runtime": {
+    "tasks": 12,
+    "finished": 12,
+    "wall_seconds": 268.4,
+    "calls": 20,
+    "calls_per_minute": 4.47,
+    "valid_per_minute": 1.34,
+    "full_path_p50": 19.953,
+    "full_path_p95": 43.312,
+    "queue_and_pacing_p50": 0.0,
+    "n": 12
+  },
+  "job": {
+    "job": "stage2-dev-DeepSeek-V4-Flash-v2",
+    "attempts": 20,
+    "max_attempts": 40,
+    "elapsed_seconds": 268.4,
+    "max_seconds": 1800,
+    "outcomes": {
+      "ok": 20
+    },
+    "quota_first": {
+      "x-ratelimit-limit-user-daily-usd": "1",
+      "x-ratelimit-used-user-daily-usd": "0.00380621",
+      "x-ratelimit-remaining-user-daily-usd": "0.99619379",
+      "x-ratelimit-remaining-user-rpm": "19"
+    },
+    "quota_last": {
+      "x-ratelimit-limit-user-daily-usd": "1",
+      "x-ratelimit-used-user-daily-usd": "0.00709382",
+      "x-ratelimit-remaining-user-daily-usd": "0.99290618",
+      "x-ratelimit-remaining-user-rpm": "11"
+    }
+  },
+  "statuses": [
+    "ok"
+  ],
+  "elapsed_seconds": 268.4
+}

@@ -23,7 +23,7 @@ The corpus marks synthetic items as approved to exercise filtering while stating
 
 ## Identifier policy and further evaluation
 
-Local live inference now uses the versioned v2 prompt: write “the pump” or “the applicable manual” in prose; put exact IDs only in citations/fact slots. The no-digits validator is unchanged. Recorded v1 answers replay under v1; they are never relabelled as v2 results. No quality or latency improvement is claimed for v2 until measured.
+Live inference now uses the versioned v3 prompt, which keeps v2's identifier rule: write “the pump” or “the applicable manual” in prose; put exact IDs only in citations/fact slots. The no-digits validator is unchanged. Recorded answers replay under the prompt they were recorded with and are never relabelled. Measured v2 and v3 dev results are in [BENCHMARKS.md](../../BENCHMARKS.md#v2-against-v3-and-the-default).
 
 The held-out labels have now been inspected and must not be used as an untouched final set for prompt tuning. Preserve the published v1 results. Evaluate v2 on dev/new reviewed cases first; any future final claim needs a new untouched hold-out and blind human semantic ratings.
 

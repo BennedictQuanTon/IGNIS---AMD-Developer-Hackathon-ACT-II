@@ -96,7 +96,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--out", type=Path, default=ROOT / "docs" / "benchmarks" / "replay")
     parser.add_argument("--explanation-model", default=os.environ.get("EXPLANATION_MODEL_NAME"))
-    parser.add_argument("--prompt-version", choices=["v1", "v2", "v3"], default="v2")
+    parser.add_argument("--prompt-version", choices=["v1", "v2", "v3"], default="v3")
     parser.add_argument("--allowance-reserve", type=float, default=0.25)
     parser.add_argument("--extraction-replay", type=Path, help="reuse this extraction recording instead of a live run")
     arguments = parser.parse_args()
