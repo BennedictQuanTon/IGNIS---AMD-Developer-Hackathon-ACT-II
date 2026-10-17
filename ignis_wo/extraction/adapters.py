@@ -7,7 +7,12 @@ from typing import Protocol
 
 from ignis_wo.hashing import sha256_text
 from ignis_wo.hosted.prompts import EXTRACTION_SCHEMA, ExtractionPrompt
-from ignis_wo.hosted.transport import ChatClient, ProviderError, parse_json_content
+from ignis_wo.hosted.transport import (
+    ChatClient,
+    ProviderError,
+    budget_label,
+    parse_json_content,
+)
 
 TASK = "maintie-ie-v1"
 
@@ -180,8 +185,9 @@ class LiveAdapter:
         prompt: ExtractionPrompt | None = None,
         output_mode: str = "json_object",
         reasoning_effort: str | None = "low",
-        max_tokens: int = 4096,
+        max_tokens: int | None = 4096,
         record_path: Path | None = None,
+        budget_fallback: bool = False,
     ):
         self.client = client
         self.model_id = model_id
@@ -189,9 +195,16 @@ class LiveAdapter:
         self.output_mode = output_mode
         self.reasoning_effort = reasoning_effort
         self.max_tokens = max_tokens
+        self.budget_fallback = budget_fallback
         self.record_path = record_path
-        self.model_version = f"{self.prompt.prompt_id}+{output_mode}+{reasoning_effort or 'default'}"
+        self.settings = f"{output_mode}+{reasoning_effort or 'default'}"
+        self.model_version = f"{self.prompt.prompt_id}+{self.settings}+{budget_label(max_tokens, budget_fallback)}"
+        self.scored_configuration = None
         self.lock = threading.Lock()
+
+    def legacy_model_version(self) -> str:
+        """The v1 form, without the budget label, matching entries scored before v2 identities."""
+        return f"{self.prompt.legacy_prompt_id()}+{self.settings}"
 
     def extract(self, text_norm: str):
         response, _, _ = self.extract_with_result(text_norm)
@@ -202,7 +215,7 @@ class LiveAdapter:
         messages = self.prompt.messages(text_norm)
         try:
             result = self.client.complete(self.model_id, messages, self.output_mode, schema, self.reasoning_effort,
-                                          self.max_tokens)
+                                          self.max_tokens, budget_fallback=self.budget_fallback)
             raw = parse_json_content(result.content)
             require_lists(raw)
         except ProviderError as error:
@@ -220,7 +233,8 @@ class LiveAdapter:
 
     def row_identity(self, text_norm: str) -> dict:
         return {"input_hash": input_hash(text_norm), "model_id": self.model_id, "model_version": self.model_version,
-                "prompt_id": self.prompt.prompt_id, "output_mode": self.output_mode}
+                "prompt_id": self.prompt.prompt_id, "output_mode": self.output_mode,
+                "scored_configuration": self.scored_configuration}
 
     def record(self, text_norm: str, raw: dict, response: dict, result, reanchored: int) -> None:
         row = {

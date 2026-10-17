@@ -2,11 +2,13 @@ import unittest
 
 from mock_chat_server import ScriptedServer, chat_reply, reply
 
-from ignis_wo.hosted.pacing import RequestPacer
-from ignis_wo.hosted.transport import ChatClient, ProviderError, parse_json_content
+from ignis_wo.hosted.pacing import RequestPacer, shared_pacer
+from ignis_wo.hosted.transport import ChatClient, Gateway, ProviderError, parse_json_content
 
 KEY = "rc-test-secret-key"
 MESSAGES = [{"role": "user", "content": "hi"}]
+NULL_LIMIT = reply({"error": {"message": "The requested max_tokens (4096) exceeds the maximum output tokens allowed "
+                                         "for model Qwen3.8-27B (null)"}}, 400)
 
 
 class FakeClock:
@@ -153,7 +155,87 @@ class OutputTests(unittest.TestCase):
             self.assertEqual(caught.exception.kind, "invalid_response")
 
 
+class BudgetTests(unittest.TestCase):
+    def test_a_server_default_budget_is_left_out_and_truncation_is_not_retried(self):
+        with ScriptedServer([reply(chat_reply("", "length"))]) as server, self.assertRaises(ProviderError) as caught:
+            client_for(server).complete("m", MESSAGES, max_tokens=None)
+        self.assertEqual(caught.exception.kind, "truncated")
+        self.assertEqual(len(server.requests), 1)
+        self.assertNotIn("max_tokens", server.requests[0]["body"])
+        self.assertEqual(caught.exception.result.request_parameters["max_tokens_policy"], "server_default")
+
+    def test_a_rejected_budget_stops_when_fallback_is_off(self):
+        with ScriptedServer([NULL_LIMIT]) as server, self.assertRaises(ProviderError) as caught:
+            client_for(server).complete("m", MESSAGES)
+        self.assertEqual(caught.exception.kind, "budget_rejected")
+        self.assertEqual(len(server.requests), 1)
+
+    def test_fallback_retries_once_without_max_tokens_and_remembers_the_model(self):
+        with ScriptedServer([NULL_LIMIT, reply(chat_reply("{}"))]) as server:
+            client = client_for(server)
+            first = client.complete("m", MESSAGES, budget_fallback=True)
+            second = client.complete("m", MESSAGES, budget_fallback=True)
+        self.assertEqual([request["body"].get("max_tokens") for request in server.requests], [4096, None, None])
+        self.assertEqual(first.request_parameters["budget_fallback"]["rejected_max_tokens"], 4096)
+        self.assertIsNone(first.request_parameters["effective_max_tokens"])
+        self.assertEqual(second.request_parameters["max_tokens_policy"], "explicit_with_fallback")
+        self.assertEqual(second.request_parameters["budget_fallback"], {"remembered": True})
+
+    def test_other_bad_requests_never_trigger_the_fallback(self):
+        unknown = reply({"error": {"message": "Unknown parameter: foo"}}, 400)
+        with ScriptedServer([unknown]) as server, self.assertRaises(ProviderError) as caught:
+            client_for(server).complete("m", MESSAGES, budget_fallback=True)
+        self.assertEqual(caught.exception.kind, "bad_request")
+        self.assertEqual(len(server.requests), 1)
+
+    def test_an_oversized_body_is_refused_before_sending(self):
+        with ScriptedServer([reply(chat_reply("{}"))]) as server, self.assertRaises(ProviderError) as caught:
+            gateway = Gateway(server.base_url, KEY, max_body_bytes=100)
+            ChatClient(gateway=gateway).complete("m", [{"role": "user", "content": "x" * 200}])
+        self.assertEqual(caught.exception.kind, "bad_request")
+        self.assertEqual(server.requests, [])
+
+
 class PacerTests(unittest.TestCase):
+    def test_a_pause_imposed_while_a_caller_sleeps_is_rechecked(self):
+        clock = FakeClock()
+
+        def sleep(seconds):
+            if not clock.sleeps:
+                pacer.pause(10.0)
+            clock.sleep(seconds)
+
+        pacer = RequestPacer(requests_per_minute=60, clock=clock, sleep=sleep)
+        for _ in range(2):
+            with pacer.slot():
+                pass
+        self.assertEqual(clock.sleeps, [1.0, 9.0])
+
+    def test_the_allowance_reserve_stops_requests_before_the_limit(self):
+        clock = FakeClock()
+        pacer = RequestPacer(allowance_reserve=0.25, clock=clock, sleep=clock.sleep)
+        with pacer.slot():
+            pass
+        pacer.observe({"x-ratelimit-limit-user-daily-usd": "1", "x-ratelimit-remaining-user-daily-usd": "0.2"})
+        with self.assertRaises(ProviderError) as caught, pacer.slot():
+            pass
+        self.assertEqual(caught.exception.kind, "credits")
+
+    def test_the_shared_pacer_is_one_object_and_refuses_other_settings(self):
+        pacer = shared_pacer()
+        self.assertIs(shared_pacer(), pacer)
+        with self.assertRaises(ValueError):
+            shared_pacer(requests_per_minute=5)
+
+    def test_clients_sharing_a_gateway_share_its_pacer(self):
+        clock = FakeClock()
+        pacer = RequestPacer(requests_per_minute=60, clock=clock, sleep=clock.sleep)
+        with ScriptedServer([reply(chat_reply("{}"))]) as server:
+            gateway = Gateway(server.base_url, KEY, pacer=pacer)
+            ChatClient(gateway=gateway).complete("m", MESSAGES)
+            ChatClient(gateway=gateway).complete("m", MESSAGES)
+        self.assertEqual(clock.sleeps, [1.0])
+
     def test_requests_are_spaced_by_the_rate_limit(self):
         clock = FakeClock()
         pacer = RequestPacer(requests_per_minute=30, max_in_flight=1, clock=clock, sleep=clock.sleep)
@@ -176,7 +258,7 @@ class PacerTests(unittest.TestCase):
         limited = reply({"error": {"message": "Rate limit exceeded"}}, 429, {"Retry-After": "5"})
         with ScriptedServer([limited]) as server, self.assertRaises(ProviderError):
             ChatClient(server.base_url, KEY, pacer=pacer, max_attempts=1).complete("m", MESSAGES)
-        self.assertEqual(pacer.next_start, 5.0)
+        self.assertEqual(pacer.paused_until, 5.0)
 
     def test_pacer_is_used_by_the_client(self):
         clock = FakeClock()

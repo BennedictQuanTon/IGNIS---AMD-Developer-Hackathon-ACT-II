@@ -2,8 +2,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from sample_data import sample_items
+from sample_data import frozen_config_for, sample_items
 
 from ignis_wo.extraction.adapters import ReplayMiss
 from ignis_wo.hosted.explanation import HostedExplanationProvider, assemble_draft
@@ -21,7 +22,7 @@ class ScriptedClient:
         self.error = error
         self.calls = []
 
-    def complete(self, model, messages, output_mode, schema, reasoning_effort, max_tokens):
+    def complete(self, model, messages, output_mode, schema, reasoning_effort, max_tokens, budget_fallback=False):
         self.calls.append(messages)
         if self.error:
             raise self.error
@@ -81,6 +82,14 @@ class ExplanationProviderTests(unittest.TestCase):
         self.assertEqual(client.calls, [])
         self.assertEqual(validate_draft(empty_pack, draft), [])
 
+    def test_the_replay_key_changes_with_the_budget_and_reasoning(self):
+        key = HostedExplanationProvider(None, "m").replay_key(self.pack, 0)
+        variants = [HostedExplanationProvider(None, "m", max_tokens=None),
+                    HostedExplanationProvider(None, "m", budget_fallback=True),
+                    HostedExplanationProvider(None, "m", reasoning_effort=None)]
+        for provider in variants:
+            self.assertNotEqual(provider.replay_key(self.pack, 0), key)
+
     def test_recorded_answers_replay_and_a_changed_pack_misses(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "explanation.jsonl"
@@ -131,15 +140,26 @@ class EnvironmentTests(unittest.TestCase):
     def test_no_model_names_means_no_providers(self):
         self.assertEqual(providers_from_environment({}), (None, None))
 
+    def test_explanation_alone_needs_no_maintie_data(self):
+        environment = {"MODEL_API_KEY": "rc-x", "EXPLANATION_MODEL_NAME": "GLM-5.3-Flash"}
+        with mock.patch("ignis_wo.hosted.providers.load_train_items", side_effect=AssertionError("data was read")):
+            extraction, explanation = providers_from_environment(environment)
+        self.assertIsNone(extraction)
+        self.assertEqual(explanation.model_id, "GLM-5.3-Flash")
+
     def test_a_model_without_a_key_is_refused(self):
         with self.assertRaises(ValueError):
             providers_from_environment({"MODEL_NAME": "DeepSeek-V4-Flash"})
 
     def test_configured_providers_carry_model_identity(self):
         environment = {"MODEL_API_KEY": "rc-x", "MODEL_NAME": "DeepSeek-V4-Flash", "EXPLANATION_MODEL_NAME": "GLM-5.3-Flash"}
-        extraction, explanation = providers_from_environment(environment, max_records=1)
+        config = frozen_config_for(sample_items(), "DeepSeek-V4-Flash")
+        extraction, explanation = providers_from_environment(environment, max_records=1, train_items=sample_items(),
+                                                             frozen_config=config)
         self.assertEqual(extraction.model_id, "DeepSeek-V4-Flash")
+        self.assertTrue(extraction.scored_configuration)
         self.assertEqual(explanation.model_id, "GLM-5.3-Flash")
+        self.assertTrue(explanation.budget_fallback)
         with self.assertRaises(ValueError):
             extraction([object(), object()])
 

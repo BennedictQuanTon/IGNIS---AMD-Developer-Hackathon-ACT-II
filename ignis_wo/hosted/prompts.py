@@ -1,5 +1,5 @@
 """Versioned prompts. Each prompt_id ends with a hash of its rendered template and examples,
-so a changed prompt can never reuse responses recorded for an older one."""
+including the example answers, so a changed prompt can never reuse responses recorded for an older one."""
 
 import json
 
@@ -115,9 +115,16 @@ class ExtractionPrompt:
         entity_list = "\n".join(sorted(entity_labels()))
         relation_list = "\n".join(sorted(relation_labels()))
         self.system = f"{EXTRACTION_RULES}\n\nEntity labels:\n{entity_list}\n\nRelation labels:\n{relation_list}"
+        name = "extraction-fewshot-v2" if self.examples else "extraction-instruction-v2"
+        example_tokens = [item["tokens"] for item in self.examples]
+        example_answers = [gold_to_token_form(item) for item in self.examples]
+        self.prompt_id = f"{name}-{content_hash([self.system, example_tokens, example_answers])[:8]}"
+
+    def legacy_prompt_id(self) -> str:
+        """The v1 identity, which hashed only the example text. Used only to link to runs scored under v1."""
         name = "extraction-fewshot-v1" if self.examples else "extraction-instruction-v1"
         example_texts = [" ".join(item["tokens"]) for item in self.examples]
-        self.prompt_id = f"{name}-{content_hash([self.system, example_texts])[:8]}"
+        return f"{name}-{content_hash([self.system, example_texts])[:8]}"
 
     def messages(self, text_norm: str) -> list[dict]:
         messages = [{"role": "system", "content": self.system}]

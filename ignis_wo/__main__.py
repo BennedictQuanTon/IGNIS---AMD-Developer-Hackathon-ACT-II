@@ -8,11 +8,12 @@ from pathlib import Path
 
 from ignis_wo.artifacts import StageFailed
 from ignis_wo.contracts import ComponentCriticality
-from ignis_wo.evaluation.benchmark import TEST_LEDGER, ledger_contains
+from ignis_wo.evaluation.benchmark import TEST_LEDGER, already_scored
 from ignis_wo.evaluation.maintie import load_gold, load_verified_splits
 from ignis_wo.evaluation.scorer import score_items
-from ignis_wo.extraction.adapters import FixtureAdapter, LiveAdapter, ReplayAdapter
-from ignis_wo.hosted.pacing import RequestPacer
+from ignis_wo.extraction.adapters import FixtureAdapter, ReplayAdapter
+from ignis_wo.hosted.frozen import frozen_extraction_adapter, load_train_items
+from ignis_wo.hosted.pacing import shared_pacer
 from ignis_wo.hosted.transport import DEFAULT_BASE_URL, ChatClient
 from ignis_wo.pipeline import RunOptions, run_pipeline
 from ignis_wo.workflow.api import serve
@@ -35,8 +36,9 @@ def make_adapter(arguments):
     if arguments.mode == "replay":
         return ReplayAdapter(arguments.replay, arguments.model_id, arguments.model_version)
     base_url = arguments.base_url or os.environ.get("MODEL_BASE_URL") or DEFAULT_BASE_URL
-    client = ChatClient(base_url, os.environ.get("MODEL_API_KEY"), pacer=RequestPacer())
-    return LiveAdapter(client, arguments.model_id, record_path=arguments.record)
+    client = ChatClient(base_url, os.environ.get("MODEL_API_KEY"), pacer=shared_pacer())
+    train_items = load_train_items(arguments.gold)
+    return frozen_extraction_adapter(client, arguments.model_id, train_items, arguments.record)
 
 
 def add_adapter_arguments(parser: argparse.ArgumentParser) -> None:
@@ -80,7 +82,7 @@ def command_eval(arguments) -> int:
         raise SystemExit("the test split is locked; pass --final for the single recorded final evaluation")
     adapter = make_adapter(arguments)
     if arguments.split == "test":
-        if adapter.mode == "fixture" or ledger_contains(arguments.ledger, adapter.model_id, adapter.model_version):
+        if adapter.mode == "fixture" or already_scored(arguments.ledger, adapter):
             raise SystemExit("test split refused: fixture mode or this model version was already scored")
     splits = load_verified_splits(arguments.gold)
     result = score_items(splits[arguments.split], adapter, arguments.depth, arguments.perturb)

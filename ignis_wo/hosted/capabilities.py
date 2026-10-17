@@ -4,6 +4,9 @@ import datetime
 
 from ignis_wo.hosted.transport import STOP_KINDS, ProviderError, parse_json_content
 
+# A rejected output budget concerns one model, not the key, so the scan moves on to the next model.
+ACCOUNT_STOP_KINDS = STOP_KINDS - {"budget_rejected"}
+
 PROBE_MESSAGES = [
     {"role": "system", "content": "Reply with a JSON object only."},
     {"role": "user", "content": 'Return this JSON object unchanged: {"status": "ok", "component": "pump"}'},
@@ -52,7 +55,7 @@ def capability_matrix(client, max_requests: int = 20, reasoning_effort: str = "l
     for model_id, output_mode in probe_plan(models)[:max_requests]:
         row = probe(client, model_id, output_mode, reasoning_effort, max_tokens)
         probes.append(row)
-        if row["status"] in STOP_KINDS:
+        if row["status"] in ACCOUNT_STOP_KINDS:
             break
     listing_keys = ("id", "context_length", "supported_parameters", "json_output", "structured_outputs", "stability")
     listing = [{key: model.get(key) for key in listing_keys} for model in models]

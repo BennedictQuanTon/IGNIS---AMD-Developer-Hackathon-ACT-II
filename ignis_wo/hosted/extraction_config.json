@@ -1,0 +1,36 @@
+{
+  "description": "Frozen hosted extraction configuration. Runtime extraction builds its adapter from this file.",
+  "model_id": "DeepSeek-V4-Flash-Vision-Exp",
+  "prompt": "fewshot",
+  "example_count": 5,
+  "example_source": "MaintIE train split (positions 0-859), verified against ignis_wo/evaluation/maintie_split_lock.json; fetch with scripts/fetch_maintie.py",
+  "output_mode": "json_object",
+  "reasoning_effort": null,
+  "max_tokens": 4096,
+  "budget_fallback": false,
+  "prompt_id": "extraction-fewshot-v2-3dc4cc73",
+  "model_version": "extraction-fewshot-v2-3dc4cc73+json_object+default+max4096",
+  "scored_as": {
+    "model_id": "DeepSeek-V4-Flash-Vision-Exp",
+    "prompt_id": "extraction-fewshot-v1-bb5ed1ca",
+    "model_version": "extraction-fewshot-v1-bb5ed1ca+json_object+default",
+    "max_tokens": 4096,
+    "budget_fallback": false,
+    "run": "20261016T055239Z-test-DeepSeek-V4-Flash-Vision-Exp",
+    "split": "MaintIE test, 108 records, scored once",
+    "result": {
+      "valid_outputs": "105 of 108",
+      "entity_f1_exact": 0.46,
+      "entity_f1_depth_2": 0.59,
+      "entity_f1_top_level": 0.76,
+      "relation_f1": 0.43,
+      "latency_p50_seconds": 8.8,
+      "latency_p95_seconds": 12.8
+    },
+    "source": "PR #22 (author-reported, single run, prompted model, no fine-tuning)"
+  },
+  "limitations": [
+    "The v1 prompt hash covered the system prompt and example text only, not the example answers. That the answers are unchanged rests on git history: prompts.py and maintie.py are unchanged since PR #22.",
+    "The API ignores seed, so a re-run can differ; the test split must not be re-scored for this configuration."
+  ]
+}

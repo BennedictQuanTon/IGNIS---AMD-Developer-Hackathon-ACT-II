@@ -8,6 +8,7 @@ from pathlib import Path
 from ignis_wo.contracts import ComponentCriticality, Snapshot
 from ignis_wo.extraction.adapters import FixtureAdapter
 from ignis_wo.extraction.suggest import suggest_all
+from ignis_wo.hosted.prompts import ExtractionPrompt, select_examples
 from ignis_wo.ingest.mapping import build_records, confirm_mapping, propose_mapping
 from ignis_wo.ingest.registry import parse_file
 from ignis_wo.review import accept_all
@@ -19,6 +20,14 @@ COLUMNS = ["WO #", "Equipment ID", "Reported Date", "Work Order Description", "D
 
 def sample_items() -> list[dict]:
     return json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+
+
+def frozen_config_for(items: list[dict], model_id: str = "m") -> dict:
+    """A frozen extraction configuration built from the sample items instead of MaintIE."""
+    prompt = ExtractionPrompt(select_examples(items, 2))
+    return {"model_id": model_id, "example_count": 2, "output_mode": "json_object", "reasoning_effort": None,
+            "max_tokens": 4096, "budget_fallback": False, "prompt_id": prompt.prompt_id,
+            "scored_as": {"prompt_id": prompt.legacy_prompt_id()}}
 
 
 def sample_adapter() -> FixtureAdapter:

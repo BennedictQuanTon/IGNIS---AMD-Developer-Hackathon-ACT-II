@@ -17,10 +17,10 @@ sys.path.insert(0, str(ROOT))
 
 from ignis_wo.evaluation.benchmark import (  # noqa: E402
     TEST_LEDGER,
+    already_scored,
     extraction_call,
     extraction_cases,
     extraction_scores,
-    ledger_contains,
     run_cases,
     run_complete,
     summarize,
@@ -44,7 +44,11 @@ def parse_arguments():
     parser.add_argument("--examples", type=int, default=5, help="few-shot examples taken from the train split")
     parser.add_argument("--output-mode", choices=["json_object", "json_schema"], default="json_object")
     parser.add_argument("--reasoning-effort", default="low", help="'default' omits the parameter")
-    parser.add_argument("--max-tokens", type=int, default=4096)
+    parser.add_argument("--max-tokens", type=int, default=4096, help="0 leaves max_tokens out (server default)")
+    parser.add_argument("--budget-fallback", action="store_true",
+                        help="retry once without max_tokens when the model rejects the budget")
+    parser.add_argument("--allowance-reserve", type=float, default=0.25,
+                        help="stop before the shared daily allowance falls below this fraction")
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--requests-per-minute", type=float, default=20)
     parser.add_argument("--max-duration", type=float, default=600, help="seconds before remaining cases are skipped")
@@ -64,15 +68,16 @@ def main() -> int:
     items = splits[arguments.split][arguments.offset:arguments.offset + arguments.limit]
     examples = select_examples(splits["train"], arguments.examples) if arguments.prompt == "fewshot" else []
     reasoning_effort = None if arguments.reasoning_effort == "default" else arguments.reasoning_effort
+    max_tokens = arguments.max_tokens or None
     stamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%dT%H%M%SZ")
     run_name = f"{stamp}-{arguments.split}-{re.sub(r'[^A-Za-z0-9.-]', '_', arguments.model)}"
     run_directory = arguments.out / run_name
 
-    pacer = RequestPacer(arguments.requests_per_minute, arguments.concurrency)
+    pacer = RequestPacer(arguments.requests_per_minute, arguments.concurrency, arguments.allowance_reserve)
     client = client_from_environment(pacer=pacer)
     adapter = LiveAdapter(client, arguments.model, ExtractionPrompt(examples), arguments.output_mode, reasoning_effort,
-                          arguments.max_tokens, record_path=run_directory / "replay.jsonl")
-    if arguments.split == "test" and ledger_contains(arguments.ledger, adapter.model_id, adapter.model_version):
+                          max_tokens, run_directory / "replay.jsonl", budget_fallback=arguments.budget_fallback)
+    if arguments.split == "test" and already_scored(arguments.ledger, adapter):
         raise SystemExit("test split refused: this model configuration was already scored")
     run_directory.mkdir(parents=True, exist_ok=True)
 
@@ -82,8 +87,9 @@ def main() -> int:
     summary["scores"] = extraction_scores(cases, rows)
     summary["configuration"] = {
         "model_id": adapter.model_id, "model_version": adapter.model_version, "prompt_id": adapter.prompt.prompt_id,
-        "output_mode": arguments.output_mode, "reasoning_effort": reasoning_effort, "max_tokens": arguments.max_tokens,
-        "concurrency": arguments.concurrency, "requests_per_minute_cap": arguments.requests_per_minute,
+        "output_mode": arguments.output_mode, "reasoning_effort": reasoning_effort, "max_tokens": max_tokens,
+        "budget_fallback": arguments.budget_fallback, "concurrency": arguments.concurrency,
+        "requests_per_minute_cap": arguments.requests_per_minute, "allowance_reserve": arguments.allowance_reserve,
         "base_url": client.base_url,
     }
     summary["data"] = {"split": arguments.split, "offset": arguments.offset, "items": len(items),

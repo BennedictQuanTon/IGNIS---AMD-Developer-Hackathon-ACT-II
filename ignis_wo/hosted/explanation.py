@@ -11,7 +11,7 @@ from pathlib import Path
 from ignis_wo.extraction.adapters import ReplayMiss
 from ignis_wo.hashing import sha256_text
 from ignis_wo.hosted.prompts import EXPLANATION_SCHEMA, ExplanationPrompt
-from ignis_wo.hosted.transport import parse_json_content
+from ignis_wo.hosted.transport import budget_label, parse_json_content
 from ignis_wo.workflow.context import validate_draft
 
 TASK = "ignis-explanation-v1"
@@ -71,13 +71,14 @@ def load_responses(replay_path: Path) -> dict[str, dict]:
 
 class HostedExplanationProvider:
     def __init__(self, client, model_id: str, output_mode: str = "json_object", reasoning_effort: str | None = "low",
-                 max_tokens: int = 4096, repair_attempts: int = 1, record_path: Path | None = None,
-                 replay_path: Path | None = None):
+                 max_tokens: int | None = 4096, repair_attempts: int = 1, record_path: Path | None = None,
+                 replay_path: Path | None = None, budget_fallback: bool = False):
         self.client = client
         self.model_id = model_id
         self.output_mode = output_mode
         self.reasoning_effort = reasoning_effort
         self.max_tokens = max_tokens
+        self.budget_fallback = budget_fallback
         self.repair_attempts = repair_attempts
         self.record_path = record_path
         self.prompt = ExplanationPrompt()
@@ -100,7 +101,9 @@ class HostedExplanationProvider:
         return draft
 
     def replay_key(self, pack: dict, attempt: int) -> str:
-        parts = [TASK, self.model_id, self.prompt_id, self.output_mode, pack["pack_id"], str(attempt)]
+        budget = budget_label(self.max_tokens, self.budget_fallback)
+        parts = [TASK, self.model_id, self.prompt_id, self.output_mode, self.reasoning_effort or "default", budget,
+                 pack["pack_id"], str(attempt)]
         return sha256_text("|".join(parts))
 
     def reduced_draft(self, pack: dict, messages: list[dict], attempt: int) -> dict:
@@ -111,7 +114,7 @@ class HostedExplanationProvider:
             return self.responses[key]
         schema = EXPLANATION_SCHEMA if self.output_mode == "json_schema" else None
         result = self.client.complete(self.model_id, messages, self.output_mode, schema, self.reasoning_effort,
-                                      self.max_tokens)
+                                      self.max_tokens, budget_fallback=self.budget_fallback)
         reduced = parse_json_content(result.content)
         self.record(key, pack, attempt, reduced, result)
         return reduced

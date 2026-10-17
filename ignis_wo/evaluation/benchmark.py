@@ -16,6 +16,7 @@ from pathlib import Path
 from ignis_wo.evaluation.scorer import entity_set, micro_scores, relation_set
 from ignis_wo.extraction.adapters import gold_item_to_output
 from ignis_wo.extraction.validate import validate_output
+from ignis_wo.hosted.frozen import load_frozen_config
 from ignis_wo.hosted.transport import RECORD_LEVEL_KINDS, STOP_KINDS, ProviderError
 
 TEST_LEDGER = Path("outputs/eval_ledger.jsonl")
@@ -140,15 +141,41 @@ def run_complete(summary: dict) -> bool:
     return summary["skipped"] == 0 and set(summary["outcomes"]) <= SCORED_OUTCOMES
 
 
-def ledger_contains(ledger: Path, model_id: str, model_version: str) -> bool:
+def locking_entries(ledger: Path) -> list[dict]:
     """Entries marked incomplete are kept for audit but do not lock the configuration."""
     if not ledger.exists():
+        return []
+    entries = [json.loads(line) for line in ledger.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return [entry for entry in entries if entry.get("complete", True)]
+
+
+def ledger_contains(ledger: Path, model_id: str, model_version: str) -> bool:
+    return any(entry.get("model_id") == model_id and entry.get("model_version") == model_version
+               for entry in locking_entries(ledger))
+
+
+def ledger_contains_legacy(ledger: Path, adapter) -> bool:
+    """A v1 entry (version without the budget label) locks the same model, prompt and explicit budget.
+    v1 runs always sent an explicit max_tokens, 4096 unless recorded otherwise, and had no fallback."""
+    legacy_model_version = getattr(adapter, "legacy_model_version", None)
+    if legacy_model_version is None or adapter.budget_fallback:
         return False
-    for line in ledger.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        entry = json.loads(line)
-        same_configuration = entry.get("model_id") == model_id and entry.get("model_version") == model_version
-        if same_configuration and entry.get("complete", True):
-            return True
-    return False
+    version = legacy_model_version()
+    return any(entry.get("model_id") == adapter.model_id and entry.get("model_version") == version
+               and entry.get("max_tokens", 4096) == adapter.max_tokens for entry in locking_entries(ledger))
+
+
+def matches_scored_entry(adapter, scored: dict) -> bool:
+    legacy_model_version = getattr(adapter, "legacy_model_version", None)
+    if legacy_model_version is None:
+        return False
+    same_budget = adapter.max_tokens == scored["max_tokens"] and adapter.budget_fallback == scored["budget_fallback"]
+    return adapter.model_id == scored["model_id"] and legacy_model_version() == scored["model_version"] and same_budget
+
+
+def already_scored(ledger: Path, adapter, scored: dict | None = None) -> bool:
+    """True when the local ledger or the committed frozen configuration says this setup was scored on test.
+    The committed entry guards machines whose local ledger does not have the run."""
+    if ledger_contains(ledger, adapter.model_id, adapter.model_version) or ledger_contains_legacy(ledger, adapter):
+        return True
+    return matches_scored_entry(adapter, scored or load_frozen_config()["scored_as"])

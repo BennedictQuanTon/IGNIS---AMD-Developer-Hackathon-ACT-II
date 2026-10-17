@@ -7,6 +7,7 @@ from mock_chat_server import ScriptedServer, chat_reply, reply
 from sample_data import sample_items
 
 from ignis_wo.evaluation.benchmark import (
+    already_scored,
     extraction_call,
     extraction_cases,
     extraction_scores,
@@ -50,6 +51,45 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(summary["attempted_per_minute"], 4.0)
         self.assertEqual(summary["valid_per_minute"], 2.0)
         self.assertEqual(summary["prompt_tokens"], 4)
+
+    def test_a_rejected_budget_stops_the_remaining_cases(self):
+        def call(case):
+            raise ProviderError("budget_rejected", "max_tokens exceeds the maximum output tokens allowed")
+
+        rows, _ = run_cases([{"case_id": "a"}, {"case_id": "b"}], call)
+        self.assertEqual([row["status"] for row in rows], ["budget_rejected", "skipped"])
+
+    def test_the_committed_scored_entry_refuses_the_test_split_without_a_local_ledger(self):
+        prompt = ExtractionPrompt(select_examples(sample_items(), count=2))
+        adapter = LiveAdapter(None, "M", prompt, reasoning_effort=None)
+        scored = {"model_id": "M", "model_version": adapter.legacy_model_version(), "max_tokens": 4096,
+                  "budget_fallback": False}
+        missing_ledger = Path(tempfile.gettempdir()) / "no-such-ledger.jsonl"
+        self.assertTrue(already_scored(missing_ledger, adapter, scored))
+        with_fallback = LiveAdapter(None, "M", prompt, reasoning_effort=None, budget_fallback=True)
+        self.assertFalse(already_scored(missing_ledger, with_fallback, scored))
+        self.assertFalse(already_scored(missing_ledger, LiveAdapter(None, "N", prompt, reasoning_effort=None), scored))
+
+    def test_a_local_v1_entry_locks_the_same_model_and_budget(self):
+        prompt = ExtractionPrompt(select_examples(sample_items(), count=2))
+        adapter = LiveAdapter(None, "N", prompt, reasoning_effort=None)
+        other_scored = {"model_id": "M", "model_version": "x", "max_tokens": 4096, "budget_fallback": False}
+        with tempfile.TemporaryDirectory() as directory:
+            ledger = Path(directory) / "ledger.jsonl"
+            ledger.write_text(json.dumps({"model_id": "N", "model_version": adapter.legacy_model_version()}) + "\n",
+                              encoding="utf-8")
+            self.assertTrue(already_scored(ledger, adapter, other_scored))
+            smaller_budget = LiveAdapter(None, "N", prompt, reasoning_effort=None, max_tokens=2048)
+            self.assertFalse(already_scored(ledger, smaller_budget, other_scored))
+
+    def test_the_capability_scan_continues_past_a_rejected_budget(self):
+        models = [{"id": "Model-A", "json_output": True}, {"id": "Model-B", "json_output": True}]
+        rejected = reply({"error": {"message": "The requested max_tokens (1024) exceeds the maximum output tokens "
+                                               "allowed for model Model-A (null)"}}, 400)
+        script = [reply({"data": models}), rejected, reply(chat_reply('{"status": "ok"}'))]
+        with ScriptedServer(script) as server:
+            matrix = capability_matrix(ChatClient(server.base_url, "rc-x"))
+        self.assertEqual([row["status"] for row in matrix["probes"]], ["budget_rejected", "ok"])
 
     def test_cases_past_the_time_budget_are_skipped(self):
         ticks = iter([0, 0, 1, 100, 100, 100])

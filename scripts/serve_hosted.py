@@ -2,7 +2,8 @@
 
 Run with: uv run --env-file .env --no-project --with-requirements requirements-dev.txt python scripts/serve_hosted.py
 Create runs with adapter_mode "injected" to use hosted extraction. Every live response is recorded
-under --record-dir so it can be replayed without spending the shared quota.
+under --record-dir so it can be replayed without spending the shared quota. Hosted extraction uses the
+frozen few-shot configuration, so run scripts/fetch_maintie.py once before setting MODEL_NAME.
 """
 
 import argparse

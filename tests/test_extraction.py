@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from mock_chat_server import ScriptedServer, chat_reply, reply
-from sample_data import build_sample_records, sample_items
+from sample_data import build_sample_records, frozen_config_for, sample_items
 
 from ignis_wo.__main__ import main
 from ignis_wo.contracts import ExtractionOutput
@@ -13,6 +13,8 @@ from ignis_wo.extraction.adapters import LiveAdapter, ReplayAdapter, ReplayMiss,
 from ignis_wo.extraction.project import project
 from ignis_wo.extraction.suggest import suggest
 from ignis_wo.extraction.validate import validate_output
+from ignis_wo.hosted.frozen import frozen_extraction_adapter
+from ignis_wo.hosted.prompts import ExtractionPrompt, select_examples
 from ignis_wo.hosted.transport import ChatClient, ProviderError
 
 VALID = {
@@ -102,7 +104,8 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(body["temperature"], 0)
         self.assertEqual(body["response_format"], {"type": "json_object"})
         self.assertIn("[0] pump [1] noisy", body["messages"][-1]["content"])
-        self.assertTrue(live.model_version.startswith("extraction-instruction-v1-"))
+        self.assertTrue(live.model_version.startswith("extraction-instruction-v2-"))
+        self.assertTrue(live.model_version.endswith("+json_object+low+max4096"))
         self.assertNotIn("rc-secret", recorded)
 
     def test_live_adapter_sends_the_token_schema_in_json_schema_mode(self):
@@ -111,6 +114,29 @@ class AdapterTests(unittest.TestCase):
             self.assertEqual(live.extract("pump noisy"), {"entities": [], "relations": []})
         schema = server.requests[0]["body"]["response_format"]["json_schema"]["schema"]
         self.assertIn("start_token", schema["properties"]["entities"]["items"]["properties"])
+
+
+class IdentityTests(unittest.TestCase):
+    def test_the_prompt_id_covers_the_example_answers(self):
+        examples = select_examples(sample_items(), 2)
+        relabelled = json.loads(json.dumps(examples))
+        relabelled[0]["entities"][0]["type"] = "Activity"
+        original, changed = ExtractionPrompt(examples), ExtractionPrompt(relabelled)
+        self.assertNotEqual(original.prompt_id, changed.prompt_id)
+        self.assertEqual(original.legacy_prompt_id(), changed.legacy_prompt_id())
+
+    def test_the_frozen_loader_builds_the_scored_adapter(self):
+        config = frozen_config_for(sample_items())
+        adapter = frozen_extraction_adapter(None, "m", sample_items(), config=config)
+        self.assertTrue(adapter.scored_configuration)
+        self.assertIsNone(adapter.reasoning_effort)
+        self.assertEqual(adapter.model_version, f"{config['prompt_id']}+json_object+default+max4096")
+        self.assertFalse(frozen_extraction_adapter(None, "other", sample_items(), config=config).scored_configuration)
+
+    def test_the_frozen_loader_refuses_examples_that_do_not_match(self):
+        config = {**frozen_config_for(sample_items()), "prompt_id": "extraction-fewshot-v2-00000000"}
+        with self.assertRaisesRegex(SystemExit, "do not match"):
+            frozen_extraction_adapter(None, "m", sample_items(), config=config)
 
 
 class LiveFailureTests(unittest.TestCase):
