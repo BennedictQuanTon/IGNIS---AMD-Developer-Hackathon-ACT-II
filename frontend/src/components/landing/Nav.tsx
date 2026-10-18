@@ -65,9 +65,7 @@ export function Nav() {
             </ul>
           </nav>
           <span aria-hidden className="mx-4 h-4 w-px bg-line-strong" />
-          <a href="#/app" className="px-3 py-1.5 text-[13px] tracking-normal text-fg-3 transition-colors hover:text-fg">
-            Workspace
-          </a>
+          <WorkspaceLink />
           {demoUrl ? (
             <ButtonLink href={demoUrl} external variant="light" className="ml-2">
               View demo
@@ -101,11 +99,12 @@ export function Nav() {
             className="border-b border-line bg-bg/95 backdrop-blur-xl md:hidden"
           >
             <Container className="flex flex-col py-3">
-              {[...nav.map((n) => ({ href: `#${n.id}`, label: n.label })), { href: "#/app", label: "Workspace" }].map((l) => (
-                <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="py-2.5 text-[15px] text-fg-2 hover:text-fg">
-                  {l.label}
+              {nav.map((n) => (
+                <a key={n.id} href={`#${n.id}`} onClick={() => setOpen(false)} className="py-2.5 text-[15px] text-fg-2 hover:text-fg">
+                  {n.label}
                 </a>
               ))}
+              <WorkspaceLink className="my-2 h-10 justify-center text-[15px]" onClick={() => setOpen(false)} />
               <a href={REPO} target="_blank" rel="noreferrer" className="py-2.5 text-[15px] text-fg-2 hover:text-fg">
                 GitHub
               </a>
@@ -114,5 +113,26 @@ export function Nav() {
         )}
       </AnimatePresence>
     </motion.header>
+  );
+}
+
+/** The one route into the product, so it reads as a destination rather than another section link. */
+function WorkspaceLink({ className, onClick }: { className?: string; onClick?: () => void }) {
+  return (
+    <a
+      href="#/app"
+      onClick={onClick}
+      className={cx(
+        "group inline-flex h-8 items-center gap-2 rounded-full border border-accent/45 bg-accent-soft px-3.5 text-[13px] font-[510] tracking-normal whitespace-nowrap text-brand-text transition-colors duration-200 hover:border-accent hover:bg-accent/20",
+        className,
+      )}
+    >
+      <span aria-hidden className="relative flex size-1.5">
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60 motion-reduce:animate-none" />
+        <span className="relative inline-flex size-1.5 rounded-full bg-accent" />
+      </span>
+      Workspace
+      <Icon name="arrow" size={12} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+    </a>
   );
 }

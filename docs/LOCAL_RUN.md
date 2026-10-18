@@ -9,14 +9,21 @@ Set-Location 'D:\Coding\Prj\AMDHACKIII\IGNIS-backend-mission'
 
 If services are already running from this launcher, open the workspace directly. `outputs/local-session.json` records their process IDs, log directory and database location. The launcher refuses occupied ports and existing session records; it never resets older demo data. Frontend dependencies must be installed with `npm ci` in `frontend` first; Node.js and uv must be installed.
 
-- Workspace: http://127.0.0.1:5173/#/app
+- Guided demo run: http://127.0.0.1:5173/#/app
+- Manual workspace: http://127.0.0.1:5173/#/app/manual
 - Landing page: http://127.0.0.1:5173/
 - Proxied backend health: http://127.0.0.1:5173/api/health
 - Direct backend health: http://127.0.0.1:8765/health
 
 The default is **recorded replay**, using the committed six-record synthetic input and synthetic fixture evidence. It needs no AMD key and makes no live model calls. The connected workspace uses backend data, while the landing-page embedded mock remains a design preview. Provider and synthetic/mode labels are separate from human approval.
 
+## Guided demo run
+
+`#/app` runs the recorded scenario through the same workflow API with no file upload. **Continuous** mode plays every stage on its own; **Manual** mode presents each stage's form for you to fill and submit, accepting any run name or record reason but only the recorded value for replay-bound fields (with a **Fill recorded values** shortcut). You can switch modes mid-run. Values bound to the replay (operator, mapping, record decisions and reviewer, criticality, evidence query) are shown as pinned fields. The run stops at expert signoff, where accept, correct, reject and inconclusive have their real backend effects; accepted or corrected findings then issue the PDF. Signoffs stay labelled simulated. It only starts against a server whose extraction and explanation are both in replay mode.
+
 ## Your first manual run
+
+Open the manual workspace at `#/app/manual`.
 
 1. Choose **Load recorded demo input**. Confirm the proposed mapping, then continue to Review.
 2. Click **Start extraction**. Inspect all six original rows and suggestions. The recorded-demo checkbox explicitly uses simulated record-review attribution so the historical explanation can be reproduced. Save each decision: five valid suggestions are accepted; the invalid one defaults to rejected. No record is automatically approved.
@@ -51,7 +58,7 @@ npm run test:e2e:list
 Pop-Location
 ```
 
-The suite uses installed Edge by default on Windows, or Playwright Chromium on other systems; `IGNIS_BROWSER_CHANNEL` can override that choice. It starts isolated replay services on **8776 and 5178**, with a new database under `outputs/browser-e2e` each invocation. It does not reset the interactive session on 8765/5173. It prepares desktop and 390 px/reduced-motion runs. The replay cases cover persisted review, actual PDF download, reference inspection, corrected-record invalidation, historical PDF preservation, and rejected/inconclusive expert decisions. `@mock-boundary` cases inject browser HTTP failures for 429, timeout and 409, rather than claiming a real provider outage. No automatic test retries are configured.
+The suite uses installed Edge by default on Windows, or Playwright Chromium on other systems; `IGNIS_BROWSER_CHANNEL` can override that choice. It starts isolated replay services on **8776 and 5178**, with a new database under `outputs/browser-e2e` each invocation. It does not reset the interactive session on 8765/5173. It prepares desktop and 390 px/reduced-motion runs. The replay cases cover the guided demo run, persisted review, actual PDF download, reference inspection, corrected-record invalidation, historical PDF preservation, and rejected/inconclusive expert decisions. `@mock-boundary` cases inject browser HTTP failures for 429, timeout and 409, rather than claiming a real provider outage. No automatic test retries are configured.
 
 Results: `frontend/playwright-report` and `frontend/test-results`; failures retain screenshots and traces, and the happy path attaches run/mode/snapshot identity plus a screenshot. Open the report with `npm run test:e2e:report` from `frontend`. A listing/type-check is not a passing E2E run.
 

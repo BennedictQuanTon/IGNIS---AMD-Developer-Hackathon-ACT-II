@@ -7,10 +7,15 @@ import { Closing, Comparison, Delivered, Footer, ProductFrame, Sources, Team } f
 import { Problem } from "./components/landing/Intro";
 import { Stack } from "./components/landing/Stack";
 import { Workspace } from "./workspace/Workspace";
+import { DemoRun } from "./workspace/connected/DemoRun";
 
-// Hash routing keeps the build static: "#/app" is the workspace, anything else the landing page.
+// Hash routing keeps the build static: "#/app" is the guided demo run, "#/app/manual" the manual workspace,
+// anything else the landing page.
 function useRoute() {
-  const read = () => (window.location.hash.startsWith("#/app") ? "app" : "landing");
+  const read = () => {
+    const hash = window.location.hash;
+    return hash.startsWith("#/app/manual") ? "manual" : hash.startsWith("#/app") ? "app" : "landing";
+  };
   const [route, setRoute] = useState(read);
   useEffect(() => {
     const onHash = () => setRoute(read());
@@ -46,7 +51,11 @@ function Landing() {
 export default function App() {
   const route = useRoute();
   useEffect(() => {
-    if (route === "app") window.scrollTo(0, 0);
+    if (route !== "landing") window.scrollTo(0, 0);
   }, [route]);
-  return <MotionConfig reducedMotion="user">{route === "app" ? <Workspace /> : <Landing />}</MotionConfig>;
+  return (
+    <MotionConfig reducedMotion="user">
+      {route === "app" ? <DemoRun /> : route === "manual" ? <Workspace /> : <Landing />}
+    </MotionConfig>
+  );
 }

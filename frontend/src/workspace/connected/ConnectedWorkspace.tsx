@@ -4,8 +4,9 @@ import { Icon } from "../../components/ui/icons";
 import { SourceStage, MappingStage } from "./SourceMapping";
 import { ReviewStage } from "./ReviewStage";
 import { FactsStage, EvidenceStage, ReportStage } from "./Investigation";
+import { EvidenceInspector } from "./EvidenceInspector";
 import { useWorkflow } from "./useWorkflow";
-import { resolveReference, STAGES, stageStates } from "./workflow";
+import { STAGES, stageStates } from "./workflow";
 import { request, type Run } from "./api";
 import { Button, JsonView, Note, Panel } from "./ui";
 export type Controller = ReturnType<typeof useWorkflow>;
@@ -17,20 +18,10 @@ export function ConnectedWorkspace() {
   const [allowLive, setAllowLive] = useState(false);
   const [simulation, setSimulation] = useState(() => localStorage.getItem("ignis-simulated-replay") === "true");
   const statuses = stageStates(w.run);
-  const selected = w.run && reference ? resolveReference(w.run, reference) : null;
   const disabled = !!w.busy || w.cooldown > 0;
   const setSimulated = (value: boolean) => { setSimulation(value); localStorage.setItem("ignis-simulated-replay", String(value)); };
   const inspect = (id: string) => setReference(id);
   useEffect(() => { setReference(null); }, [w.run?.run_id, w.run?.revision]);
-  useEffect(() => {
-    if (!reference) return;
-    const previous = document.activeElement as HTMLElement | null;
-    const close = document.getElementById("close-evidence-inspector");
-    close?.focus();
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setReference(null); };
-    window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("keydown", onKey); previous?.focus(); };
-  }, [reference]);
   return <div className="flex min-h-dvh flex-col bg-bg text-fg">
     <header className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-elevated px-4 py-3">
       <a href="#/" aria-label="Back to landing page"><Wordmark height={18} /></a>
@@ -81,13 +72,6 @@ export function ConnectedWorkspace() {
         </div>
       </main>
     </div>
-    {reference && <div className="fixed inset-0 z-50 flex justify-end bg-black/70" onClick={() => setReference(null)}>
-      <aside role="dialog" aria-modal="true" aria-label="Evidence inspector" className="h-full w-full max-w-xl overflow-auto border-l border-line bg-elevated p-5" onClick={event => event.stopPropagation()}
-        onKeyDown={event => { if (event.key !== "Tab") return; const controls = event.currentTarget.querySelectorAll<HTMLElement>("button, a[href], summary, [tabindex='0']"); const first = controls[0], last = controls[controls.length - 1]; if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); } else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); } }}>
-        <Button id="close-evidence-inspector" onClick={() => setReference(null)}>Close inspector</Button>
-        <h2 className="my-4 break-all text-xl">{selected?.title || reference}</h2>
-        {selected ? <><JsonView value={selected.value} /><div className="mt-4 flex flex-wrap gap-2">{selected.records.map(id => <Button key={id} onClick={() => inspect(id)}>Open source {id}</Button>)}</div></> : <Note>This reference is unavailable in the current saved snapshot. Reload or inspect the relevant historical PDF.</Note>}
-      </aside>
-    </div>}
+    <EvidenceInspector run={w.run} reference={reference} onClose={() => setReference(null)} inspect={inspect} />
   </div>;
 }

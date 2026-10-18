@@ -33,6 +33,10 @@ const paths: Record<string, string> = {
   live: "M9 1.5 3.5 9h4L7 14.5 12.5 7h-4L9 1.5Z",
   flask: "M6 1.5h4M6.5 1.5v4L2.8 12.4a1.4 1.4 0 0 0 1.2 2.1h8a1.4 1.4 0 0 0 1.2-2.1L9.5 5.5v-4M4.5 10h7",
   doc: "M9.5 1.5H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5L9.5 1.5ZM9.5 1.5V5H13M5.5 8.5h5M5.5 11h3",
+  lock: "M5 7V5a3 3 0 0 1 6 0v2M3.5 7h9v6.5h-9V7Z",
+  play: "M5 3v10l8-5-8-5Z",
+  pause: "M5.5 3.5v9M10.5 3.5v9",
+  step: "M3.5 3v10l7-5-7-5ZM12.5 3v10",
 };
 
 export type IconName = keyof typeof paths | "github";
