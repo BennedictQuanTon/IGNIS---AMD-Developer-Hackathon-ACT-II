@@ -40,3 +40,19 @@ node_modules/
 Thumbs.db
 frontend/test-results/
 frontend/playwright-report/
+
+# Raw media and submission assets kept beside the repo, not part of the app.
+# Root level only: web assets under frontend/public/ (e.g. media/ignis-demo.mp4) stay tracked.
+/*.mp4
+/*.mov
+/*.webm
+/*.m4v
+/*.mkv
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.pdf
+/*.zip
+/*.pptx
+/*.key

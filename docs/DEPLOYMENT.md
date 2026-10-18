@@ -4,6 +4,8 @@ The current application has a React/Vite frontend, a Python HTTP workflow API, S
 
 The older GPU, sensor-monitoring and scheduler proposals are future work, not prerequisites for the historical-work-order demo. See the [API contract](API_CONTRACT.md), [local run guide](LOCAL_RUN.md) and [benchmark limitations](BENCHMARKS.md).
 
+**Free-tier demo:** a replay-only Render free web service (Docker) plus the Vercel landing page is set up in [deploy/README.md](../deploy/README.md). It stores no AMD key and resets its data on restart; the persistent, authenticated arrangement below remains the recommendation for anything beyond judging.
+
 ## Proposed first deployment
 
 Use one persistent host for a private, single-operator demo. This is a recommendation; no provider, account, paid plan or public URL has been selected.

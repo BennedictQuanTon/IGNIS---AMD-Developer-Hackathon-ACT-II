@@ -5,6 +5,14 @@ export const REPO = "https://github.com/khanhtuongnakitomo/IGNIS";
 /** Set to a path under /public (for example "/screenshot-review.png") once a real capture exists. */
 export const productScreenshot: { src: string; caption: string } | null = null;
 
+/** Demo film in public/media, compressed for the web with faststart (moov first). */
+export const demoVideo = {
+  src: "/media/ignis-demo.mp4",
+  poster: "/media/ignis-demo-poster.jpg",
+  duration: "2:14",
+  label: "IGNIS demo film: from a maintenance export to an evidence-linked report",
+};
+
 /** Set once a demo deployment exists; the nav button stays hidden until then. */
 export const demoUrl: string | null = null;
 

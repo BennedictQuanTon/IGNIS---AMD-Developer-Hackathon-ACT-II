@@ -1,0 +1,14 @@
+# Render Blueprint for the free, replay-only IGNIS demo (see deploy/README.md).
+# plan: free is explicit; Blueprints otherwise default to a paid instance type.
+services:
+  - type: web
+    name: ignis
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/container/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: IGNIS_MODE
+        value: replay

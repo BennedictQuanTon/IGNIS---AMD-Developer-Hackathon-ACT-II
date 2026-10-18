@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "motion/react";
-import { challenge, features, product, track, type Owner } from "../../content/site";
+import { challenge, demoVideo, features, product, track, type Owner } from "../../content/site";
 import { Icon } from "../ui/icons";
 import { CountUp, EASE, Reveal, Stagger, StaggerItem, trackSpotlight } from "../ui/motion";
 import { cx, Section } from "../ui/primitives";
@@ -190,6 +190,123 @@ export function Product() {
   return (
     <Section id="product" eyebrow="03 — Product" title={product.title} intro={product.intro}>
       <Reveal>
+        <DemoVideo />
+      </Reveal>
+    </Section>
+  );
+}
+
+/** Demo film: fetched when near the viewport, autoplays muted while at least half visible
+    (browsers block autoplay with sound), pauses when scrolled away; sound toggle top right. */
+function DemoVideo() {
+  const frame = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const reduce = useReducedMotion();
+  const [near, setNear] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = frame.current;
+    if (!el) return;
+    const preload = new IntersectionObserver(([entry]) => entry.isIntersecting && setNear(true), { rootMargin: "600px 0px" });
+    const visible = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.5 });
+    preload.observe(el);
+    visible.observe(el);
+    return () => {
+      preload.disconnect();
+      visible.disconnect();
+    };
+  }, []);
+
+  // Play once the source is attached and at least half the frame is visible; pause when it leaves.
+  useEffect(() => {
+    const v = video.current;
+    if (!v || !near) return;
+    if (inView && !reduce) void v.play().catch(() => undefined);
+    else if (!inView) v.pause();
+  }, [near, inView, reduce]);
+
+  const toggleSound = () => {
+    const v = video.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+    if (v.paused) void v.play().catch(() => undefined);
+  };
+  const togglePlay = () => {
+    const v = video.current;
+    if (!v) return;
+    if (v.paused) void v.play().catch(() => undefined);
+    else v.pause();
+  };
+
+  return (
+    <div ref={frame} className="rounded-[12px] bg-[#0d0d0e] p-2 shadow-[0_0_0_1px_rgb(255_255_255/0.04),0_40px_120px_-30px_rgb(0_0_0/0.9)]">
+      <div className="group relative aspect-video overflow-hidden rounded-[10px] border border-line bg-black">
+        <video
+          ref={video}
+          className="absolute inset-0 size-full cursor-pointer object-cover"
+          src={near ? demoVideo.src : undefined}
+          poster={demoVideo.poster}
+          preload={near ? "auto" : "none"}
+          muted={muted}
+          loop
+          playsInline
+          onClick={togglePlay}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onTimeUpdate={(e) => {
+            const v = e.currentTarget;
+            if (v.duration) setProgress(v.currentTime / v.duration);
+          }}
+          aria-label={demoVideo.label}
+        />
+
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-label={muted ? "Turn sound on" : "Turn sound off"}
+          aria-pressed={!muted}
+          className="absolute top-4 right-4 grid size-10 place-items-center rounded-full border border-white/15 bg-black/55 text-white backdrop-blur-md transition-colors hover:bg-black/75"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+            {muted ? <path d="m16 9 5 6m0-6-5 6" /> : <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" />}
+          </svg>
+        </button>
+
+        {!playing && (
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label="Play the IGNIS demo film"
+            className="absolute inset-0 grid place-items-center bg-black/25 transition-colors hover:bg-black/10"
+          >
+            <span className="grid size-20 place-items-center rounded-full bg-accent text-on-brand shadow-[0_12px_40px_-8px_rgb(255_196_0/0.6)]">
+              <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden className="translate-x-0.5 fill-current">
+                <path d="M7 4.5v15l12-7.5-12-7.5Z" />
+              </svg>
+            </span>
+          </button>
+        )}
+
+        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[3px] bg-white/10">
+          <div className="h-full bg-accent" style={{ width: `${progress * 100}%` }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Features ------------------------------------------------------------------ */
+
+export function Features() {
+  return (
+    <Section eyebrow="Core features" title="Six building blocks, one workflow">
+      <Reveal>
         <FlowDiagram />
       </Reveal>
       <Reveal className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] text-fg-3" delay={0.1}>
@@ -204,7 +321,7 @@ export function Product() {
           approves
         </span>
       </Reveal>
-      <Reveal className="mt-10 max-w-2xl" delay={0.15}>
+      <Reveal className="mt-10 mb-14 max-w-2xl" delay={0.15}>
         <p className="text-[14px] leading-relaxed text-fg-3">
           {product.analogy}{" "}
           <a
@@ -217,15 +334,6 @@ export function Product() {
           </a>
         </p>
       </Reveal>
-    </Section>
-  );
-}
-
-/* Features ------------------------------------------------------------------ */
-
-export function Features() {
-  return (
-    <Section eyebrow="Core features" title="Six building blocks, one workflow">
       <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((f) => (
           <StaggerItem key={f.title}>
