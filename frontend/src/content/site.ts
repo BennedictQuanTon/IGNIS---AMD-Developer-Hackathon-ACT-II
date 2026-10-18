@@ -183,7 +183,7 @@ export const delivered = [
     source: "ignis_wo/pipeline.py · PR #15",
     visual: "chain",
   },
-  { value: 56, label: "Automated tests in the merged baseline", source: "tests/ · PR #15", visual: "none" },
+  { value: 201, label: "Automated tests on main, from parsing to issued PDF", source: "tests/ · CI on every PR", visual: "none" },
   {
     value: 1076,
     label: "Expert-annotated MaintIE work orders, pinned by revision and SHA-256",
@@ -205,7 +205,14 @@ export const maintieSplit = [
   { name: "test", count: 108 },
 ];
 
-export const benchmarkMetrics = ["Extraction F1", "Schema validity", "p50 / p95 latency", "Valid outputs / min"];
+/** Measured on the event's AMD Token Factory key (16–17 Oct 2026), single preliminary runs.
+    Source: docs/BENCHMARKS.md (PR #22 test split, PR #27 runtime, PR #34 v3 explanation). */
+export const benchmarks = [
+  { metric: "Valid extraction outputs", value: "105 / 108", ratio: 105 / 108, detail: "MaintIE test split · DeepSeek-V4-Flash-Vision-Exp" },
+  { metric: "Entity F1 (exact match)", value: "0.46", ratio: 0.46, detail: "Same test split · top-level label F1 0.76" },
+  { metric: "Extraction latency p50 / p95", value: "8.8 / 12.8 s", ratio: null, detail: "Per request, same run" },
+  { metric: "Valid explanation drafts", value: "21 / 24", ratio: 21 / 24, detail: "Prompt v3 · DeepSeek-V4-Flash · synthetic dev" },
+];
 
 export type Cell = "yes" | "no" | "partial" | "na" | "progress";
 

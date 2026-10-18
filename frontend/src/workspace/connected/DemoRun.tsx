@@ -300,39 +300,45 @@ export function DemoRun() {
 
   return <div className="flex min-h-dvh flex-col bg-bg text-fg">
     <header className="sticky top-0 z-40 border-b border-line bg-elevated/95 backdrop-blur">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <div className="flex items-center gap-3"><a href="#/" aria-label="Back to landing page"><Wordmark height={18} /></a><span className="text-sm text-fg-3">Demo run</span></div>
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          {w.health && <span className="inline-flex items-center gap-1.5 text-fg-3" title={`Extraction ${w.health.extraction_model} · explanation ${w.health.explanation_model} · ${w.health.explanation_prompt}`}><Icon name="replay" size={14} />{replay ? "Recorded replay" : "Not a replay server"}</span>}
-          <Badge t="synthetic">Synthetic data</Badge>
-        </div>
-      </div>
-      <div className="flex flex-wrap items-center gap-2 border-t border-line px-4 py-2">
-        <div role="group" aria-label="Demo mode" className="flex rounded-lg border border-line-strong p-0.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-2.5">
+        <a href="#/" aria-label="Back to landing page" className="flex items-center"><Wordmark height={18} /></a>
+        <span aria-hidden className="hidden h-5 w-px bg-line-strong sm:block" />
+
+        <div role="group" aria-label="Demo mode" className="flex rounded-full border border-line-strong p-0.5">
           {(["continuous", "manual"] as const).map(value => <button key={value} type="button" aria-pressed={mode === value} disabled={!!w.busy} onClick={() => setMode(value)}
-            className={cx("rounded-md px-3 py-1.5 text-sm transition-colors", mode === value ? "bg-hover text-fg" : "text-fg-3 hover:text-fg")}>{value === "continuous" ? "Continuous" : "Manual"}</button>)}
+            title={value === "continuous" ? "Continuous: plays every stage" : "Manual: you fill each form"}
+            className={cx("inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] transition-colors", mode === value ? "bg-hover text-fg" : "text-fg-3 hover:text-fg")}>
+            <Icon name={value === "continuous" ? "play" : "review"} size={13} />{value === "continuous" ? "Continuous" : "Manual"}</button>)}
         </div>
-        {manual
-          ? run && <Button disabled={!!w.busy} onClick={() => start()}><Icon name="replay" size={14} />Start over</Button>
-          : !run && !playing
-          ? <Button primary disabled={!ready || !!w.busy} onClick={() => start()}><Icon name="play" size={14} />Start demo run</Button>
-          : <>
-            <Button primary={!playing && automatic} disabled={!automatic || !ready || !!blocked} onClick={() => { w.setError(""); setPlaying(value => !value); }} aria-pressed={playing}>
-              <Icon name={playing ? "pause" : "play"} size={14} />{playing ? "Pause" : "Play"}</Button>
-            <Button disabled={!canAct} onClick={() => void act(step)}><Icon name="step" size={14} />Step</Button>
-            <Button onClick={() => setSpeed(value => (value === 1 ? 2 : 1))} aria-label={`Playback speed ${speed}×`}>{speed}×</Button>
-            <Button disabled={!!w.busy} onClick={() => start()}><Icon name="replay" size={14} />Start over</Button>
-          </>}
-        <p role="status" aria-live="polite" className="ml-1 flex min-w-0 items-center gap-2 text-sm text-fg-2">
+
+        <div className="flex items-center gap-1">
+          {!run && !playing && !manual
+            ? <button type="button" disabled={!ready || !!w.busy} onClick={() => start()} aria-label="Start demo run" title="Start demo run"
+                className="inline-flex h-9 items-center gap-2 rounded-full bg-accent px-4 text-[13px] font-[510] text-on-brand transition-colors hover:bg-accent-hover disabled:opacity-40">
+                <Icon name="play" size={14} />Start</button>
+            : <>
+              {!manual && <IconButton label={playing ? "Pause" : "Play"} primary={!playing && automatic} pressed={playing}
+                disabled={!automatic || !ready || !!blocked} onClick={() => { w.setError(""); setPlaying(value => !value); }} icon={playing ? "pause" : "play"} />}
+              {!manual && <IconButton label="Step" disabled={!canAct} onClick={() => void act(step)} icon="step" />}
+              {!manual && <button type="button" onClick={() => setSpeed(value => (value === 1 ? 2 : 1))} aria-label={`Playback speed ${speed}×`} title="Playback speed"
+                className="grid h-9 min-w-9 place-items-center rounded-full px-2 font-mono text-[12px] text-fg-2 transition-colors hover:bg-hover hover:text-fg">{speed}×</button>}
+              {run && <IconButton label="Start over" disabled={!!w.busy} onClick={() => start()} icon="replay" />}
+            </>}
+        </div>
+
+        <p role="status" aria-live="polite" className="flex min-w-0 flex-1 items-center gap-2 text-[13px] text-fg-2">
           {(w.busy || (playing && canAct)) && <span aria-hidden className="size-2 shrink-0 animate-pulse rounded-full bg-accent" />}
           {step === "expert" && run && !w.busy && <span aria-hidden className="size-2 shrink-0 rounded-full bg-accent" />}
           <span className="truncate">{status}</span>
         </p>
+
+        {w.health && <span className="inline-flex items-center gap-1.5 text-[12px] text-fg-4" title={`Recorded AMD responses · extraction ${w.health.extraction_model} · explanation ${w.health.explanation_model} · ${w.health.explanation_prompt}`}>
+          <Icon name="replay" size={13} />{replay ? "Replay" : "Not a replay server"}</span>}
       </div>
     </header>
 
     <div className="flex flex-1 flex-col lg:flex-row">
-      <aside className="border-b border-line bg-elevated p-4 lg:sticky lg:top-[105px] lg:h-[calc(100dvh-105px)] lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0">
+      <aside className="border-b border-line bg-elevated p-4 lg:sticky lg:top-[57px] lg:h-[calc(100dvh-57px)] lg:w-60 lg:shrink-0 lg:border-r lg:border-b-0">
         <nav aria-label="Demo stages" className="overflow-x-auto"><ol className="flex min-w-max gap-1 lg:flex-col">
           {RAIL.map((name, index) => {
             const done = run && (index < stage || step === "done");
@@ -367,30 +373,48 @@ export function DemoRun() {
   </div>;
 }
 
+function IconButton({ label, icon, onClick, disabled, primary, pressed }: {
+  label: string; icon: "play" | "pause" | "step" | "replay"; onClick: () => void; disabled?: boolean; primary?: boolean; pressed?: boolean;
+}) {
+  return <button type="button" aria-label={label} title={label} aria-pressed={pressed} disabled={disabled} onClick={onClick}
+    className={cx("grid size-9 place-items-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-35",
+      primary ? "bg-accent text-on-brand hover:bg-accent-hover" : "text-fg-2 hover:bg-hover hover:text-fg")}>
+    <Icon name={icon} size={15} />
+  </button>;
+}
+
 function Intro({ w, replay, ready, mode, start }: { w: Controller; replay: boolean; ready: boolean; mode: Mode; start: (mode: Mode) => void }) {
-  return <section className="rounded-xl border border-line bg-elevated p-6 sm:p-8">
+  const facts: [string, string][] = [["doc", "No files needed"], ["calc", "Real backend, real PDF"], ["review", "You sign off as the expert"]];
+  return <section className="py-6 sm:py-12">
     <p className="t-label">Guided demo</p>
-    <h1 className="mt-3 text-3xl font-semibold">Watch one maintenance export become a signed, cited report</h1>
-    <p className="mt-3 max-w-2xl leading-relaxed text-fg-2">IGNIS runs a recorded synthetic pump export through every stage: mapping, extraction review, deterministic facts, evidence retrieval and a cited explanation. When the finding is ready, you sign it off as the expert, and your decision controls whether a report is issued.</p>
-    <ul className="mt-5 grid gap-3 text-sm text-fg-3 sm:grid-cols-3">
-      <li className="rounded-lg border border-line p-3"><span className="text-fg">No files needed.</span> The six-row export and its model outputs are recorded, so the run is repeatable and spends no model quota.</li>
-      <li className="rounded-lg border border-line p-3"><span className="text-fg">Real backend.</span> Every stage is saved by the workflow API, and the PDF is rendered on the server.</li>
-      <li className="rounded-lg border border-line p-3"><span className="text-fg">You stay in control.</span> Pause, step through or speed up, inspect any fact or source, and choose the expert outcome.</li>
+    <h1 className="mt-4 max-w-3xl text-[34px] leading-[1.1] font-[510] tracking-[-0.022em] text-fg sm:text-[44px]">
+      Watch one maintenance export become a signed, cited report
+    </h1>
+    <p className="mt-5 max-w-2xl text-[17px] leading-relaxed text-fg-2">
+      A recorded six-row pump export runs through every stage. You make the final call as the expert.
+    </p>
+    <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[14px] text-fg-3">
+      {facts.map(([icon, text]) => <li key={text} className="flex items-center gap-2"><Icon name={icon as "doc"} size={15} className="text-fg-4" />{text}</li>)}
     </ul>
-    <div className="mt-6 grid gap-3 sm:grid-cols-2">
-      {([["continuous", "Watch it run", "Continuous mode plays every stage like a video and stops only for your signoff."],
-        ["manual", "Fill it in yourself", "Manual mode hands you each form. Type the values or fill the recorded ones, then press each action."]] as const).map(([value, title, text]) =>
+
+    <div className="mt-10 grid gap-4 sm:grid-cols-2">
+      {([["continuous", "Watch it run", "Plays every stage like a video and stops for your signoff.", "play"],
+        ["manual", "Fill it in yourself", "Fill each form or use the recorded values, then press each action.", "review"]] as const).map(([value, title, text, icon]) =>
         <button key={value} type="button" disabled={!ready || !!w.busy} onClick={() => start(value)}
-          className={cx("rounded-lg border p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50", mode === value ? "border-accent bg-accent-soft" : "border-line-strong hover:bg-hover")}>
-          <span className="flex items-center gap-2 font-medium text-fg"><Icon name={value === "continuous" ? "play" : "review"} size={14} />{title}</span>
-          <span className="mt-1 block text-sm text-fg-3">{text}</span>
+          className={cx("group flex flex-col rounded-2xl border p-6 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:p-7",
+            mode === value ? "border-accent/70 bg-accent-soft" : "border-line-strong bg-elevated hover:border-white/25 hover:bg-hover")}>
+          <span className={cx("grid size-11 place-items-center rounded-full", mode === value ? "bg-accent text-on-brand" : "bg-white/[0.06] text-fg-2")}>
+            <Icon name={icon} size={18} /></span>
+          <span className="mt-5 text-[20px] font-[510] text-fg">{title}</span>
+          <span className="mt-1.5 text-[15px] leading-relaxed text-fg-3">{text}</span>
         </button>)}
     </div>
-    <div className="mt-6 text-sm text-fg-3">
-      {!w.health && !w.error && <p className="flex items-center gap-2"><span aria-hidden className="size-2 animate-pulse rounded-full bg-accent" />Connecting to the demo server. A sleeping free-tier server can take about a minute to wake.</p>}
+
+    <div className="mt-6 text-[14px] text-fg-3">
+      {!w.health && !w.error && <p className="flex items-center gap-2"><span aria-hidden className="size-2 animate-pulse rounded-full bg-accent" />Waking the demo server. The first visit can take about a minute.</p>}
       {w.health && !replay && <Note>This server is not in recorded-replay mode, so the guided demo is disabled to avoid live model calls. Use the manual workspace at #/app/manual instead.</Note>}
       {w.health && replay && !w.health.demo_input_available && <Note>This server has no recorded demo input configured.</Note>}
-      {ready && mode === "manual" && <p>The first form is below. You can switch modes at any point; Continuous picks up from your current step.</p>}
+      {ready && mode === "manual" && <p>The first form is below. You can switch modes at any point.</p>}
     </div>
   </section>;
 }

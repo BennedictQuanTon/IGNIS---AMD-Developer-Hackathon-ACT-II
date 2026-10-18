@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import {
-  benchmarkMetrics,
+  benchmarks,
   comparison,
   delivered,
   maintieSplit,
@@ -148,28 +148,37 @@ export function Delivered() {
       </Reveal>
 
       <Reveal delay={0.1} className="mt-8">
-        <div className="rounded-[var(--radius-lg)] border border-dashed border-line-strong p-6">
+        <div className="rounded-[var(--radius-lg)] border border-line bg-elevated p-6 sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-[15px] font-[510] text-fg">Model benchmarks on AMD Token Factory</h3>
-            <span className="rounded-full bg-warn/12 px-2 py-0.5 text-[11px] font-medium text-warn">
-              Pending measurement
-            </span>
+            <span className="rounded-full bg-white/[0.06] px-2.5 py-0.5 font-mono text-[11px] text-fg-3">measured · preliminary</span>
           </div>
-          <ul className="mt-5 grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
-            {benchmarkMetrics.map((name) => (
-              <li key={name}>
-                <div className="text-[13px] text-fg-2">{name}</div>
-                <div className="mt-2 h-1.5 rounded-full bg-white/[0.05]" />
-                <div className="mt-1.5 font-mono text-[10px] text-fg-4">not yet measured</div>
+          <ul className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+            {benchmarks.map((b, i) => (
+              <li key={b.metric}>
+                <div className="text-[13px] text-fg-3">{b.metric}</div>
+                <div className="mt-2 text-[28px] leading-none font-[510] tracking-[-0.02em] text-fg tabular-nums">{b.value}</div>
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                  {b.ratio !== null && (
+                    <motion.div
+                      className="h-full rounded-full bg-accent"
+                      style={{ width: `${b.ratio * 100}%` }}
+                      initial={{ clipPath: "inset(0 100% 0 0)" }}
+                      whileInView={{ clipPath: "inset(0 0% 0 0)" }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1, ease: EASE, delay: 0.2 + i * 0.1 }}
+                    />
+                  )}
+                </div>
+                <div className="mt-2 font-mono text-[11px] leading-snug text-fg-4">{b.detail}</div>
               </li>
             ))}
           </ul>
-          <p className="mt-5 text-[12px] text-fg-3">
-            Filled only from measured runs in{" "}
-            <a href={`${REPO}/issues/18`} target="_blank" rel="noreferrer" className="text-fg-2 underline underline-offset-4">
-              issue #18
+          <p className="mt-6 text-[12px] text-fg-3">
+            Single runs on 16–17 Oct 2026 with the event's shared key; small samples, so treat them as preliminary.{" "}
+            <a href={`${REPO}/blob/main/docs/BENCHMARKS.md`} target="_blank" rel="noreferrer" className="text-fg-2 underline underline-offset-4">
+              Full results
             </a>
-            , with model ID, sample size and test date.
           </p>
         </div>
       </Reveal>
