@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Badge, cx, Wordmark, type Tone } from "../../components/ui/primitives";
+import { cx, Wordmark } from "../../components/ui/primitives";
 import { Icon } from "../../components/ui/icons";
 import { EASE } from "../../components/ui/motion";
 import { reportUrl, request, type Claim, type DemoInput, type Draft, type Run } from "./api";
@@ -128,7 +128,7 @@ const sameText = (a: string, b: string) => a.trim().toLowerCase() === b.trim().t
 function ManualStep({ step, fields, busy, note, onSubmit }: { step: StepId; fields: ManualField[]; busy: boolean; note?: string; onSubmit: (values: Record<string, string>) => void }) {
   const [values, setValues] = useState<Record<string, string>>(() => Object.fromEntries(fields.map(f => [f.key, f.key.startsWith("map:") ? f.expected : ""])));
   const valid = (f: ManualField) => (f.free ? !!values[f.key]?.trim() : f.options ? values[f.key] === f.expected : sameText(values[f.key] || "", f.expected));
-  return <div className="space-y-3 rounded-lg border border-accent/40 bg-accent-soft p-3">
+  return <div className="space-y-3 rounded-xl border border-accent/40 p-4">
     <p className="text-sm font-medium text-brand-text">Your turn: {LABEL[step].replace(/^Your turn: /, "")}</p>
     {note && <Note>{note}</Note>}
     {!!fields.length && <div className="grid gap-3 sm:grid-cols-2">{fields.map(f => {
@@ -183,26 +183,34 @@ function ConsoleField({ label, value, typing, speed, wide }: { label: string; va
 }
 
 function Ref({ id, inspect }: { id: string; inspect: (id: string) => void }) {
-  return <button type="button" className="rounded border border-line-strong px-2 py-0.5 font-mono text-[11px] text-info hover:bg-hover" onClick={() => inspect(id)}>{id}</button>;
+  return <button type="button" className="rounded-md border border-line-strong px-2 py-0.5 font-mono text-[11px] text-fg-2 transition-colors hover:border-accent/50 hover:text-fg" onClick={() => inspect(id)}>{id}</button>;
 }
 
 type CardState = "done" | "current" | "waiting" | "upcoming";
-const CARD_BADGE: Record<CardState, [Tone, string]> = { done: ["ok", "Done"], current: ["info", "In progress"], waiting: ["accent", "Your decision"], upcoming: ["neutral", "After signoff"] };
+const CARD_STATUS: Record<CardState, string> = { done: "Done", current: "Running", waiting: "Your decision", upcoming: "After signoff" };
 
 function StageCard({ index, title, state, children }: { index: number; title: string; state: CardState; children: ReactNode }) {
+  const [name, detail] = title.split(": ");
   return <motion.section id={`demo-stage-${index}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: EASE }}
-    className={cx("scroll-mt-36 rounded-xl border bg-elevated", state === "current" ? "border-accent/50" : state === "waiting" ? "border-accent" : "border-line")}>
-    <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-      <h2 className="font-semibold"><span className="mr-2 font-mono text-xs text-fg-4">{String(index + 1).padStart(2, "0")}</span>{title}</h2>
-      <Badge t={CARD_BADGE[state][0]}>{CARD_BADGE[state][1]}</Badge>
+    className={cx("scroll-mt-24 rounded-2xl border bg-elevated", state === "waiting" ? "border-accent/60" : state === "current" ? "border-white/20" : "border-line")}>
+    <header className="flex items-center justify-between gap-4 px-6 pt-5 pb-4">
+      <h2 className="flex min-w-0 items-baseline gap-3">
+        <span className="font-mono text-[12px] text-fg-4">{String(index + 1).padStart(2, "0")}</span>
+        <span className="text-[17px] font-[510] tracking-[-0.01em] text-fg">{name}</span>
+        {detail && <span className="truncate text-[15px] text-fg-3">{detail}</span>}
+      </h2>
+      <span className={cx("inline-flex shrink-0 items-center gap-1.5 text-[12px]", state === "waiting" ? "text-brand-text" : "text-fg-4")}>
+        {state === "done" ? <Icon name="check" size={12} /> : <span aria-hidden className={cx("size-1.5 rounded-full", state === "upcoming" ? "bg-fg-4" : "bg-accent", state === "current" && "animate-pulse")} />}
+        {CARD_STATUS[state]}
+      </span>
     </header>
-    <div className="space-y-4 p-4">{children}</div>
+    <div className="space-y-5 border-t border-line px-6 py-5 text-[14px]">{children}</div>
   </motion.section>;
 }
 
 function ClaimView({ claim, inspect, struck }: { claim: Claim; inspect: (id: string) => void; struck?: boolean }) {
-  return <div className={cx("space-y-2 rounded-lg border border-line p-3", struck && "opacity-50")}>
-    <p className={cx(struck && "line-through")}>{claim.text}</p>
+  return <div className={cx("space-y-2 border-l-2 border-line-strong py-0.5 pl-4", struck && "opacity-50")}>
+    <p className={cx("text-[15px] leading-relaxed text-fg", struck && "line-through")}>{claim.text}</p>
     <div className="flex flex-wrap gap-1.5">{claim.citations.map(id => <Ref key={id} id={id} inspect={inspect} />)}</div>
   </div>;
 }
@@ -290,6 +298,8 @@ export function DemoRun() {
     w.setError("");
     setPlaying(next === "continuous" && !!run && automatic);
   };
+  // Roll back to the initial screen: forget the saved demo run and stop autoplay.
+  const reset = () => { setPlaying(false); remember(null); w.setError(""); setReference(null); window.scrollTo({ top: 0 }); };
   const start = (next: Mode = mode) => { remember(null); setModeState(next); localStorage.setItem(MODE_KEY, next); w.setError(""); setPlaying(next === "continuous"); };
   const typingNow = (target: StepId) => playing && step === target && canAct;
   const status = w.busy ? `${w.busy}…` : blocked ? "Stopped: the run left the recorded scenario." : w.error ? "Stopped on an error." : !run && !playing && !manual ? "Ready when you are."
@@ -332,8 +342,11 @@ export function DemoRun() {
           <span className="truncate">{status}</span>
         </p>
 
-        {w.health && <span className="inline-flex items-center gap-1.5 text-[12px] text-fg-4" title={`Recorded AMD responses · extraction ${w.health.extraction_model} · explanation ${w.health.explanation_model} · ${w.health.explanation_prompt}`}>
-          <Icon name="replay" size={13} />{replay ? "Replay" : "Not a replay server"}</span>}
+        <button type="button" onClick={reset} disabled={!run && !playing}
+          title={w.health ? `Back to the start · recorded AMD replay (${w.health.extraction_model}, ${w.health.explanation_model})` : "Back to the start"}
+          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-line-strong px-3 text-[12px] text-fg-2 transition-colors hover:bg-hover hover:text-fg disabled:opacity-35">
+          <Icon name="replay" size={13} />Reset
+        </button>
       </div>
     </header>
 
@@ -346,7 +359,7 @@ export function DemoRun() {
             return <li key={name}><button type="button" disabled={!run || index > stage} onClick={() => document.getElementById(`demo-stage-${index}`)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" })}
               aria-current={current ? "step" : undefined}
               className={cx("flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm disabled:cursor-default", current ? "bg-hover text-fg" : done ? "text-fg-2 hover:bg-hover" : "text-fg-4")}>
-              <span className={cx("grid size-5 shrink-0 place-items-center rounded-full border font-mono text-[10px]", done ? "border-ok/50 bg-ok/15 text-ok" : current ? "border-accent text-brand-text" : "border-dashed border-line-strong")}>
+              <span className={cx("grid size-5 shrink-0 place-items-center rounded-full border font-mono text-[10px]", done ? "border-line-strong text-fg-2" : current ? "border-accent text-brand-text" : "border-dashed border-line-strong")}>
                 {done ? <Icon name="check" size={10} /> : index + 1}</span>{name}
             </button></li>;
           })}
@@ -428,6 +441,9 @@ function StageCards({ run, w, step, input, speed, typingNow, inspect, manualStep
   const pending = pendingRecord(run);
   const draft = run.draft_result?.draft;
   const extractForm = manualStep("extract");
+  const [allFacts, setAllFacts] = useState(false);
+  const FACT_PREVIEW = 8;
+  const shownFacts = allFacts ? run.facts : run.facts.slice(0, FACT_PREVIEW);
   return <>
     <StageCard key="source" index={0} title="Source: recorded maintenance export" state={state(0)}>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -437,9 +453,9 @@ function StageCards({ run, w, step, input, speed, typingNow, inspect, manualStep
       </div>
       {manualStep("upload", `${input?.filename || "The recorded export"} is attached for you; no file picker is needed.`)}
       {run.raw_rows?.length ? <>
-        <div className="overflow-x-auto rounded-lg border border-line"><table className="w-full text-left text-xs">
-          <thead className="bg-bg text-fg-3"><tr>{run.columns?.map(column => <th key={column} className="p-2 font-medium whitespace-nowrap">{column}</th>)}</tr></thead>
-          <tbody>{run.raw_rows.map((row, index) => <tr key={index} className="border-t border-line">{run.columns?.map(column => <td key={column} className="p-2 whitespace-nowrap">{row.values[column]}</td>)}</tr>)}</tbody>
+        <div className="overflow-x-auto rounded-xl border border-line"><table className="w-full text-left text-[13px]">
+          <thead className="text-[12px] text-fg-4"><tr>{run.columns?.map(column => <th key={column} className="px-3 py-2.5 font-normal whitespace-nowrap">{column}</th>)}</tr></thead>
+          <tbody>{run.raw_rows.map((row, index) => <tr key={index} className="border-t border-line">{run.columns?.map(column => <td key={column} className="px-3 py-2.5 whitespace-nowrap text-fg-2">{row.values[column]}</td>)}</tr>)}</tbody>
         </table></div>
         <Note>{run.row_count} rows · source SHA-256 <span className="font-mono">{run.source_sha256?.slice(0, 16)}…</span></Note>
       </> : <Note>Waiting for the upload.</Note>}
@@ -455,21 +471,21 @@ function StageCards({ run, w, step, input, speed, typingNow, inspect, manualStep
     </StageCard>}
 
     {stage >= 2 && <StageCard key="review" index={2} title="Record review: model proposals and decisions" state={state(2)}>
-      <Note>{run.suggestions.length ? `${run.extraction_identity?.model_id || "Recorded model"} proposed spans for each row. Proposals stay unapproved until a decision is saved; the replay uses simulated attribution, not a human reviewer.` : extractForm ? "The recorded model proposals are ready to replay." : "Replaying the recorded extraction…"}</Note>
+      <Note>{run.suggestions.length ? `${run.extraction_identity?.model_id || "Recorded model"} proposed spans. Nothing counts until a decision is saved.` : extractForm ? "The recorded model proposals are ready to replay." : "Replaying the recorded extraction…"}</Note>
       {extractForm}
       {!!run.suggestions.length && <ul className="space-y-2">{run.records.map(record => {
         const suggestion = run.suggestions.find(value => value.record_id === record.record_id);
         const decision = run.decisions[record.record_id];
         const current = pending?.record_id === record.record_id;
         const status = recordStatus(run, record.record_id);
-        return <li key={record.record_id} className={cx("space-y-2 rounded-lg border p-3 transition-colors", current && step === "review" ? "border-accent/50 bg-accent-soft" : "border-line")}>
+        return <li key={record.record_id} className={cx("space-y-3 rounded-xl border p-4 transition-colors", current && step === "review" ? "border-accent/60" : "border-line")}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <button type="button" className="font-mono text-xs text-fg-3 hover:text-fg" onClick={() => inspect(record.record_id)}>Row {record.locator.row} · {record.work_order_id}</button>
-            <Badge t={decision ? (decision.status === "rejected" ? "danger" : "ok") : "warn"}>{decision?.status || "pending"}</Badge>
+            <span className={cx("inline-flex items-center gap-1.5 text-[12px]", decision ? (decision.status === "rejected" ? "text-fg-4 line-through" : "text-fg-2") : "text-fg-4")}>{decision && decision.status !== "rejected" && <Icon name="check" size={12} />}{decision?.status || "pending"}</span>
           </div>
-          <p>{record.text_norm}</p>
-          {suggestion?.output ? <div className="flex flex-wrap gap-1.5">{suggestion.output.entities.map(entity => <span key={entity.id} className="rounded border border-line-strong px-1.5 py-0.5 text-xs"><span className="text-fg-4">{entity.type}</span> {entity.text}</span>)}</div>
-            : <p className="text-xs text-danger">{suggestion?.errors.join("; ") || "No valid proposal"}. It cannot be accepted, so it is rejected.</p>}
+          <p className="text-[15px] text-fg">{record.text_norm}</p>
+          {suggestion?.output ? <div className="flex flex-wrap gap-1.5">{suggestion.output.entities.map(entity => <span key={entity.id} className="rounded-md border border-line px-2 py-0.5 text-[12px] text-fg-2"><span className="font-mono text-[11px] text-fg-4">{entity.type.split("/").at(-1)}</span> {entity.text}</span>)}</div>
+            : <p className="text-[13px] text-fg-3">Invalid model output, so this row is rejected.</p>}
           {(current && manualStep("review", "Your reason is saved; the decision is attributed to SYNTHETIC DEMO SIMULATOR so the recorded explanation still matches."))
             || ((decision || (current && step === "review")) && <ConsoleField label="Decision reason" value={decision?.reason || recordReason(status)} typing={current && typingNow("review")} speed={speed} />)}
         </li>;
@@ -483,17 +499,20 @@ function StageCards({ run, w, step, input, speed, typingNow, inspect, manualStep
         <ConsoleField label="Criticality reason" value={SCENARIO.criticality.reason} typing={typingNow("analyze")} speed={speed} />
       </div>}
       {run.snapshot && <>
-        <Note>Snapshot <span className="font-mono">{run.snapshot.snapshot_id}</span> · {run.snapshot.entries.length} approved records. Priority is a rule-based historical ordering, not a failure probability.</Note>
-        <div className="overflow-x-auto rounded-lg border border-line"><table className="w-full text-left text-sm">
-          <thead className="bg-bg text-xs text-fg-3"><tr>{["Fact", "Scope", "Value", "Source records"].map(label => <th key={label} className="p-2 font-medium">{label}</th>)}</tr></thead>
-          <tbody>{run.facts.map(fact => <tr key={fact.fact_id} className="border-t border-line align-top">
-            <td className="p-2"><Ref id={fact.fact_id} inspect={inspect} /><p className="mt-1 text-xs text-fg-3">{fact.kind}</p></td>
-            <td className="p-2 text-xs">{Object.values(fact.scope).join(" · ")}</td>
-            <td className="p-2 whitespace-nowrap">{fact.status === "computed" ? `${fact.value} ${fact.unit}` : "Not computed"}</td>
-            <td className="p-2"><div className="flex flex-wrap gap-1">{fact.record_ids.map(id => <Ref key={id} id={id} inspect={inspect} />)}</div></td>
+        <Note>{run.snapshot.entries.length} approved records · snapshot <span className="font-mono">{run.snapshot.snapshot_id}</span> · priority is a rule, not a failure probability.</Note>
+        <div className="overflow-x-auto rounded-xl border border-line"><table className="w-full text-left text-[13px]">
+          <thead className="text-[12px] text-fg-4"><tr>{["Fact", "Scope", "Value", "Source records"].map(label => <th key={label} className="px-3 py-2.5 font-normal">{label}</th>)}</tr></thead>
+          <tbody>{shownFacts.map(fact => <tr key={fact.fact_id} className="border-t border-line align-top">
+            <td className="px-3 py-2.5"><Ref id={fact.fact_id} inspect={inspect} /><p className="mt-1 text-[12px] text-fg-4">{fact.kind}</p></td>
+            <td className="px-3 py-2.5 text-[12px] text-fg-3">{Object.values(fact.scope).join(" · ")}</td>
+            <td className="px-3 py-2.5 whitespace-nowrap text-fg">{fact.status === "computed" ? `${fact.value} ${fact.unit}` : "Not computed"}</td>
+            <td className="px-3 py-2.5"><div className="flex flex-wrap gap-1">{fact.record_ids.map(id => <Ref key={id} id={id} inspect={inspect} />)}</div></td>
           </tr>)}</tbody>
         </table></div>
-        {run.alerts.map(alert => <div key={String(alert.alert_id)} className="rounded-lg border-l-2 border-warn bg-warn/10 p-3 text-sm"><span className="font-medium text-warn">{String(alert.type).replace(/_/g, " ")}</span> · {String(alert.component)}<p className="text-fg-2">{String(alert.message)}</p></div>)}
+        {run.facts.length > FACT_PREVIEW && <button type="button" onClick={() => setAllFacts(value => !value)}
+          className="text-[13px] text-fg-3 underline decoration-line-strong underline-offset-4 transition-colors hover:text-fg">
+          {allFacts ? "Show fewer facts" : `Show all ${run.facts.length} facts`}</button>}
+        {run.alerts.map(alert => <div key={String(alert.alert_id)} className="border-l-2 border-accent py-0.5 pl-4"><p className="text-[14px] text-fg"><span className="font-[510]">Alert</span> · {String(alert.component)} · <span className="text-fg-3">{String(alert.type).replace(/_/g, " ")}</span></p><p className="mt-0.5 text-[13px] text-fg-3">{String(alert.message)}</p></div>)}
       </>}
     </StageCard>}
 
@@ -504,18 +523,18 @@ function StageCards({ run, w, step, input, speed, typingNow, inspect, manualStep
         <ConsoleField label="Evidence query" value={SCENARIO.query} typing={typingNow("context")} speed={speed} />
       </div>}
       {run.context?.pack && <>
-        <Note>{run.context.pack.passages.length} applicable passages from {run.context.corpus_mode} corpus {run.context.pack.corpus_version}. Sources off the reviewed asset path are excluded.</Note>
-        {run.context.pack.passages.map(passage => <article key={passage.passage_id} className="space-y-1.5 rounded-lg border border-line p-3">
+        <Note>{run.context.pack.passages.length} applicable passages. Sources for other models or revisions are excluded.</Note>
+        {run.context.pack.passages.map(passage => <article key={passage.passage_id} className="space-y-2 rounded-xl border border-line p-4">
           <div className="flex flex-wrap items-center gap-2"><Ref id={passage.passage_id} inspect={inspect} /><span className="text-xs text-fg-4">{passage.document_id} · revision {passage.version} · {passage.location}</span></div>
-          <p className="text-sm text-fg-2">{passage.text}</p>
+          <p className="text-[14px] leading-relaxed text-fg-2">{passage.text}</p>
         </article>)}
       </>}
-      {run.context?.pack && (draft ? <div className="space-y-3 rounded-lg border border-line bg-bg p-3">
-        <div className="flex flex-wrap items-center gap-2"><Badge t="info">Draft validated</Badge><span className="text-xs text-fg-4">{run.draft_result?.explanation_mode} · {run.draft_result?.model_id} · {run.draft_result?.prompt_id}</span></div>
-        <h3 className="font-semibold">Hypotheses, not confirmed causes</h3>
+      {run.context?.pack && (draft ? <div className="space-y-4 rounded-xl border border-line p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2"><h3 className="text-[15px] font-[510] text-fg">Cited explanation · draft</h3><span className="font-mono text-[11px] text-fg-4">{run.draft_result?.model_id} · validated</span></div>
+        <p className="text-[12px] text-fg-4">Hypotheses, not confirmed causes</p>
         {draft.hypotheses.map((claim, index) => <ClaimView key={index} claim={claim} inspect={inspect} />)}
-        {!!draft.alternatives.length && <><h3 className="font-semibold">Alternatives</h3>{draft.alternatives.map((claim, index) => <ClaimView key={index} claim={claim} inspect={inspect} />)}</>}
-        {draft.inspection && <><h3 className="font-semibold">Inspection guidance</h3><ClaimView claim={draft.inspection} inspect={inspect} /></>}
+        {!!draft.alternatives.length && <><p className="text-[12px] text-fg-4">Alternatives</p>{draft.alternatives.map((claim, index) => <ClaimView key={index} claim={claim} inspect={inspect} />)}</>}
+        {draft.inspection && <><p className="text-[12px] text-fg-4">Suggested inspection</p><ClaimView claim={draft.inspection} inspect={inspect} /></>}
         <Note>{draft.uncertainty}</Note>
       </div> : manualStep("generate", "The recorded cited explanation for this evidence pack is ready to replay.") || <Note>Replaying the recorded explanation for this evidence pack…</Note>)}
     </StageCard>}
@@ -545,13 +564,13 @@ function ExpertSignoff({ run, w, draft, inspect, onSigned }: { run: Run; w: Cont
     onSigned();
   });
   return <>
-    <Note>You act as the reviewing expert. A signoff accepts a finding for this snapshot; it does not authorize maintenance work. This demo signoff is recorded and printed as simulated, not as a real expert approval.</Note>
+    <Note>You sign off as the expert. It accepts a finding, not a repair, and is recorded as simulated.</Note>
     <fieldset disabled={!!w.busy} className="space-y-4">
       <legend className="sr-only">Expert decision</legend>
       <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Expert decision">
-        {OUTCOMES.map(option => <label key={option.id} className={cx("flex cursor-pointer gap-3 rounded-lg border p-3 transition-colors", outcome === option.id ? "border-accent bg-accent-soft" : "border-line hover:bg-hover")}>
+        {OUTCOMES.map(option => <label key={option.id} className={cx("flex cursor-pointer gap-3 rounded-xl border p-4 transition-colors", outcome === option.id ? "border-accent/70" : "border-line hover:border-white/20")}>
           <input type="radio" name="expert-decision" value={option.id} checked={outcome === option.id} onChange={() => setOutcome(option.id)} className="mt-1 accent-[#ffc400]" />
-          <span><span className="block font-medium">{option.label}</span><span className="block text-sm text-fg-3">{option.effect}</span></span>
+          <span><span className="block text-[15px] font-[510] text-fg">{option.label}</span><span className="mt-0.5 block text-[13px] text-fg-3">{option.effect}</span></span>
         </label>)}
       </div>
       {outcome === "corrected" && <div className="space-y-3 rounded-lg border border-line p-3">
@@ -567,7 +586,7 @@ function ExpertSignoff({ run, w, draft, inspect, onSigned }: { run: Run; w: Cont
       </div>
       {w.error && <p role="alert" className="rounded-lg border border-danger/40 bg-danger/10 p-3 text-sm text-danger">{w.error}</p>}
     </fieldset>
-    {latest && <div className={cx("rounded-lg border-l-2 p-3 text-sm", ["accepted", "corrected"].includes(latest.decision) ? "border-ok bg-ok/10" : "border-warn bg-warn/10")}>
+    {latest && <div className={cx("border-l-2 py-0.5 pl-4 text-[14px]", ["accepted", "corrected"].includes(latest.decision) ? "border-fg-3" : "border-accent")}>
       <p className="font-medium">Saved signoff {run.expert_reviews.length}: {latest.decision}</p>
       <p className="text-fg-2">{latest.reason}</p>
       {run.expert_reviews.length > 1 && <p className="mt-1 text-xs text-fg-4">Earlier decisions: {run.expert_reviews.slice(0, -1).map(review => review.decision).join(" → ")}</p>}
@@ -579,16 +598,15 @@ function ReportView({ run, w, issueForm }: { run: Run; w: Controller; issueForm:
   const latest = run.expert_reviews.at(-1);
   const report = run.latest_report;
   const history = w.reports.filter(value => value.report_id !== report?.report_id);
-  const tone: Tone = latest?.decision === "rejected" ? "danger" : "warn";
   return <>
     {!latest && <Note>Waiting for your signoff. The backend refuses to issue a report without a current-snapshot decision.</Note>}
-    {latest && !["accepted", "corrected"].includes(latest.decision) && <div className="space-y-1 rounded-lg border border-line p-3">
-      <Badge t={tone}>Report blocked</Badge>
+    {latest && !["accepted", "corrected"].includes(latest.decision) && <div className="space-y-1 border-l-2 border-accent py-0.5 pl-4">
+      <p className="text-[15px] font-[510] text-fg">Report blocked</p>
       <p className="text-sm text-fg-2">The finding was signed off as <span className="text-fg">{latest.decision}</span>, so no report can be issued for this snapshot. Choose another decision above to continue.</p>
     </div>}
     {latest && ["accepted", "corrected"].includes(latest.decision) && !report && (issueForm || <Note>Rendering the PDF for the signed snapshot…</Note>)}
     {report && <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2"><Badge t="ok">Issued</Badge><Badge t="synthetic">Synthetic data · simulated signoff</Badge><span className="text-xs text-fg-4">Signed as {report.expert_review.decision}</span></div>
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1"><span className="inline-flex items-center gap-1.5 text-[15px] font-[510] text-fg"><Icon name="check" size={14} />Report issued</span><span className="text-[13px] text-fg-3">signed {report.expert_review.decision} · synthetic data · simulated signoff</span></div>
       <dl className="grid gap-2 text-sm sm:grid-cols-2">
         <div><dt className="text-fg-4">Report</dt><dd className="font-mono text-xs">{report.report_id}</dd></div>
         <div><dt className="text-fg-4">Snapshot</dt><dd className="font-mono text-xs">{report.snapshot_id}</dd></div>
